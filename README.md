@@ -10,9 +10,10 @@ I am a final year undergraduate student at the University of Tokyo working towar
 
 I love doing research in the intersections of causal statistical machine learning and political methodology. My substantive interests span from political behaviour in comparative politics to conflicts and security in international relations. 
 
+#### <span style="color:chocolate">Statistical Software</span>
 I currently work on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R package to expand its support for causal machine learning methods for estimation and evaluation of heterogeneous treatment effects.
 
-## <span style="color:DarkBlue">Book</span>
+#### <span style="color:chocolate">Book</span>
 
 My amazing coauthors and I are delivering an open source book on the applications of R Markdown in Chinese.
 
