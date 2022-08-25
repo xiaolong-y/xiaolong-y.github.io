@@ -1,8 +1,10 @@
 # <span style="color:crimson">Xiaolong Yang</span>
 
-Hi! I am a final year undergraduate student at the University of Tokyo working towards a PhD in computational social science. From 2021 to 2022, I also studied at NUS FASS and Peking University *Yuanpei* College as an exchange student.
+Welcome! 
 
-<img src="xl_talk.png" alt="Xiaolong presenting in a class. Should have his eyes opened, definately." width="310" style="margin-bottom: 3px" align="right"/>
+I am a final year undergraduate student at the University of Tokyo working towards a PhD in computational social science. From 2021 to 2022, I also studied at NUS FASS and Peking University *Yuanpei* College as an exchange student.
+
+<img src="xl_talk.png" alt="Xiaolong presenting in a class. Should have his eyes opened, definately." width="310" style="margin-top: 3px" align="right"/>
 
 ## <span style="color:DarkBlue">Research</span>
 
@@ -22,7 +24,7 @@ Press.](https://cosname.github.io/rmarkdown-guide/) Forthcoming in 2023.
 
 Through teaching is knowledge preserved, hence the possibility of research. I was hugely inspired by the great teaching of those before me, in particular Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Conner Jerzak](https://connorjerzak.com/), that I have developed a deep interest in teaching no less than that of doing research.
 
-I had the fortune to be a member of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team in 2022 to teach the celebrated introductry data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo. We also taught a series TA lectures on Tidyverse - a syntax of R, slides of which are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
+I had the fortune to be a member of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team to teach the celebrated introductry level data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo in 2022. We also taught a series TA lectures on Tidyverse - a syntax of R, slides of which are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
 
 ------------------------------------------------------------------------
 
