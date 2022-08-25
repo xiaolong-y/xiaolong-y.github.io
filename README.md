@@ -32,6 +32,7 @@ I had the fortune to be a member of Prof. [Kosuke Imai](https://imai.fas.harvard
 ## <span style="color:crimson">Other</span>
 
 I also update a multilingual blog where I talk about things in a alightly more casual manner.
+
 ------------------------------------------------------------------------
 
 <a href="mailto:yang-xiaolong0406@g.ecc.u-tokyo.ac.jp"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/email.svg" alt="Email icon" width="30"/></a>
