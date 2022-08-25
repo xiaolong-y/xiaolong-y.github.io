@@ -29,6 +29,9 @@ Through teaching is knowledge preserved, hence the possibility of research. I wa
 
 I had the fortune to be a member of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team to teach the celebrated introductry level data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo in 2022. We also taught a series of TA lectures on Tidyverse - a syntax of R, and the slides of which are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
 
+## <span style="color:crimson">Other</span>
+
+I also update a multilingual blog where I talk about things in a alightly more casual manner.
 ------------------------------------------------------------------------
 
 <a href="mailto:yang-xiaolong0406@g.ecc.u-tokyo.ac.jp"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/email.svg" alt="Email icon" width="30"/></a>
