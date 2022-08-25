@@ -1,14 +1,14 @@
-# <span style="color:amber">Xiaolong Yang</span>
+# <span style="color:Blue">Xiaolong Yang</span>
 
 Hi! I am a final year undergraduate student at the University of Tokyo working towards a PhD in computational social science. From 2021 to 2022, I also studied at NUS FASS and Peking University *Yuanpei* College as an exchange student.
 
-## <span style="color:amber">Research</span>
+## <span style="color:DarkBlue">Research</span>
 
 I love doing research in the intersections of causal statistical machine learning and political methodology. My substantive interests span from political behaviour in comparative politics to security in international relations. 
 
 I currently work on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R package to expand its support for causal machine learning methods for estimation and evaluation of heterogeneous treatment effects.
 
-## <span style="color:amber">Book</span>
+## <span style="color:DarkBlue">Book</span>
 
 With my amazing coauthors, we are delivering an open source book on the applications of R Markdown in Chinese.
 
@@ -16,7 +16,7 @@ Chunhui Gao, Yifan Wang, Qiushi Yan, Liangliang Zhuang, Xiaolong Yang.
 [An Authoritative Guide for R Markdown (Tentative English Title). China Machine
 Press.](https://cosname.github.io/rmarkdown-guide/) Forthcoming in 2023.
 
-## <span style="color:amber">Teaching</span>
+## <span style="color:DarkBlue">Teaching</span>
 
 Through teaching is knowledge passed on, hence the possibility of research. I was hugely inspired by the great teaching of those before me that I have developed a deep interest in teaching no less than that of doing research.
 
