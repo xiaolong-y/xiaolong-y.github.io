@@ -10,7 +10,7 @@ I currently work on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R pac
 
 ## <span style="color:DarkBlue">Book</span>
 
-With my amazing coauthors, we are delivering an open source book on the applications of R Markdown in Chinese.
+My amazing coauthors and I are delivering an open source book on the applications of R Markdown in Chinese.
 
 Chunhui Gao, Yifan Wang, Qiushi Yan, Liangliang Zhuang, Xiaolong Yang.
 [An Authoritative Guide for R Markdown (Tentative English Title). China Machine
@@ -18,7 +18,7 @@ Press.](https://cosname.github.io/rmarkdown-guide/) Forthcoming in 2023.
 
 ## <span style="color:DarkBlue">Teaching</span>
 
-Through teaching is knowledge passed on, hence the possibility of research. I was hugely inspired by the great teaching of those before me that I have developed a deep interest in teaching no less than that of doing research.
+Through teaching is knowledge preserved, hence the possibility of research. I was hugely inspired by the great teaching of those before me that I have developed a deep interest in teaching no less than that of doing research.
 
 I had the fortune to be a member of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team in 2022 to teach the celebrated introductry data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo. We also taught a series TA lectures on Tidyverse - a syntax of R, slides of which are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
 
