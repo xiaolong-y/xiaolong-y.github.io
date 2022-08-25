@@ -2,6 +2,8 @@
 
 Hi! I am a final year undergraduate student at the University of Tokyo working towards a PhD in computational social science. From 2021 to 2022, I also studied at NUS FASS and Peking University *Yuanpei* College as an exchange student.
 
+<img src="xiaolong_talk.JPG" alt="Xiaolong presenting in a class. Should have his eyes opened, definately." width="400" style="margin-bottom: 5px" align="right"/>
+
 ## <span style="color:DarkBlue">Research</span>
 
 I love doing research in the intersections of causal statistical machine learning and political methodology. My substantive interests span from political behaviour in comparative politics to security in international relations. 
