@@ -1,4 +1,4 @@
-# <span style="color:Blue">Xiaolong Yang</span>
+# <span style="color:chocolate">Xiaolong Yang</span>
 
 Hi! I am a final year undergraduate student at the University of Tokyo working towards a PhD in computational social science. From 2021 to 2022, I also studied at NUS FASS and Peking University *Yuanpei* College as an exchange student.
 
