@@ -21,7 +21,7 @@ Chunhui Gao, Yifan Wang, Qiushi Yan, Liangliang Zhuang, Xiaolong Yang.
 [An Authoritative Guide for R Markdown (Tentative English Title). China Machine
 Press.](https://cosname.github.io/rmarkdown-guide/) Forthcoming in 2023.
 
-## <span style="color:chocolate">Teaching</span>
+## <span style="color:crimson">Teaching</span>
 
 Through teaching is knowledge preserved, hence the possibility of research. I was hugely inspired by the great teaching of those before me, in particular Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Conner Jerzak](https://connorjerzak.com/), that I have developed a deep interest in teaching no less than that of doing research.
 
