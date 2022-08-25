@@ -1,4 +1,4 @@
-# <span style="color:crimson">Xiaolong Yang</span>
+# <span style="color:chocolate">Xiaolong Yang</span>
 
 Welcome! 
 
@@ -6,7 +6,7 @@ I am a final year undergraduate student at the University of Tokyo working towar
 
 <img src="xl_talk.png" alt="Xiaolong presenting in a class. Should have his eyes opened, definately." width="310" style="margin-top: 3px" align="right"/>
 
-## <span style="color:chocolate">Research</span>
+## <span style="color:crimson">Research</span>
 
 I love doing research in the intersections of causal statistical machine learning and political methodology. My substantive interests span from political behaviour in comparative politics to conflicts and security in international relations. 
 
