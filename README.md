@@ -20,8 +20,8 @@ I currently work on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R pac
 My amazing coauthors and I are delivering an open source book on the applications of R Markdown in Chinese.
 
 Chunhui Gao, Yifan Wang, Qiushi Yan, Liangliang Zhuang, Xiaolong Yang.
-[An Authoritative Guide for R Markdown (Tentative English Title). China Machine
-Press.](https://cosname.github.io/rmarkdown-guide/) Forthcoming in 2023.
+[An Authoritative Guide for R Markdown (Tentative English Title).](https://cosname.github.io/rmarkdown-guide/) China Machine
+Press. Forthcoming in 2023.
 
 ## <span style="color:crimson">Teaching</span>
 
@@ -31,7 +31,7 @@ I had the fortune to be a member of Prof. [Kosuke Imai](https://imai.fas.harvard
 
 ## <span style="color:crimson">Other</span>
 
-I also update a multilingual blog where I talk about things in a alightly more casual manner.
+I also update a multilingual [blog](https://xiaolong-yang.com/) where I talk about things in a alightly more casual manner.
 
 ------------------------------------------------------------------------
 
