@@ -1,4 +1,4 @@
-# [Xiaolong Yang]{style="color:blue"}
+# <span style="color:blue">Xiaolong Yang</span>
 
 Hello, world! I'm a software engineer focused on search, database
 systems, and statistical computing. I work at
@@ -17,7 +17,7 @@ community*](https://www.elastic.co/blog/culture-finding-a-home-and-career-in-the
 Before Elastic I worked at Palantir Technologies, where I led
 development for the federated search framework.
 
-## [Selected work]{style="color:red"}
+## <span style="color:purple">Selected work</span>
 
 #### Vector search
 
