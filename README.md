@@ -25,9 +25,9 @@ Press. Forthcoming in 2023.
 
 ## <span style="color:crimson">Teaching</span>
 
-Through teaching is knowledge preserved, hence the possibility of research. I was hugely inspired by the great teaching of those before me, in particular Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Conner Jerzak](https://connorjerzak.com/), that I have developed a deep passion for teaching comparable to that of research.
+Through teaching is knowledge preserved, hence the possibility of research. I was hugely inspired by the great teaching of those before me, in particular Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Conner Jerzak](https://connorjerzak.com/), that I have developed a deep passion for teaching comparable to that for research.
 
-I had the fortune to be a member of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team for the celebrated introductry level data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo in 2022. We also taught a series of TA lectures on Tidyverse - a syntax of R, and the slides of which are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
+I had the fortune to be a member of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team for the celebrated introductry level data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo in 2022. We also taught a series of TA lectures on tidyverse - a syntax of R, and the slides of which are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
 
 ## <span style="color:crimson">Other</span>
 
