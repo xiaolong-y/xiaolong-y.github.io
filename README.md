@@ -1,59 +1,32 @@
-# <span style="color:blue">Xiaolong Yang</span>
+# <span style="color:amber">Xiaolong Yang</span>
 
-Hello, world! I'm a software engineer focused on search, database
-systems, and statistical computing. I work at
-[Elastic](https://www.elastic.co/) on the
-[Elasticsearch](https://github.com/elastic/elasticsearch) search engine
-and contribute to [Apache Lucene](https://lucene.apache.org/). I'm also
-the author of the [grf package](https://grf-labs.github.io/grf/).
+Hi! I am a final year undergraduate student at the University of Tokyo working towards a PhD in computational social science. From 2021 to 2022, I also studied at NUS FASS and Peking University *Yuanpei* College as an exchange student.
 
-My goal is to build systems that are empowering and enjoyable to use. I
-think that open source development not only helps us build great
-software, but provides an inspiring model of collaboration. I wrote
-about my experience joining the open source search community in
-[*Finding a home (and career) in the open source
-community*](https://www.elastic.co/blog/culture-finding-a-home-and-career-in-the-open-source-community).
+## <span style="color:amber">Research</span>
 
-Before Elastic I worked at Palantir Technologies, where I led
-development for the federated search framework.
+I love doing research in the intersections of causal statistical machine learning and political methodology. My substantive interests span from political behaviour in comparative politics to security in international relations. 
 
-## <span style="color:purple">Selected work</span>
+I currently work on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R package to expand its support for causal machine learning methods for estimation and evaluation of heterogeneous treatment effects.
 
-#### Vector search
+## <span style="color:amber">Book</span>
 
-There has been a surge of interest in vector search thanks to a new
-generation of machine learning models that can powerfully represent many
-types of content as vectors. I'm helping to introduce k-nearest neighbor
-search in Lucene and Elasticsearch to open new possibilites for ranking
+With my amazing coauthors, we are delivering an open source book on the applications of R Markdown in Chinese.
 
-#### Machine learning for causal inference
+Chunhui Gao, Yifan Wang, Qiushi Yan, Liangliang Zhuang, Xiaolong Yang.
+[An Authoritative Guide for R Markdown (Tentative English Title). China Machine
+Press.](https://cosname.github.io/rmarkdown-guide/) Forthcoming in 2023.
 
-Causal inference allows for determining the effect of an action on a
-larger system. The Generalized Random Forests (grf) method combines
-insights from statistics and machine learning to enable causal analysis.
-The associated [software package](https://grf-labs.github.io/grf/) is
-becoming a popular choice for social scientists investigating causal
-effects. \* [*Generalized Random
-Forests*](https://arxiv.org/abs/1610.01271) (Annals of Statistics, 2019)
-\* [*Local Linear Forests*](https://arxiv.org/abs/1807.11408) (Journal
-of Computational and Graphical Statistics, 2020)
+## <span style="color:amber">Teaching</span>
 
-#### Information extraction
+Through teaching is knowledge passed on, hence the possibility of research. I was hugely inspired by the great teaching of those before me that I have developed a deep interest in teaching no less than that of doing research.
 
-During my Master's degree I researched relation extraction and knowledge
-base population as part of the Stanford Natural Language Processing
-group. Our work focused on non-traditional supervision techniques,
-including multi-label learning, partial supervision, as well as methods
-to address labelling errors in training data. \* [*Multi-instance
-Multi-label Learning for Relation
-Extraction*](https://www.aclweb.org/anthology/D12-1042/) (EMNLP, 2012)
-\* [*Combining Distant and Partial Supervision for Relation
-Extraction*](https://www.aclweb.org/anthology/D14-1164/) (EMNLP, 2014)
-\* [*Robust Logistic Regression using Shift
-Parameters*](https://www.aclweb.org/anthology/P14-2021/) (ACL, 2014)
+I had the fortune to be a member of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team in 2022 to teach the celebrated introductry data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo. We also taught a series TA lectures on Tidyverse - a syntax of R, slides of which are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
 
 ------------------------------------------------------------------------
 
-<a href="mailto: julietibs@apache.org"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/email.svg" alt="Email icon" width="30"/></a>
-<a href="http://www.github.com/jtibshirani"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/github.svg" alt="Github icon" width="30"/></a>
-<a href="http://www.twitter.com/julietibs"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/twitter.svg" alt="Twitter icon" width="30"/></a>
+<a href="mailto:yang-xiaolong0406@g.ecc.u-tokyo.ac.jp"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/email.svg" alt="Email icon" width="30"/></a>
+<a href="https://github.com/xiaolong-y"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/github.svg" alt="Github icon" width="30"/></a>
+<a href="https://twitter.com/xlypolisci"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/twitter.svg" alt="Twitter icon" width="30"/></a>
+<a href="https://www.strava.com/athletes/107005784"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/strava.svg" alt="Strava icon" width="30"/></a>
+ 
+<font size="1"> Many thanks to [Julie Tibshirani](https://jtibshirani.github.io/) for providing the perfect solution to an extremely lightweight website.</font>
