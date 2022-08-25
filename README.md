@@ -28,4 +28,4 @@ I had the fortune to be a member of Prof. [Kosuke Imai](https://imai.fas.harvard
 <a href="https://github.com/xiaolong-y"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/github.svg" alt="Github icon" width="30"/></a>
 <a href="https://twitter.com/xlypolisci"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/twitter.svg" alt="Twitter icon" width="30"/></a>
 <a href="https://www.strava.com/athletes/107005784"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/strava.svg" alt="Strava icon" width="30"/></a>
-<font size="1"> Many thanks to [Julie Tibshirani](https://jtibshirani.github.io/) for providing the perfect solution to an extremely lightweight website.</font>
+<font size="1"> Many thanks to <a href="https://jtibshirani.github.io/" target="_blank">Julie Tibshirani</a> for showing the perfect implementation of a lightweight website.</font>
