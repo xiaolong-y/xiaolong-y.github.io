@@ -1,8 +1,8 @@
 # <span style="color:chocolate">Xiaolong Yang</span>
 
-Welcome! 
-
 <img src="xl_talk.png" alt="Xiaolong presenting in a class. Should have his eyes opened, definately." width="310" style="margin-top: 3px" align="right"/>
+
+Welcome! 
 
 I am a final year undergraduate student at the University of Tokyo working towards a PhD in computational social science. From 2021 to 2022, I also studied at NUS FASS and Peking University *Yuanpei* College as an exchange student.
 
