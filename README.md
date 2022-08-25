@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 # [Xiaolong Yang]{style="color:blue"}
 
 Hello, world! I'm a software engineer focused on search, database
