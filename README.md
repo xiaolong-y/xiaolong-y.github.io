@@ -31,7 +31,7 @@ I had the fortune to be a member of Prof. [Kosuke Imai](https://imai.fas.harvard
 
 ## <span style="color:crimson">Other</span>
 
-I also update a multilingual [blog](https://xiaolong-yang.com/) where I talk about things in a slightly more casual manner.
+I also update a multilingual [blog](https://xiaolong.netlify.app/) where I talk about things in a slightly more casual manner.
 
 ------------------------------------------------------------------------
 
