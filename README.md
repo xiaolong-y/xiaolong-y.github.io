@@ -17,7 +17,7 @@ I currently work on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R pac
 
 My amazing coauthors and I are delivering an open source book on the applications of R Markdown in Chinese.
 
-Chunhui Gao, Yifan Wang, Qiushi Yan, Liangliang Zhuang,<ins>Xiaolong Yang</ins>.
+Chunhui Gao, Yifan Wang, Qiushi Yan, Liangliang Zhuang, <ins>Xiaolong Yang</ins>.
 [An Authoritative Guide for R Markdown (Tentative English Title).](https://cosname.github.io/rmarkdown-guide/) China Machine
 Press. Forthcoming in 2023.
 
@@ -31,7 +31,8 @@ I had the fortune to be a member of Prof. [Kosuke Imai](https://imai.fas.harvard
 
 I also update a multilingual [blog](https://xiaolong.netlify.app/) where I talk about things in a slightly more casual manner.
 
-Learning is a collective sport. My past experiences taught me that I learn better when I am more engaged with others i.e., peers and tutors. I am experimenting with Youtube live stream to create a collective leanrning environment nowdays. I almost live stream everyday so if you happen to see me [here](https://www.youtube.com/channel/UCFjt3Kyxqw36qBmpD34fJQQ) please come in and say hi, you would make my day.
+Learning is a collective sport. My past experiences taught me that I learn better when I am more engaged with others. I am experimenting with Youtube live stream to create a collective leanrning environment nowdays. I almost live stream everyday so if you happen to see me [here](https://www.youtube.com/channel/UCFjt3Kyxqw36qBmpD34fJQQ) please come in and say hi, you would make my day.
+
 ------------------------------------------------------------------------
 
 <a href="mailto:yang-xiaolong0406@g.ecc.u-tokyo.ac.jp"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/email.svg" alt="Email icon" width="30"/></a>
