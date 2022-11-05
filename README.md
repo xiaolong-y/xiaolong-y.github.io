@@ -2,13 +2,12 @@
 
 Welcome! 
 
-I am a final year undergraduate student at the University of Tokyo working towards a PhD in computational social science. From 2021 to 2022, I also studied at NUS FASS and Peking University *Yuanpei* College as an exchange student.
-
+I am a final year undergraduate student at the University of Tokyo working towards a PhD in political science. 
 
 
 ## <span style="color:crimson">Research</span>
 
-I love doing research in the intersections of causal statistical learning and political methodology. My substantive interests span from political behaviour in comparative politics to conflicts and security in international relations. 
+My interests span from comparative politics, international relations to political methodology.
 
 #### <span style="color:DarkBlue">Statistical Software</span>
 I currently work on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R package to expand its support for causal machine learning methods for estimation and evaluation of heterogeneous treatment effects.
@@ -17,21 +16,20 @@ I currently work on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R pac
 
 My amazing coauthors and I are delivering an open source book on the applications of R Markdown in Chinese.
 
-Chunhui Gao, Yifan Wang, Qiushi Yan, Liangliang Zhuang, <ins>Xiaolong Yang</ins>.
+Chunhui Gao, Yifan Wang, Qiushi Yan, Liangliang Zhuang,<ins>Xiaolong Yang</ins>.
 [An Authoritative Guide for R Markdown (Tentative English Title).](https://cosname.github.io/rmarkdown-guide/) China Machine
 Press. Forthcoming in 2023.
 
 ## <span style="color:crimson">Teaching</span>
 
-Through teaching is knowledge preserved, hence the possibility of research. I was hugely inspired by the great teaching of those before me, in particular Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Conner Jerzak](https://connorjerzak.com/), that I have developed a deep passion for teaching comparable to that for research.
+I was hugely inspired by the great teaching of those before me, in particular Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Conner Jerzak](https://connorjerzak.com/). Thanks to them, I have developed a passion for teaching.
 
-I had the fortune to be a member of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team for the celebrated introductry level data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo in 2022. We also taught a series of TA lectures on tidyverse - a syntax of R, and the slides of which are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
+I had the fortune to be a member of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team for the celebrated introductory level data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo in 2022. We also taught a series of TA lectures on tidyverse - a syntax of R, and the slides of which are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
 
 ## <span style="color:crimson">Other</span>
 
-I also update a multilingual [blog](https://xiaolong.netlify.app/) where I talk about things in a slightly more casual manner.
-
-Learning is a collective sport. My past experiences taught me that I learn better when I am more engaged with others. I am experimenting with Youtube live stream to create a collective learning environment. I almost live stream everyday so if you happen to see me [here](https://www.youtube.com/channel/UCFjt3Kyxqw36qBmpD34fJQQ) please come say hi, you would most certainly make my day.
+I am using Youtube as my repository for live stream recordings of me working [here](https://www.youtube.com/channel/UCFjt3Kyxqw36qBmpD34fJQQ).
+I do this to remind myself that time flies, and life is short. 
 
 ------------------------------------------------------------------------
 
