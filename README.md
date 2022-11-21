@@ -7,7 +7,7 @@ I am a final year undergraduate student at the University of Tokyo working towar
 
 ## <span style="color:crimson">Research</span>
 
-My interests span from comparative politics, international relations to political methodology.
+My interests span comparative politics (civil society & public opinion), international relations (cooperation & IOs), and political methodology (causal inference & machine learning).
 
 #### <span style="color:DarkBlue">Statistical Software</span>
 I currently work on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R package to expand its support for causal machine learning methods for estimation and evaluation of heterogeneous treatment effects.
