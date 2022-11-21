@@ -22,7 +22,7 @@ Press. Forthcoming in 2023.
 
 ## <span style="color:purple">Teaching</span>
 
-I am hugely inspired by the great teaching of those before me. I am particularly thankful to Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Conner Jerzak](https://connorjerzak.com/). Thanks to them, I was able to learn from their teaching, and subsequently developed a passion to learn through teaching.
+I am hugely inspired by the great teaching of those before me. I am particularly thankful to Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Connor Jerzak](https://connorjerzak.com/). Thanks to them, I was able to learn from their teaching, and subsequently developed a passion to learn through teaching.
 
 I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team for the celebrated introductory level data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo in 2022. We also taught a series of TA lectures on tidyverse - a popular syntax of R. Some slides are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
 
