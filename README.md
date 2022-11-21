@@ -1,11 +1,11 @@
-# <span style="color:chocolate">Xiaolong Yang</span>
+# <span style="color:purple">Xiaolong Yang</span>
 
 Welcome! 
 
 I am a final year undergraduate student at the University of Tokyo working towards a PhD in political science. 
 
 
-## <span style="color:crimson">Research</span>
+## <span style="color:purple">Research</span>
 
 My interests span comparative politics (civil society & public opinion), international relations (cooperation & IOs), and political methodology (causal inference & machine learning).
 
@@ -20,13 +20,13 @@ Chunhui Gao, Yifan Wang, Qiushi Yan, Liangliang Zhuang, <ins>Xiaolong Yang</ins>
 [An Authoritative Guide for R Markdown (Tentative English Title).](https://cosname.github.io/rmarkdown-guide/) China Machine
 Press. Forthcoming in 2023.
 
-## <span style="color:crimson">Teaching</span>
+## <span style="color:purple">Teaching</span>
 
 I am hugely inspired by the great teaching of those before me. I am particularly thankful to Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Conner Jerzak](https://connorjerzak.com/). Thanks to them, I was able to learn from their teaching, and subsequently developed a passion to learn through teaching.
 
 I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team for the celebrated introductory level data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo in 2022. We also taught a series of TA lectures on tidyverse - a popular syntax of R. Some slides are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
 
-## <span style="color:crimson">Other</span>
+## <span style="color:purple">Other</span>
 
 I am using Youtube as my repository for live stream recordings of me working [here](https://www.youtube.com/channel/UCFjt3Kyxqw36qBmpD34fJQQ).
 I do this to remind myself that life is short, and you should devote all of it to what you think is meaningful. 
