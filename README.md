@@ -1,34 +1,33 @@
-# <span style="color:purple">Xiaolong Yang</span>
+# <span style="color:purple" font-family:helvetica>Xiaolong Yang</span>
 
-Welcome! 
+<p style="font-family:helvetica">Welcome! I am a final year undergraduate student at the University of Tokyo working towards a PhD in political science.</p>
 
-<p style="font-family:lmodern">I am a final year undergraduate student at the University of Tokyo working towards a PhD in political science. .</p>
+## <span style="color:purple"  font-family:helvetica>Research</span>
 
-## <span style="color:purple">Research</span>
 
-My interests span comparative politics (civil society & public opinion), international relations (cooperation & IOs), and political methodology (causal inference & machine learning).
+<p style="font-family:helvetica">My interests span comparative politics (civil society & public opinion), international relations (cooperation & IOs), and political methodology (causal inference & machine learning).</p>
 
-#### <span style="color:DarkBlue">Statistical Software</span>
-I currently work on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R package to expand its support for causal machine learning methods for estimation and evaluation of heterogeneous treatment effects.
+#### <span style="color:DarkBlue"  font-family:helvetica>Statistical Software</span>
+<p style="font-family:helvetica">I currently work on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R package to expand its support for causal machine learning methods for estimation and evaluation of heterogeneous treatment effects.
+</p>
 
-#### <span style="color:DarkBlue">Book</span>
+#### <span style="color:DarkBlue"  font-family:helvetica>Book</span>
+<p style="font-family:helvetica">My amazing coauthors and I are delivering an open source book on the applications of R Markdown in Chinese.
+</p>
 
-My amazing coauthors and I are delivering an open source book on the applications of R Markdown in Chinese.
-
-Chunhui Gao, Yifan Wang, Qiushi Yan, Liangliang Zhuang, <ins>Xiaolong Yang</ins>.
+<p style="font-family:helvetica">Chunhui Gao, Yifan Wang, Qiushi Yan, Liangliang Zhuang, <ins>Xiaolong Yang</ins>.
 [An Authoritative Guide for R Markdown (Tentative English Title).](https://cosname.github.io/rmarkdown-guide/) China Machine
-Press. Forthcoming in 2023.
+Press. Forthcoming in 2023.</p>
 
-## <span style="color:purple">Teaching</span>
+## <span style="color:purple"  font-family:helvetica>Teaching</span>
+<p style="font-family:helvetica">I am hugely inspired by the great teaching of those before me. I am particularly thankful to Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Connor Jerzak](https://connorjerzak.com/). Thanks to them, I was able to learn from their teaching, and subsequently developed a passion to learn through teaching.</p>
 
-I am hugely inspired by the great teaching of those before me. I am particularly thankful to Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Connor Jerzak](https://connorjerzak.com/). Thanks to them, I was able to learn from their teaching, and subsequently developed a passion to learn through teaching.
+<p style="font-family:helvetica">I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team for the celebrated introductory level data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo in 2022. We also taught a series of TA lectures on tidyverse - a popular syntax of R. Some slides are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
+</p>
 
-I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team for the celebrated introductory level data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo in 2022. We also taught a series of TA lectures on tidyverse - a popular syntax of R. Some slides are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
-
-## <span style="color:purple">Other</span>
-
-I am using Youtube as my repository for live stream recordings of me working [here](https://www.youtube.com/channel/UCFjt3Kyxqw36qBmpD34fJQQ).
-I do this to remind myself that life is short, and you should devote all of it to what you think is meaningful. 
+## <span style="color:purple"  font-family:helvetica>Other</span>
+<p style="font-family:helvetica">I am using Youtube as my repository for live stream recordings of me working [here](https://www.youtube.com/channel/UCFjt3Kyxqw36qBmpD34fJQQ).
+I do this to remind myself that life is short, and you should devote all of it to what you think is meaningful. </p>
 
 ------------------------------------------------------------------------
 
