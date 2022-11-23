@@ -2,8 +2,7 @@
 
 Welcome! 
 
-I am a final year undergraduate student at the University of Tokyo working towards a PhD in political science. 
-
+<p style="font-family:lmodern">I am a final year undergraduate student at the University of Tokyo working towards a PhD in political science. .</p>
 
 ## <span style="color:purple">Research</span>
 
