@@ -5,7 +5,7 @@ Welcome! I am a final year undergraduate student at the University of Tokyo work
 ## <span style="color:purple"  font-family:helvetica>Research</span>
 
 
-My interests span comparative politics (civil society & public opinion), international relations (cooperation & IOs), and political methodology (causal inference & machine learning). I am particulalry interested in the "butterfly effect" of social media. 
+My interests span comparative politics (civil society & public opinion), international relations (cooperation & IOs), and political methodology (causal inference & machine learning). I am particulalry interested in the "butterfly effect" of social media. In other words, how information diffuse to directly and indirectly impact others.  
 
 #### <span style="color:DarkBlue"  font-family:helvetica>Statistical Software</span>
 I currently work on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R package to expand its support for causal machine learning methods for estimation and evaluation of heterogeneous treatment effects.
