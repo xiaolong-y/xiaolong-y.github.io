@@ -1,6 +1,6 @@
 # <span style="color:purple" font-family:helvetica>Xiaolong Yang</span>
 
-Welcome! I am a final year undergraduate student at the University of Tokyo working towards a PhD in political science. My <a href="pdfs/cv_xly_web.pdf" target="_blank">cv</a>.
+Welcome! I am a final year undergraduate student at the University of Tokyo working towards a PhD in political science. My CV can be found <a href="pdfs/cv_xly_web.pdf" target="_blank">here</a>.
 
 ## <span style="color:purple"  font-family:helvetica>Research</span>
 
