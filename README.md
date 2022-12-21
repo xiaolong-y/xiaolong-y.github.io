@@ -22,7 +22,16 @@ I am hugely inspired by the great teaching of those before me. I am particularly
 
 I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team for the celebrated introductory level data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo in 2022. We also taught a series of TA lectures on tidyverse - a popular syntax of R. Some slides are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
 
+## <span style="color:purple"  font-family:helvetica>Others</span>
 
+#### <span style="color:DarkBlue"  font-family:helvetica>Notes</span>
+
+
+Some notes for replication <a href="pdfs/replicate.pdf" target="_blank">here</a>, and for intermediate econometrics <a href="pdfs/inter_econ.pdf" target="_blank">here</a>. 
+
+#### <span style="color:DarkBlue"  font-family:helvetica>Running</span>
+
+If you happen to be around Tokyo any Wednesday, feel free to join the weekly intervals training (yoyogi-koen, 715~8pm) organized by the biggest international running club in Japan - [Namban Rengo](https://namban.org/). 
 
 ------------------------------------------------------------------------
 
