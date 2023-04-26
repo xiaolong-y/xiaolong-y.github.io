@@ -1,11 +1,11 @@
 # <span style="color:purple" font-family:helvetica>Xiaolong Yang</span>
 
-Welcome! I am a final year undergraduate student at the University of Tokyo working towards a PhD in political science. My CV can be found <a href="pdfs/cv_xly_web.pdf" target="_blank">here</a>.
+Welcome! I am a final year undergraduate student at the University of Tokyo. After graduating this fall, I will be fortunate to be advised by Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) as a Masters student at Harvard University. 
+My CV can be found <a href="pdfs/cv_xly_web.pdf" target="_blank">here</a>.
 
 ## <span style="color:purple"  font-family:helvetica>Research</span>
 
-
-My interests span comparative politics (civil society & public opinion), international relations (cooperation & IOs), and political methodology (causal inference & machine learning). I am particulalry interested in the "butterfly effect" of social media. In other words, how information diffuses across social media networks to directly and indirectly impact individuals.
+My main research interests lie in applied statistics with applications in social sciences. Particularly, I am interested in political methodology with a focus on the intersections of causal inference and machien learing. My substantive interests in political science broadly span comparative politics (civil society & public opinion), international relations (cooperation & IOs). My ongoing thesis looks into how information diffuses across social media networks to directly and indirectly impact political attitudes of the Japanese general public.
 
 #### <span style="color:DarkBlue"  font-family:helvetica>Statistical Software</span>
 I currently work on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R package to expand its support for causal machine learning methods for estimation and evaluation of heterogeneous treatment effects.
