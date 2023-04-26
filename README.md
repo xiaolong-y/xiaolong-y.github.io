@@ -28,7 +28,7 @@ I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu
 #### <span style="color:DarkBlue"  font-family:helvetica>Notes</span>
 
 
-Some notes for replication <a href="pdfs/replicate.pdf" target="_blank">here</a>, and for intermediate econometrics <a href="pdfs/interecon.pdf" target="_blank">here</a>. 
+Some notes for intermediate econometrics <a href="pdfs/interecon.pdf" target="_blank">here</a>. More on introductory real analysis and optimization theory are in the making. 
 
 #### <span style="color:DarkBlue"  font-family:helvetica>Running</span>
 
