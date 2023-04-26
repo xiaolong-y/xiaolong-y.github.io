@@ -6,7 +6,7 @@ My CV can be found <a href="pdfs/cv_xly_web.pdf" target="_blank">here</a>.
 
 ## <span style="color:purple"  font-family:helvetica>Research</span>
 
-My main research interests lie in applied statistics with applications in social sciences. Particularly, I am interested in political methodology with a focus on the intersections of causal inference and machien learing. My substantive interests in political science broadly span comparative politics (civil society & public opinion), international relations (cooperation & IOs). My ongoing thesis looks into how information diffuses across social media networks to directly and indirectly impact political attitudes of the Japanese general public.
+My main research interests lie in applied statistics with applications in social sciences. Particularly, I am interested in political methodology with a focus on the intersections of causal inference and machien learning. My substantive interests in political science broadly span comparative politics (civil society & public opinion), international relations (cooperation & IOs). My ongoing thesis looks into how information diffuses across social media networks to directly and indirectly impact political attitudes of the Japanese general public.
 
 #### <span style="color:DarkBlue"  font-family:helvetica>Statistical Software</span>
 I currently work on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R package to expand its support for causal machine learning methods for estimation and evaluation of heterogeneous treatment effects.
