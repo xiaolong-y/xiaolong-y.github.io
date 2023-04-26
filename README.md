@@ -1,6 +1,7 @@
 # <span style="color:purple" font-family:helvetica>Xiaolong Yang</span>
 
-Welcome! I am a final year undergraduate student at the University of Tokyo. After graduating this fall, I will be fortunate to be advised by Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) as a Masters student at Harvard University. 
+Welcome! I am a final year undergraduate student at the University of Tokyo, and an incoming Masters student at Harvard University from 2023 Fall, where I will be fortunate to be advised by After graduating this fall, I will be fortunate to be advised by Prof. [Kosuke Imai](https://imai.fas.harvard.edu/).
+
 My CV can be found <a href="pdfs/cv_xly_web.pdf" target="_blank">here</a>.
 
 ## <span style="color:purple"  font-family:helvetica>Research</span>
