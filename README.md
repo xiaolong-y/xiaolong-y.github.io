@@ -42,6 +42,6 @@ If you happen to be around Tokyo any Wednesday, feel free to join the weekly int
 
 <a href="mailto:yang-xiaolong0406@g.ecc.u-tokyo.ac.jp"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/email.svg" alt="Email icon" width="30"/></a>
 <a href="https://github.com/xiaolong-y"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/github.svg" alt="Github icon" width="30"/></a>
-<a href="https://twitter.com/xlypolisci"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/twitter.svg" alt="Twitter icon" width="30"/></a>
+<a href="https://twitter.com/xlypolmeth"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/twitter.svg" alt="Twitter icon" width="30"/></a>
 <a href="https://www.strava.com/athletes/107005784"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/strava.svg" alt="Strava icon" width="30"/></a>
 <font size="1"> Many thanks to <a href="https://jtibshirani.github.io/" target="_blank">Julie Tibshirani</a> for showing the perfect implementation of a lightweight website.</font>
