@@ -27,8 +27,12 @@ I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu
 
 #### <span style="color:DarkBlue"  font-family:helvetica>Notes</span>
 
-
 Some notes for intermediate econometrics <a href="pdfs/interecon.pdf" target="_blank">here</a>. More on introductory real analysis and optimization theory are in the making. 
+
+
+#### <span style="color:DarkBlue"  font-family:helvetica>A chat with me</span>
+
+I love communicating with people because I believe we all become wiser through talking with people of different backgrounds and experiences. If there is anything that you want to discuss (be it research, graduate school applications, or just life in general), I would encourage you to [sign up](https://calendar.google.com/calendar/u/0/selfsched?sstoken=UUZsZ01zWVROWTlafGRlZmF1bHR8YTczNGZmOWQ5MDQzM2I4ODI5NTdlNTQwMjc5MWQ2N2Y) for a 40 minute Sunday chat (9-940am JST; recurrent) with me. Alternatively, if you are around Tokyo and prefer meeting in person. I would also be happy to get a coffee with you. 
 
 #### <span style="color:DarkBlue"  font-family:helvetica>Running</span>
 
