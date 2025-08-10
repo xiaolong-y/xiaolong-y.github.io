@@ -1,6 +1,6 @@
 # <span style="color:purple" font-family:helvetica>Xiaolong Yang</span>
 
-Welcome! I am a G1 graduate student in Harvard University's Master's program of Regional Studies - East Asia. I am fortunate to be advised by Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Christina Davis](https://scholar.harvard.edu/cldavis/home).
+Welcome! I am a G2 graduate student in Harvard University's Master's program of Regional Studies - East Asia. I am fortunate to be advised by Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Christina Davis](https://scholar.harvard.edu/cldavis/home).
 
 My CV can be found <a href="pdfs/cv_xly_web.pdf" target="_blank">here</a>.
 
