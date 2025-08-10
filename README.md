@@ -25,7 +25,7 @@ I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu
 
 ## <span style="color:purple"  font-family:helvetica>Others</span>
 
-I used to keep a blog somewhere when I was younger. I might restart with a new place sometime (soon). 
+I used to keep a blog somewhere when I was younger. While I am still writing, I have not published much these days. I try and write more on my [bear blog](https://xiaolongy.bearblog.dev). 
 
 ------------------------------------------------------------------------
 
