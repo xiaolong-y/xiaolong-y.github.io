@@ -1,3 +1,9 @@
+---
+layout: default
+title: Home
+---
+
+
 # Xiaolong Yang
 
 <style>
