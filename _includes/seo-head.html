@@ -1,0 +1,8 @@
+{%- comment -%}
+Drop-in SEO head include.
+1) Ensure `_config.yml` lists jekyll-seo-tag + jekyll-sitemap.
+2) Add this line inside your HTML <head>:
+      {% include seo-head.html %}
+{%- endcomment -%}
+{% seo %}
+<link rel="sitemap" type="application/xml" title="Sitemap" href="{{ '/sitemap.xml' | absolute_url }}">
