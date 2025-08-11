@@ -1,18 +1,1 @@
-# _config.yml — site metadata + SEO plugins
-title: "Xiaolong Yang"
-description: "Harvard GSAS — applied statistics & political methodology. ITR / evalITR."
-url: "https://xiaolong-y.github.io"
-author:
-  name: "Xiaolong Yang"
-  url: "https://xiaolong-y.github.io"
-social:
-  links:
-    - https://github.com/xiaolong-y
-    - https://xiaolongy.bearblog.dev
-    - https://x.com/yang_appstats
-plugins:
-  - jekyll-seo-tag
-  - jekyll-sitemap
-  - jekyll-feed
-# If you already use a theme, keep it. Otherwise you can uncomment:
-# theme: minima
+title: Xiaolong Yang
