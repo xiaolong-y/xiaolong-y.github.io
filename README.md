@@ -1,5 +1,12 @@
 # <span style="color:purple" font-family:helvetica>Xiaolong Yang</span>
 
+<figure style="float: right; margin-left: 20px; text-align: center;">
+  <img src="xl_talk.png" alt="Neural Connection Symphony" width="300"/>
+  <figcaption style="font-size: 12px;">
+    Neural Connection Symphony: a microscopic journey through living neural networks during moments of profound human experience—learning, excitement, and love. Inspired by Neuropit #13 by the Zairja Collective; created with sora and claude ai.
+  </figcaption>
+</figure>
+
 Welcome! I am a G2 graduate student in Harvard University's Master's program of Regional Studies - East Asia. I am fortunate to be advised by Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Christina Davis](https://scholar.harvard.edu/cldavis/home).
 
 My CV can be found <a href="pdfs/cv_xly_web.pdf" target="_blank">here</a>.
