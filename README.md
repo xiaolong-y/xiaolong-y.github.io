@@ -1,7 +1,7 @@
 # <span style="color:purple" font-family:helvetica>Xiaolong Yang</span>
 
 <figure style="float: right; margin-left: 20px; text-align: center;">
-  <img src="xl_talk.png" alt="Neural Connection Symphony" width="300"/>
+  <img src="neuron.png" alt="Neural Connection Symphony" width="300"/>
   <figcaption style="font-size: 12px;">
     Neural Connection Symphony: a microscopic journey through living neural networks during moments of profound human experience—learning, excitement, and love. Inspired by Neuropit #13 by the Zairja Collective; created with sora and claude ai.
   </figcaption>
