@@ -148,6 +148,13 @@ A collection of sentences, quotes, and thoughts that have resonated with me over
   <div class="quote-author">— Ramón y Cajal</div>
 </div>
 
+<div class="quote-block">
+  <div class="quote-text">
+    "Don't worry if you're winning or losing the fight. Just keep attacking!"
+  </div>
+  <div class="quote-author">— Connor Jerzak (Aug. 19th 2025)</div>
+</div>
+
 ---
 
 <div class="nav-links">
