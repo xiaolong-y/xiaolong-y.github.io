@@ -1,5 +1,3 @@
-# Favorite Sentences
-
 <style>
   /* Mobile-first approach - consistent with homepage */
   .neural-container {
@@ -31,7 +29,6 @@
   .quote-block {
     margin: 30px auto;
     padding: 20px;
-    background-color: #f9f9f9;
     border-left: 4px solid #666;
     border-radius: 4px;
     max-width: 800px;
@@ -132,7 +129,6 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
     .quote-block {
-      background-color: #2a2a2a;
       border-left-color: #aaa;
     }
     .quote-author {
@@ -140,10 +136,6 @@
     }
   }
 </style>
-
-<div class="nav-links">
-  <a href="/">← Back to Home</a>
-</div>
 
 A collection of sentences, quotes, and thoughts that have resonated with me over the years.
 
@@ -158,4 +150,6 @@ A collection of sentences, quotes, and thoughts that have resonated with me over
 
 ---
 
-*This page is editable in markdown. You can add new quotes by editing the `favorite-sentences.md` file.*
+<div class="nav-links">
+  <a href="/">← Back to Home</a>
+</div>
