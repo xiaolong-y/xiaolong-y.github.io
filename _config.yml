@@ -13,7 +13,7 @@ social:
   name: Xiaolong Yang
   links:
     - https://github.com/xiaolong-y
-    - https://twitter.com/xlypolmeth
+    - https://twitter.com/yang_appstats
 
 # Jekyll plugins for SEO
 plugins:
@@ -22,7 +22,7 @@ plugins:
 
 # SEO tag settings
 twitter:
-  username: xlypolmeth
+  username: yang_appstats
   card: summary
 
 # Google Analytics 4
