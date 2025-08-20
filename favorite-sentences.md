@@ -1,4 +1,62 @@
 <style>
+  /* Flexoki Color Palette Variables */
+  :root {
+    /* Base colors */
+    --fx-paper: #FFFCF0;
+    --fx-base-50: #F2F0E5;
+    --fx-base-100: #E6E4D9;
+    --fx-base-200: #DAD8CE;
+    --fx-base-300: #CECDC3;
+    --fx-base-400: #B7B5AC;
+    --fx-base-500: #9F9D94;
+    --fx-base-600: #878681;
+    --fx-base-700: #6F6E69;
+    --fx-base-800: #575653;
+    --fx-base-850: #403E3C;
+    --fx-base-900: #2D2B28;
+    --fx-base-950: #1C1B18;
+    
+    /* Accent colors - light theme */
+    --fx-red: #AF3029;
+    --fx-orange: #BC5215;
+    --fx-yellow: #AD8301;
+    --fx-green: #66800B;
+    --fx-cyan: #24837B;
+    --fx-blue: #205EA6;
+    --fx-purple: #5E409D;
+    --fx-magenta: #A02F6F;
+  }
+  
+  /* Dark theme accent colors */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fx-red: #D14D41;
+      --fx-orange: #DA702C;
+      --fx-yellow: #D0A215;
+      --fx-green: #879A39;
+      --fx-cyan: #3AA99F;
+      --fx-blue: #4385BE;
+      --fx-purple: #8B7EC8;
+      --fx-magenta: #CE5D97;
+    }
+  }
+  
+  /* Global styling with Flexoki colors */
+  body {
+    background-color: var(--fx-paper);
+    color: var(--fx-base-900);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  a {
+    color: var(--fx-blue);
+    transition: color 0.2s ease;
+  }
+  
+  a:hover {
+    color: var(--fx-cyan);
+  }
+  
   /* Mobile-first approach - consistent with homepage */
   .neural-container {
     display: block;
@@ -13,25 +71,28 @@
     margin: 0 auto;
     display: block;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(47, 45, 40, 0.15);
+    transition: box-shadow 0.3s ease;
   }
   
   .neural-caption {
     width: 85%;
     margin: 10px auto 0 auto;
     font-size: 12px;
-    color: #666;
+    color: var(--fx-base-600);
     line-height: 1.4;
     text-align: left;
   }
   
-  /* Quote styling */
+  /* Quote styling with Flexoki colors */
   .quote-block {
     margin: 30px auto;
     padding: 20px;
-    border-left: 4px solid #666;
+    border-left: 4px solid var(--fx-green);
     border-radius: 4px;
     max-width: 800px;
+    background-color: var(--fx-base-50);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
   
   .quote-text {
@@ -39,12 +100,13 @@
     font-size: 1.1em;
     line-height: 1.6;
     margin-bottom: 10px;
+    color: var(--fx-base-800);
   }
   
   .quote-author {
     text-align: right;
     font-size: 0.9em;
-    color: #666;
+    color: var(--fx-base-600);
     font-weight: bold;
   }
   
@@ -55,13 +117,15 @@
   }
   
   .nav-links a {
-    color: #0066cc;
+    color: var(--fx-blue);
     text-decoration: none;
     margin: 0 15px;
     font-size: 1em;
+    transition: color 0.2s ease;
   }
   
   .nav-links a:hover {
+    color: var(--fx-cyan);
     text-decoration: underline;
   }
   
@@ -120,19 +184,32 @@
     }
   }
   
-  /* Dark mode support */
+  /* Flexoki Dark mode support */
   @media (prefers-color-scheme: dark) {
+    body {
+      background-color: var(--fx-base-950);
+      color: var(--fx-base-100);
+    }
+    
     .neural-caption {
-      color: #aaa;
+      color: var(--fx-base-400);
     }
+    
     .neural-container img {
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 8px rgba(28, 27, 24, 0.4);
     }
+    
     .quote-block {
-      border-left-color: #aaa;
+      background-color: var(--fx-base-900);
+      border-left-color: var(--fx-green);
     }
+    
+    .quote-text {
+      color: var(--fx-base-200);
+    }
+    
     .quote-author {
-      color: #aaa;
+      color: var(--fx-base-400);
     }
   }
 </style>
