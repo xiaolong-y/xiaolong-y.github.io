@@ -192,7 +192,7 @@ I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu
 
 I used to keep a blog somewhere when I was younger. While I am still writing, I have not published much these days. I try and write more on my [bear blog](https://xiaolongy.bearblog.dev).
 
-I also keep a collection of [favorite sentences](favorite-sentences.md) that have resonated with me over the years.
+I also keep my favorite bags of [words](favorite-sentences.md) that have inspired and resonated with me over the years.
 
 ---
 
