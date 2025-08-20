@@ -1,1 +1,29 @@
 title: Xiaolong Yang
+description: "Graduate student at Harvard University studying Regional Studies - East Asia, specializing in political methodology and applied statistics"
+author: Xiaolong Yang
+url: "https://xiaolong-y.github.io"
+baseurl: ""
+
+# SEO settings
+lang: en
+locale: en_US
+
+# Social profiles
+social:
+  name: Xiaolong Yang
+  links:
+    - https://github.com/xiaolong-y
+    - https://twitter.com/xlypolmeth
+
+# Jekyll plugins for SEO
+plugins:
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# SEO tag settings
+twitter:
+  username: xlypolmeth
+  card: summary
+
+# Google Analytics (optional - add your tracking ID if you have one)
+# google_analytics: UA-XXXXXXXXX-X
