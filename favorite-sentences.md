@@ -214,7 +214,7 @@
   }
 </style>
 
-A collection of sentences, quotes, and thoughts that have resonated with me over the years.
+Bags of words that have influnced me profusely over the years.
 
 ---
 
