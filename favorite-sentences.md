@@ -229,7 +229,14 @@ A collection of sentences, quotes, and thoughts that have resonated with me over
   <div class="quote-text">
     "Don't worry if you're winning or losing the fight. Just keep attacking!"
   </div>
-  <div class="quote-author">— Connor Jerzak (Aug. 19th 2025)</div>
+  <div class="quote-author">— Connor Jerzak</div>
+</div>
+
+<div class="quote-block">
+  <div class="quote-text">
+    <em>Esse quam videri</em>
+  </div>
+  <div class="quote-author">— Marcus Tullius Cicero in Laelius de Amicitia</div>
 </div>
 
 ---
