@@ -199,7 +199,7 @@
   </p>
 </div>
 
-Welcome! I am a G2 graduate student in Harvard University's Master's program of Regional Studies - East Asia at the Graduate School of Arts and Sciences.
+Welcome! I am a G2 graduate student in Harvard University's Master's program of [Regional Studies - East Asia](https://rsea.fas.harvard.edu) at the Kenneth C. Griffin Graduate School of Arts and Sciences.
 
 My CV can be found [here](pdfs/cv_xly_web.pdf).
 
