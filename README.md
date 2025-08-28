@@ -1,3 +1,13 @@
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RQC3VEC49K"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-RQC3VEC49K');
+</script>
+
 # Xiaolong Yang
 
 <style>
@@ -216,7 +226,7 @@ I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu
 
 I used to keep a blog somewhere when I was younger. While I am still writing, I have not published much these days. I try and write more on my [bear blog](https://xiaolongy.bearblog.dev).
 
-I also keep my favorite [quotes](favorite-sentences.md) here.
+I also keep my favorite [quotes](quotes.md) here.
 
 ---
 
