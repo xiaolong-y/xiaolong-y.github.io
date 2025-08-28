@@ -1,4 +1,7 @@
 <style>
+  /* IBM Plex Mono Font Import */
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+
   /* Flexoki Color Palette Variables */
   :root {
     /* Base colors */
@@ -45,7 +48,28 @@
   body {
     background-color: var(--fx-paper);
     color: var(--fx-base-900);
+    font-family: 'IBM Plex Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-weight: 200;
     transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Font weight definitions for different elements */
+  strong, b {
+    font-weight: 500;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 300;
+  }
+
+  em, i {
+    font-style: italic;
+    font-weight: 200;
+  }
+
+  strong em, em strong, b i, i b {
+    font-weight: 500;
+    font-style: italic;
   }
   
   a {
