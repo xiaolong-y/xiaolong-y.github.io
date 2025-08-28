@@ -238,7 +238,7 @@
   }
 </style>
 
-Bags of words that have influnced me profusely over the years.
+These are my favorite quotes which by far had a profound influence on me. These quotes are special because not solely that they offer solutions and perspectives, but rather that they tell you someone (and likely giants and heros in various domains) have thought about the same problem deeply before, and hence with you. This realization alone is encouraging and humbling. 
 
 ---
 
