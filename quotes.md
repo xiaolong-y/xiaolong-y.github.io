@@ -295,6 +295,13 @@ These quotations have had a profound influence on me. Their value lies not only 
   <div class="quote-author">— Paul Graham in The <a href="https://www.paulgraham.com/top.html#f1n">The Top Idea in Your Mind</a></div>
 </div>
 
+<div class="quote-block">
+  <div class="quote-text">
+    "Premature optimization is the root of evil."
+  </div>
+  <div class="quote-author">— Don Knuth</div>
+</div>
+
 ---
 
 <div class="nav-links">
