@@ -273,6 +273,28 @@ These quotations have had a profound influence on me. Their value lies not only 
   <div class="quote-author">— Marcus Tullius Cicero in Laelius de Amicitia</div>
 </div>
 
+<div class="quote-block">
+  <div class="quote-text">
+    "I learned very early the difference between knowing the name of something and knowing something. 
+    The first principle is that you must not fool yourself, and you are the easiest person to fool."
+  </div>
+  <div class="quote-author">— Richard Feynman</div>
+</div>
+
+<div class="quote-block">
+  <div class="quote-text">
+    <em>Nullius in verba</em>
+  </div>
+  <div class="quote-author">— </div>
+</div>
+
+<div class="quote-block">
+  <div class="quote-text">
+    "It's hard to do a really good job on anything you don't think about in the shower."
+  </div>
+  <div class="quote-author">— Paul Graham in The <a href="https://www.paulgraham.com/top.html#f1n">The Top Idea in Your Mind</a></div>
+</div>
+
 ---
 
 <div class="nav-links">
