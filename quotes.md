@@ -302,6 +302,13 @@ These quotations have had a profound influence on me. Their value lies not only 
   <div class="quote-author">— Don Knuth</div>
 </div>
 
+<div class="quote-block">
+  <div class="quote-text">
+    "What ultimately matters in this course is not so much where you end up relative to your classmates but where you end up relative to yourself when you began."
+  </div>
+  <div class="quote-author">— David J. Malan (CS 50)</div>
+</div>
+
 ---
 
 <div class="nav-links">
