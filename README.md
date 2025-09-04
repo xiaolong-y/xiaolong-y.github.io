@@ -203,26 +203,26 @@ Welcome! I am a G2 graduate student in Harvard University's Master's program of 
 
 My CV can be found [here](pdfs/cv_xly_web.pdf).
 
-## Research
+## intellectual pursuits
 
-I am interested in quantitative methodologies, and the interplay between important technologies and foundational political institutions. 
+I am broadly interested in the interplay between important technologies and foundational human systems. 
 
-### Statistical Software
+### statistical software
 I have worked on the [`evalITR`](https://github.com/MichaelLLi/evalITR) R package to expand its support for causal machine learning methods for estimation and evaluation of individualized treatment rules, and more generally heterogeneous treatment effects.
 
-### Book
+### book
 My amazing coauthors and I delivered an open source book on the applications of R Markdown in Chinese.
 
 Chunhui Gao, Yifan Wang, Qiushi Yan, Liangliang Zhuang, **Xiaolong Yang**.  
 [An Authoritative Guide for R Markdown (Tentative English Title).](https://cosname.github.io/rmarkdown-guide/) Open-source Publication. 2023.
 
-## Teaching
+## teaching
 
 Teaching and learning are bonded intellectual activities. I am particularly thankful to Prof. [Kosuke Imai](https://imai.fas.harvard.edu/) and Prof. [Connor Jerzak](https://connorjerzak.com/). Thanks to them, I had many opportunities to learn and teach. 
 
 I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team for the celebrated introductory level data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo in 2022. We taught a series of TA lectures on tidyverse - a popular syntax of R. Slides are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
 
-## Others
+## miscellaneous 
 
 Non-academically, I write on my [bear blog](https://xiaolongy.bearblog.dev) occasionally.
 
