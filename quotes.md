@@ -309,6 +309,13 @@ These quotations have had a profound influence on me. Their value lies not only 
   <div class="quote-author">— David J. Malan (CS 50)</div>
 </div>
 
+<div class="quote-block">
+  <div class="quote-text">
+    "It is better to travel than arrive."
+  </div>
+  <div class="quote-author">— Robert Pirsig</div>
+</div>
+
 ---
 
 <div class="nav-links">
