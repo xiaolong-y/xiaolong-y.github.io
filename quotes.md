@@ -316,6 +316,13 @@ These quotations have had a profound influence on me. Their value lies not only 
   <div class="quote-author">— Robert Pirsig</div>
 </div>
 
+<div class="quote-block">
+  <div class="quote-text">
+    "Experience is what you get when you did not get what you wanted."
+  </div>
+  <div class="quote-author">- Randy Pausch
+</div>
+
 ---
 
 <div class="nav-links">
