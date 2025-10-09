@@ -320,9 +320,24 @@ These quotations have had a profound influence on me. Their value lies not only 
   <div class="quote-text">
     "Experience is what you get when you did not get what you wanted."
   </div>
-  <div class="quote-author">- Randy Pausch
+  <div class="quote-author">- Randy Pausch</div>
 </div>
 
+<div class="quote-block">
+  <div class="quote-text"?
+      "One does not have to be briliant, a genius, to be special.
+      To do something better than anyone/everyone else. To be
+      UNMATCHED,
+      One has only to choose an END
+      and END
+      that MATTERS
+      that INSPIRES
+      YOU
+      And then DO IT."
+  </div>
+  <div class="quote-author">- Manuel Blum</div>
+</div>
+        
 ---
 
 <div class="nav-links">
