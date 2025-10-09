@@ -325,15 +325,15 @@ These quotations have had a profound influence on me. Their value lies not only 
 
 <div class="quote-block">
   <div class="quote-text">
- "One does not have to be briliant, a genius, to be special.
-      To do something better than anyone/everyone else. To be
-      UNMATCHED,
-      One has only to choose an END
-      and END
-      that MATTERS
-      that INSPIRES
-      YOU
-      And then DO IT."
+"One does not have to be briliant, a genius, to be special.<br>
+To do something better than anyone/everyone else. To be<br>
+UNMATCHED,<br>
+One has only to choose an END<br>
+and END<br>
+that MATTERS<br>
+that INSPIRES<br>
+YOU<br>
+And then DO IT."
   </div>
   <div class="quote-author">— Manuel Blum</div>
 </div>
