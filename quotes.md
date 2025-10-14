@@ -338,6 +338,27 @@ And then DO IT."
   <div class="quote-author">— Manuel Blum</div>
 </div>
 
+
+<div class="quote-block">
+  <div class="quote-text">
+"They could mock us, disregard us, use us to prop themselves up.<br> 
+    But our teachers,<br> 
+    if they are good, instead do something almost holy,<br> 
+    which we never forget: they take us seriously.<br> 
+    They accept us as new members of the guild.<br>
+    They tolerate the under-wonderful stories we write,<br> 
+    the dopy things we say,<br> 
+    our shaky-legged aesthetic theories,<br> 
+    our posturing,<br> 
+    because they have been there themselves.<br>
+    <br>
+    We say: I think I might be a writer.<br>
+    <br>
+    They say: Good for you. Proceed."
+  </div>
+  <div class="quote-author">— George Saunders</div>
+</div>
+
 ---
 
 <div class="nav-links">
