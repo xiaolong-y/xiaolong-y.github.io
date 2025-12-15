@@ -180,19 +180,8 @@ title: Bookshelf
     will-change: transform;
   }
 
-  /* Smooth scroll animations - alternating directions, no duplicates */
-  @keyframes scroll-column {
-    0% { transform: translateY(0%); }
-    100% { transform: translateY(calc(-100% + 85vh)); }
-  }
-
-  .book-column:nth-child(odd) .book-column-inner {
-    animation: scroll-column 60s ease-in-out infinite alternate;
-  }
-
-  .book-column:nth-child(even) .book-column-inner {
-    animation: scroll-column 55s ease-in-out infinite alternate-reverse;
-  }
+  /* Animations are created dynamically by JavaScript based on content height */
+  /* This allows perfect looping without visible seams */
 
   /* Pause on hover for readability */
   .book-grid:hover .book-column-inner {

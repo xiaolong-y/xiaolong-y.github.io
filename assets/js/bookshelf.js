@@ -58,6 +58,7 @@
       overviewToggle.classList.toggle('active', isOverviewMode);
       overviewToggle.setAttribute('aria-pressed', isOverviewMode);
     }
+
     renderBooks();
   }
 
@@ -118,10 +119,16 @@
           cardsHTML += createBookCard(colBooks[b]);
         }
 
-        columnsHTML += '<div class="book-column"><div class="book-column-inner">' + cardsHTML + '</div></div>';
+        // Duplicate books for seamless infinite scroll
+        var duplicateHTML = cardsHTML;
+
+        columnsHTML += '<div class="book-column"><div class="book-column-inner">' + cardsHTML + duplicateHTML + '</div></div>';
       }
 
       bookGrid.innerHTML = columnsHTML;
+
+      // Set up dynamic animations based on content height
+      setupInfiniteScrollAnimations();
     }
 
     // Add click handlers
@@ -290,6 +297,56 @@
         e.preventDefault();
         cards[newIndex].focus();
       }
+    });
+  }
+
+  function setupInfiniteScrollAnimations() {
+    if (isOverviewMode) return;
+
+    var columns = document.querySelectorAll('.book-column');
+
+    columns.forEach(function(column, columnIndex) {
+      var columnInner = column.querySelector('.book-column-inner');
+      if (!columnInner) return;
+
+      var cards = columnInner.querySelectorAll('.book-card');
+      if (cards.length === 0) return;
+
+      // Calculate the height of half the content (since we duplicated)
+      var totalHeight = 0;
+      var halfCards = cards.length / 2;
+
+      for (var i = 0; i < halfCards; i++) {
+        totalHeight += cards[i].offsetHeight;
+        // Add gap height (24px as defined in CSS)
+        if (i < halfCards - 1) totalHeight += 24;
+      }
+
+      var isOddColumn = columnIndex % 2 === 0;
+      var animationName = isOddColumn ? 'scroll-down-' + columnIndex : 'scroll-up-' + columnIndex;
+      var duration = isOddColumn ? 40 : 35; // Different speeds for visual interest
+
+      // Create dynamic keyframe animation
+      var styleSheet = document.styleSheets[document.styleSheets.length - 1];
+      var keyframes = '';
+
+      if (isOddColumn) {
+        // Scroll down: move from 0 to -totalHeight
+        keyframes = '@keyframes ' + animationName + ' { from { transform: translateY(0); } to { transform: translateY(-' + totalHeight + 'px); } }';
+      } else {
+        // Scroll up: move from -totalHeight to 0
+        keyframes = '@keyframes ' + animationName + ' { from { transform: translateY(-' + totalHeight + 'px); } to { transform: translateY(0); } }';
+      }
+
+      try {
+        styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
+      } catch (e) {
+        // Fallback for browsers that don't support insertRule
+        console.warn('Could not insert animation rule:', e);
+      }
+
+      // Apply the animation
+      columnInner.style.animation = animationName + ' ' + duration + 's linear infinite';
     });
   }
 
