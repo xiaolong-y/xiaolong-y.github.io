@@ -10,74 +10,100 @@
   let isOverviewMode = false;
   const NUM_COLUMNS = 4;
 
-  const bookGrid = document.querySelector('.book-grid');
-  const filterButtons = document.querySelectorAll('.filter-btn');
-  const themeToggle = document.querySelector('.theme-toggle');
-  const overviewToggle = document.getElementById('overview-toggle');
-  const modalOverlay = document.querySelector('.book-modal-overlay');
-  const modalClose = document.querySelector('.modal-close');
-  const emptyState = document.getElementById('empty-state');
+  // DOM elements - initialized in init()
+  let bookGrid, filterButtons, themeToggle, overviewToggle, modalOverlay, modalClose, emptyState;
 
-  document.addEventListener('DOMContentLoaded', init);
+  // Handle both cases: DOM still loading OR already loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 
-  async function init() {
+  function init() {
+    // Query DOM elements after DOM is ready
+    bookGrid = document.querySelector('.book-grid');
+    filterButtons = document.querySelectorAll('.filter-btn');
+    themeToggle = document.querySelector('.theme-toggle');
+    overviewToggle = document.getElementById('overview-toggle');
+    modalOverlay = document.querySelector('.book-modal-overlay');
+    modalClose = document.querySelector('.modal-close');
+    emptyState = document.getElementById('empty-state');
+
+    // Debug logging
+    console.log('Bookshelf init - overviewToggle:', overviewToggle);
+
     initTheme();
-    await loadBooks();
+    loadBooks();
     setupEventListeners();
   }
 
   function initTheme() {
-    const saved = localStorage.getItem('bookshelf-theme');
+    var saved = localStorage.getItem('bookshelf-theme');
     if (saved) document.documentElement.setAttribute('data-theme', saved);
   }
 
   function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const newTheme = current === 'dark' ? 'light' : (current === 'light' ? 'dark' : (prefersDark ? 'light' : 'dark'));
+    var current = document.documentElement.getAttribute('data-theme');
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var newTheme = current === 'dark' ? 'light' : (current === 'light' ? 'dark' : (prefersDark ? 'light' : 'dark'));
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('bookshelf-theme', newTheme);
   }
 
   function toggleOverview() {
+    console.log('toggleOverview called, current mode:', isOverviewMode);
     isOverviewMode = !isOverviewMode;
-    bookGrid.classList.toggle('overview-mode', isOverviewMode);
-    overviewToggle.classList.toggle('active', isOverviewMode);
-    overviewToggle.setAttribute('aria-pressed', isOverviewMode);
+    console.log('new mode:', isOverviewMode);
+
+    if (bookGrid) {
+      bookGrid.classList.toggle('overview-mode', isOverviewMode);
+      console.log('bookGrid classes:', bookGrid.className);
+    }
+    if (overviewToggle) {
+      overviewToggle.classList.toggle('active', isOverviewMode);
+      overviewToggle.setAttribute('aria-pressed', isOverviewMode);
+    }
     renderBooks();
   }
 
-  async function loadBooks() {
-    try {
-      const response = await fetch('assets/data/books.json');
-      if (!response.ok) throw new Error('Failed to load');
-      const data = await response.json();
-      books = data.books;
-      renderBooks();
-    } catch (error) {
-      console.error('Error loading books:', error);
-      bookGrid.innerHTML = '<div class="empty-state"><p>Unable to load books.</p></div>';
-    }
+  function loadBooks() {
+    fetch('assets/data/books.json')
+      .then(function(response) {
+        if (!response.ok) throw new Error('Failed to load');
+        return response.json();
+      })
+      .then(function(data) {
+        books = data.books;
+        renderBooks();
+      })
+      .catch(function(error) {
+        console.error('Error loading books:', error);
+        if (bookGrid) {
+          bookGrid.innerHTML = '<div class="empty-state"><p>Unable to load books.</p></div>';
+        }
+      });
   }
 
   function renderBooks() {
-    const filtered = currentFilter === 'all' ? books : books.filter(function(b) { return b.category === currentFilter; });
+    if (!bookGrid) return;
+
+    var filtered = currentFilter === 'all' ? books : books.filter(function(b) { return b.category === currentFilter; });
 
     if (filtered.length === 0) {
       bookGrid.innerHTML = '';
-      emptyState.style.display = 'block';
+      if (emptyState) emptyState.style.display = 'block';
       return;
     }
 
-    emptyState.style.display = 'none';
+    if (emptyState) emptyState.style.display = 'none';
 
     if (isOverviewMode) {
-      // Overview mode: simple grid, no columns, no duplicates
-      var cardsHTML = '';
-      for (var i = 0; i < filtered.length; i++) {
-        cardsHTML += createBookCard(filtered[i]);
-      }
-      bookGrid.innerHTML = '<div class="book-column"><div class="book-column-inner">' + cardsHTML + '</div></div>';
+      // Overview mode: simple flat list for grid layout
+      var cardsHTML = filtered.map(function(book) {
+        return createBookCard(book);
+      }).join('');
+      bookGrid.innerHTML = cardsHTML;
     } else {
       // Normal mode: columns with duplicates for infinite scroll
       var columns = [];
@@ -154,7 +180,7 @@
   };
 
   function openModal(book) {
-    if (!book) return;
+    if (!book || !modalOverlay) return;
 
     var coverContainer = document.getElementById('modal-cover-container');
     if (book.coverUrl) {
@@ -183,7 +209,7 @@
     modalOverlay.classList.add('active');
     modalOverlay.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
-    modalClose.focus();
+    if (modalClose) modalClose.focus();
   }
 
   function createModalFallback(title, author, genre) {
@@ -196,6 +222,7 @@
   window.createModalFallback = createModalFallback;
 
   function closeModal() {
+    if (!modalOverlay) return;
     modalOverlay.classList.remove('active');
     modalOverlay.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
@@ -204,24 +231,42 @@
   }
 
   function setupEventListeners() {
-    filterButtons.forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        currentFilter = btn.dataset.category;
-        filterButtons.forEach(function(b) {
-          b.classList.toggle('active', b.dataset.category === currentFilter);
-          b.setAttribute('aria-pressed', b.dataset.category === currentFilter);
+    if (filterButtons) {
+      filterButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          currentFilter = btn.dataset.category;
+          filterButtons.forEach(function(b) {
+            b.classList.toggle('active', b.dataset.category === currentFilter);
+            b.setAttribute('aria-pressed', b.dataset.category === currentFilter);
+          });
+          renderBooks();
         });
-        renderBooks();
       });
-    });
+    }
 
-    overviewToggle.addEventListener('click', toggleOverview);
-    themeToggle.addEventListener('click', toggleTheme);
-    modalClose.addEventListener('click', closeModal);
-    modalOverlay.addEventListener('click', function(e) { if (e.target === modalOverlay) closeModal(); });
+    if (overviewToggle) {
+      console.log('Adding click listener to overviewToggle');
+      overviewToggle.addEventListener('click', toggleOverview);
+    } else {
+      console.error('overviewToggle not found!');
+    }
+
+    if (themeToggle) {
+      themeToggle.addEventListener('click', toggleTheme);
+    }
+
+    if (modalClose) {
+      modalClose.addEventListener('click', closeModal);
+    }
+
+    if (modalOverlay) {
+      modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) closeModal();
+      });
+    }
 
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+      if (e.key === 'Escape' && modalOverlay && modalOverlay.classList.contains('active')) {
         closeModal();
         return;
       }
