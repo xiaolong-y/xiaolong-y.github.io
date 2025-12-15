@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halo Effect - Cognitive Bias Visualization</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0; --fx-base-900: #2D2B28; --fx-base-700: #6F6E69;
+      --fx-base-500: #9F9D94; --fx-base-200: #DAD8CE; --fx-base-50: #F2F0E5;
+      --fx-orange: #BC5215; --fx-blue: #205EA6; --fx-cyan: #24837B;
+      --fx-red: #AF3029; --fx-purple: #5E409D; --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F; --fx-base-900: #CECDC3; --fx-base-700: #878580;
+        --fx-base-500: #6F6E69; --fx-base-200: #403E3C; --fx-base-50: #1C1B1A;
+        --fx-orange: #DA702C; --fx-blue: #4385BE; --fx-cyan: #3AA99F;
+        --fx-red: #D14D41; --fx-purple: #8B7EC8; --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'IBM Plex Mono', monospace; background: var(--fx-paper);
+      color: var(--fx-base-900); padding: 20px; min-height: 100vh;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 {
+      font-size: 1.5em; font-weight: 300; color: var(--fx-yellow);
+      margin-bottom: 10px; border-bottom: 1px solid var(--fx-base-200); padding-bottom: 8px;
+    }
+    .description {
+      font-size: 0.85em; color: var(--fx-base-700); margin-bottom: 20px; line-height: 1.5;
+    }
+    .canvas-container {
+      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);
+      border-radius: 4px; margin-bottom: 20px; overflow: hidden; position: relative;
+    }
+    canvas { display: block; width: 100%; height: 500px; }
+    .controls {
+      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);
+      border-radius: 4px; padding: 15px;
+    }
+    .instruction { font-size: 0.8em; color: var(--fx-blue); margin-bottom: 12px; }
+    button {
+      font-family: 'IBM Plex Mono', monospace; background: var(--fx-blue);
+      color: var(--fx-paper); border: none; padding: 8px 16px;
+      font-size: 0.85em; cursor: pointer; border-radius: 3px; margin: 5px 5px 0 0;
+    }
+    button:hover { background: var(--fx-cyan); }
+    button.active { background: var(--fx-yellow); color: var(--fx-base-900); }
+    .trait-list {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px; margin-top: 10px; font-size: 0.75em;
+    }
+    .trait-item {
+      padding: 6px; background: var(--fx-paper); border-radius: 3px;
+      border: 1px solid var(--fx-base-200); text-align: center;
+    }
+    .trait-label { color: var(--fx-base-700); margin-bottom: 3px; }
+    .trait-status {
+      font-weight: 500; padding: 2px 6px; border-radius: 2px;
+      display: inline-block; margin-top: 3px;
+    }
+    .trait-tinted { background: var(--fx-yellow); color: var(--fx-base-900); }
+    .trait-neutral { background: var(--fx-base-200); color: var(--fx-base-700); }
+    @media (max-width: 768px) {
+      canvas { height: 400px; }
+      h1 { font-size: 1.2em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Halo Effect</h1>
+    <p class="description">
+      One positive trait casts a golden glow over everything else. Attractive people seem smarter, kinder, more competent—despite no evidence. Watch as a single glowing attribute bleeds its color into unrelated traits. Toggle the initial trait on/off to see the halo appear and vanish.
+    </p>
+
+    <div class="canvas-container">
+      <canvas id="biasCanvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <p class="instruction">Click the button to toggle "Attractiveness" on/off. Watch how it colors perception of all other traits.</p>
+      <button id="toggleHalo">Toggle Attractiveness (Halo Source)</button>
+
+      <div class="trait-list">
+        <div class="trait-item">
+          <div class="trait-label">Intelligence</div>
+          <div class="trait-status" id="trait-intelligence">Neutral</div>
+        </div>
+        <div class="trait-item">
+          <div class="trait-label">Kindness</div>
+          <div class="trait-status" id="trait-kindness">Neutral</div>
+        </div>
+        <div class="trait-item">
+          <div class="trait-label">Competence</div>
+          <div class="trait-status" id="trait-competence">Neutral</div>
+        </div>
+        <div class="trait-item">
+          <div class="trait-label">Trustworthiness</div>
+          <div class="trait-status" id="trait-trust">Neutral</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('biasCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+
+    let haloActive = true;
+    let haloIntensity = 1.0;
+
+    const centralTrait = {
+      x: 0, y: 0,
+      label: 'Attractiveness',
+      baseColor: '#AD8301',
+      active: true
+    };
+
+    const surroundingTraits = [
+      { label: 'Intelligence', angle: 0, distance: 150, statusId: 'trait-intelligence' },
+      { label: 'Kindness', angle: Math.PI / 2, distance: 150, statusId: 'trait-kindness' },
+      { label: 'Competence', angle: Math.PI, distance: 150, statusId: 'trait-competence' },
+      { label: 'Trustworthiness', angle: Math.PI * 1.5, distance: 150, statusId: 'trait-trust' },
+    ];
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+
+      centralTrait.x = width / 2;
+      centralTrait.y = height / 2;
+    }
+
+    function draw() {
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-paper');
+      ctx.fillRect(0, 0, width, height);
+
+      const targetIntensity = haloActive ? 1.0 : 0.0;
+      haloIntensity += (targetIntensity - haloIntensity) * 0.05;
+
+      if (haloIntensity > 0.01) {
+        const haloRadius = 200 * haloIntensity;
+        const gradient = ctx.createRadialGradient(
+          centralTrait.x, centralTrait.y, 0,
+          centralTrait.x, centralTrait.y, haloRadius
+        );
+        gradient.addColorStop(0, `${centralTrait.baseColor}80`);
+        gradient.addColorStop(0.5, `${centralTrait.baseColor}40`);
+        gradient.addColorStop(1, `${centralTrait.baseColor}00`);
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+      }
+
+      surroundingTraits.forEach(trait => {
+        const tx = centralTrait.x + Math.cos(trait.angle) * trait.distance;
+        const ty = centralTrait.y + Math.sin(trait.angle) * trait.distance;
+
+        const tintLevel = haloIntensity;
+        const baseColor = getComputedStyle(document.documentElement).getPropertyValue('--fx-base-500');
+        const haloColor = centralTrait.baseColor;
+
+        ctx.save();
+
+        const tintedColor = haloIntensity > 0.1 ? haloColor : baseColor;
+        ctx.fillStyle = tintedColor;
+        ctx.strokeStyle = tintedColor;
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.arc(tx, ty, 40, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-base-200');
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(centralTrait.x, centralTrait.y);
+        ctx.lineTo(tx, ty);
+        ctx.stroke();
+
+        ctx.globalAlpha = haloIntensity * 0.6 + 0.4;
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-paper');
+        ctx.font = '11px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(trait.label, tx, ty);
+
+        ctx.restore();
+
+        const statusEl = document.getElementById(trait.statusId);
+        if (haloIntensity > 0.3) {
+          statusEl.textContent = 'Positively Biased';
+          statusEl.className = 'trait-status trait-tinted';
+        } else {
+          statusEl.textContent = 'Neutral';
+          statusEl.className = 'trait-status trait-neutral';
+        }
+      });
+
+      const centralSize = 60;
+      const centralColor = haloActive ? centralTrait.baseColor : getComputedStyle(document.documentElement).getPropertyValue('--fx-base-500');
+
+      ctx.fillStyle = centralColor;
+      ctx.beginPath();
+      ctx.arc(centralTrait.x, centralTrait.y, centralSize, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (haloActive) {
+        const glowGradient = ctx.createRadialGradient(
+          centralTrait.x, centralTrait.y, centralSize * 0.5,
+          centralTrait.x, centralTrait.y, centralSize * 1.5
+        );
+        glowGradient.addColorStop(0, `${centralTrait.baseColor}00`);
+        glowGradient.addColorStop(1, `${centralTrait.baseColor}80`);
+        ctx.fillStyle = glowGradient;
+        ctx.beginPath();
+        ctx.arc(centralTrait.x, centralTrait.y, centralSize * 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-paper');
+      ctx.font = '13px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(centralTrait.label, centralTrait.x, centralTrait.y);
+
+      requestAnimationFrame(draw);
+    }
+
+    document.getElementById('toggleHalo').addEventListener('click', () => {
+      haloActive = !haloActive;
+      const btn = document.getElementById('toggleHalo');
+      btn.classList.toggle('active', haloActive);
+      btn.textContent = haloActive ? 'Attractiveness: ON (Halo Active)' : 'Attractiveness: OFF (Halo Inactive)';
+    });
+
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+  </script>
+</body>
+</html>

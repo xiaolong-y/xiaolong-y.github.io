@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loss Aversion - Cognitive Bias Visualization</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0; --fx-base-900: #2D2B28; --fx-base-700: #6F6E69;
+      --fx-base-500: #9F9D94; --fx-base-200: #DAD8CE; --fx-base-50: #F2F0E5;
+      --fx-orange: #BC5215; --fx-blue: #205EA6; --fx-cyan: #24837B;
+      --fx-red: #AF3029; --fx-purple: #5E409D; --fx-green: #66800B;
+      --fx-magenta: #A02F6F;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F; --fx-base-900: #CECDC3; --fx-base-700: #878580;
+        --fx-base-500: #6F6E69; --fx-base-200: #403E3C; --fx-base-50: #1C1B1A;
+        --fx-orange: #DA702C; --fx-blue: #4385BE; --fx-cyan: #3AA99F;
+        --fx-red: #D14D41; --fx-purple: #8B7EC8; --fx-green: #879A39;
+        --fx-magenta: #CE5D97;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'IBM Plex Mono', monospace; background: var(--fx-paper);
+      color: var(--fx-base-900); padding: 20px; min-height: 100vh;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 {
+      font-size: 1.5em; font-weight: 300; color: var(--fx-magenta);
+      margin-bottom: 10px; border-bottom: 1px solid var(--fx-base-200); padding-bottom: 8px;
+    }
+    .description {
+      font-size: 0.85em; color: var(--fx-base-700); margin-bottom: 20px; line-height: 1.5;
+    }
+    .canvas-container {
+      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);
+      border-radius: 4px; margin-bottom: 20px; overflow: hidden;
+    }
+    canvas { display: block; width: 100%; height: 450px; }
+    .controls {
+      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);
+      border-radius: 4px; padding: 15px;
+    }
+    .instruction { font-size: 0.8em; color: var(--fx-blue); margin-bottom: 12px; }
+    .slider-container {
+      margin-bottom: 15px;
+    }
+    .slider-label {
+      font-size: 0.75em; color: var(--fx-base-700); margin-bottom: 5px;
+      display: flex; justify-content: space-between;
+    }
+    input[type="range"] {
+      width: 100%; height: 6px; background: var(--fx-base-200);
+      border-radius: 3px; outline: none; -webkit-appearance: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 20px; height: 20px; background: var(--fx-blue);
+      cursor: pointer; border-radius: 50%;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 20px; height: 20px; background: var(--fx-blue);
+      cursor: pointer; border-radius: 50%; border: none;
+    }
+    .emotional-indicator {
+      font-size: 0.75em; margin-top: 10px; padding: 8px;
+      background: var(--fx-paper); border-radius: 3px;
+    }
+    @media (max-width: 768px) {
+      canvas { height: 350px; }
+      h1 { font-size: 1.2em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Loss Aversion</h1>
+    <p class="description">
+      Losses loom larger than equivalent gains. Psychologically, losing $50 feels about twice as bad as winning $50 feels good. Watch the balance scale—notice how loss weighs heavier, with more intense emotional particles. Adjust the slider to find your personal equilibrium point.
+    </p>
+
+    <div class="canvas-container">
+      <canvas id="biasCanvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <p class="instruction">Drag the slider to change the gain amount. Notice how the loss side always weighs heavier emotionally, even when amounts are equal.</p>
+
+      <div class="slider-container">
+        <div class="slider-label">
+          <span>Gain Amount</span>
+          <span id="gainValue">$50</span>
+        </div>
+        <input type="range" id="gainSlider" min="10" max="200" value="50" step="10">
+      </div>
+
+      <div class="emotional-indicator">
+        <strong>Loss Aversion Ratio:</strong> <span id="ratio">2.0x</span>
+        <br><small>Losses feel this many times more painful than equivalent gains feel good</small>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('biasCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+
+    let gainAmount = 50;
+    const lossAmount = 50;
+    const lossAversionRatio = 2.0;
+
+    let scaleAngle = 0;
+    let particles = [];
+
+    class Particle {
+      constructor(x, y, side) {
+        this.x = x;
+        this.y = y;
+        this.side = side;
+        this.vy = Math.random() * 2 + 1;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.life = 1.0;
+        this.size = Math.random() * 3 + 2;
+        this.color = side === 'loss' ? '#AF3029' : '#66800B';
+      }
+
+      update() {
+        this.y += this.vy;
+        this.x += this.vx;
+        this.life -= 0.01;
+        this.vy *= 0.98;
+      }
+
+      draw() {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = this.life;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function draw() {
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-paper');
+      ctx.fillRect(0, 0, width, height);
+
+      const emotionalGain = gainAmount;
+      const emotionalLoss = lossAmount * lossAversionRatio;
+      const netWeight = emotionalLoss - emotionalGain;
+
+      const targetAngle = Math.atan2(netWeight, 100) * 0.5;
+      scaleAngle += (targetAngle - scaleAngle) * 0.1;
+
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const beamLength = Math.min(width, height) * 0.35;
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(scaleAngle);
+
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-base-700');
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(-beamLength, 0);
+      ctx.lineTo(beamLength, 0);
+      ctx.stroke();
+
+      const fulcrumSize = 15;
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-base-900');
+      ctx.beginPath();
+      ctx.moveTo(0, fulcrumSize);
+      ctx.lineTo(-fulcrumSize, -fulcrumSize);
+      ctx.lineTo(fulcrumSize, -fulcrumSize);
+      ctx.closePath();
+      ctx.fill();
+
+      const panWidth = beamLength * 0.3;
+      const panHeight = 50;
+
+      [-beamLength, beamLength].forEach((x, i) => {
+        const side = i === 0 ? 'gain' : 'loss';
+        const value = i === 0 ? gainAmount : lossAmount;
+        const weight = i === 0 ? emotionalGain : emotionalLoss;
+
+        ctx.fillStyle = side === 'loss'
+          ? getComputedStyle(document.documentElement).getPropertyValue('--fx-red')
+          : getComputedStyle(document.documentElement).getPropertyValue('--fx-green');
+        ctx.fillRect(x - panWidth/2, -5, panWidth, panHeight);
+
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-paper');
+        ctx.font = '14px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText(`$${value}`, x, 25);
+        ctx.font = '10px IBM Plex Mono';
+        ctx.fillText(`${Math.round(weight)} units`, x, 40);
+      });
+
+      ctx.restore();
+
+      const lossParticleRate = emotionalLoss / 50;
+      const gainParticleRate = emotionalGain / 50;
+
+      if (Math.random() < lossParticleRate * 0.1) {
+        const px = centerX + beamLength * Math.cos(scaleAngle) + (Math.random() - 0.5) * panWidth;
+        const py = centerY + beamLength * Math.sin(scaleAngle) + panHeight/2;
+        particles.push(new Particle(px, py, 'loss'));
+      }
+
+      if (Math.random() < gainParticleRate * 0.05) {
+        const px = centerX - beamLength * Math.cos(scaleAngle) + (Math.random() - 0.5) * panWidth;
+        const py = centerY - beamLength * Math.sin(scaleAngle) + panHeight/2;
+        particles.push(new Particle(px, py, 'gain'));
+      }
+
+      particles = particles.filter(p => p.life > 0);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    document.getElementById('gainSlider').addEventListener('input', (e) => {
+      gainAmount = parseInt(e.target.value);
+      document.getElementById('gainValue').textContent = `$${gainAmount}`;
+
+      const ratio = (lossAmount * lossAversionRatio) / gainAmount;
+      document.getElementById('ratio').textContent = `${ratio.toFixed(1)}x`;
+    });
+
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+  </script>
+</body>
+</html>

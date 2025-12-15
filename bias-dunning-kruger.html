@@ -1,0 +1,679 @@
+<!DOCTYPE html>                                                              
+<html lang="en">                                                             
+<head>                                                                       
+  <meta charset="UTF-8">                                                     
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">     
+  <title>Dunning-Kruger Effect - Cognitive Bias Visualization</title>        
+  <style>                                                                    
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght 
+@200;300;400;500&display=swap');                                             
+                                                                             
+    :root {                                                                  
+      --fx-paper: #FFFCF0; --fx-base-900: #2D2B28; --fx-base-700: #6F6E69;   
+      --fx-base-500: #9F9D94; --fx-base-200: #DAD8CE; --fx-base-50: #F2F0E5; 
+      --fx-orange: #BC5215; --fx-blue: #205EA6; --fx-cyan: #24837B;          
+      --fx-red: #AF3029; --fx-purple: #5E409D; --fx-green: #66800B;          
+      --fx-yellow: #AD8301;                                                  
+    }                                                                        
+                                                                             
+    @media (prefers-color-scheme: dark) {                                    
+      :root {                                                                
+        --fx-paper: #100F0F; --fx-base-900: #CECDC3; --fx-base-700: #878580; 
+        --fx-base-500: #6F6E69; --fx-base-200: #403E3C; --fx-base-50:        
+#1C1B1A;                                                                     
+        --fx-orange: #DA702C; --fx-blue: #4385BE; --fx-cyan: #3AA99F;        
+        --fx-red: #D14D41; --fx-purple: #8B7EC8; --fx-green: #879A39;        
+        --fx-yellow: #D0A215;                                                
+      }                                                                      
+    }                                                                        
+                                                                             
+    * { margin: 0; padding: 0; box-sizing: border-box; }                     
+    body {                                                                   
+      font-family: 'IBM Plex Mono', monospace; background: var(--fx-paper);  
+      color: var(--fx-base-900); padding: 20px; min-height: 100vh;           
+    }                                                                        
+    .container { max-width: 1200px; margin: 0 auto; }                        
+    h1 {                                                                     
+      font-size: 1.5em; font-weight: 300; color: var(--fx-cyan);             
+      margin-bottom: 10px; border-bottom: 1px solid var(--fx-base-200);      
+padding-bottom: 8px;                                                         
+    }                                                                        
+    .description {                                                           
+      font-size: 0.85em; color: var(--fx-base-700); margin-bottom: 20px;     
+line-height: 1.5;                                                            
+    }                                                                        
+    .main-grid {                                                             
+      display: grid; grid-template-columns: 1fr 380px; gap: 20px;            
+    }                                                                        
+    .canvas-container {                                                      
+      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);   
+      border-radius: 4px; overflow: hidden; position: relative;              
+    }                                                                        
+    canvas { display: block; width: 100%; height: 480px; }                   
+    .legend {                                                                
+      position: absolute; top: 10px; right: 10px; background:                
+var(--fx-paper);                                                             
+      border: 1px solid var(--fx-base-200); border-radius: 3px; padding: 8px 
+ 12px;                                                                       
+      font-size: 0.75em;                                                     
+    }                                                                        
+    .legend-item { display: flex; align-items: center; margin: 4px 0; }      
+    .legend-dot {                                                            
+      width: 12px; height: 12px; border-radius: 50%; margin-right: 8px;      
+    }                                                                        
+    .quiz-panel {                                                            
+      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);   
+      border-radius: 4px; padding: 15px; display: flex; flex-direction:      
+column;                                                                      
+    }                                                                        
+    .quiz-header {                                                           
+      font-size: 0.9em; font-weight: 500; color: var(--fx-blue);             
+      margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid     
+var(--fx-base-200);                                                          
+    }                                                                        
+    .quiz-progress {                                                         
+      font-size: 0.75em; color: var(--fx-base-700); margin-bottom: 15px;     
+    }                                                                        
+    .progress-bar {                                                          
+      height: 4px; background: var(--fx-base-200); border-radius: 2px;       
+      margin-top: 6px; overflow: hidden;                                     
+    }                                                                        
+    .progress-fill {                                                         
+      height: 100%; background: var(--fx-cyan); transition: width 0.3s;      
+    }                                                                        
+    .question-area { flex: 1; }                                              
+    .question-text {                                                         
+      font-size: 0.85em; color: var(--fx-base-900); margin-bottom: 15px;     
+      line-height: 1.5; min-height: 60px;                                    
+    }                                                                        
+    .confidence-section {                                                    
+      margin-bottom: 15px; padding: 12px; background: var(--fx-paper);       
+      border: 1px solid var(--fx-base-200); border-radius: 3px;              
+    }                                                                        
+    .confidence-label {                                                      
+      font-size: 0.75em; color: var(--fx-base-700); margin-bottom: 8px;      
+    }                                                                        
+    .confidence-slider { width: 100%; margin: 8px 0; }                       
+    .confidence-value {                                                      
+      text-align: center; font-size: 0.9em; font-weight: 500;                
+      color: var(--fx-cyan);                                                 
+    }                                                                        
+    .answers {                                                               
+      display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;  
+    }                                                                        
+    .answer-btn {                                                            
+      font-family: 'IBM Plex Mono', monospace; background: var(--fx-paper);  
+      color: var(--fx-base-900); border: 1px solid var(--fx-base-200);       
+      padding: 10px 12px; font-size: 0.8em; cursor: pointer; border-radius:  
+3px;                                                                         
+      text-align: left; transition: all 0.2s;                                
+    }                                                                        
+    .answer-btn:hover { border-color: var(--fx-cyan); background:            
+var(--fx-base-50); }                                                         
+    .answer-btn.correct { background: var(--fx-green); color:                
+var(--fx-paper); border-color: var(--fx-green); }                            
+    .answer-btn.wrong { background: var(--fx-red); color: var(--fx-paper);   
+border-color: var(--fx-red); }                                               
+    .answer-btn.reveal { border-color: var(--fx-green); }                    
+    .answer-btn:disabled { cursor: default; opacity: 0.9; }                  
+    .next-btn {                                                              
+      font-family: 'IBM Plex Mono', monospace; background: var(--fx-blue);   
+      color: var(--fx-paper); border: none; padding: 10px 16px;              
+      font-size: 0.85em; cursor: pointer; border-radius: 3px; width: 100%;   
+      margin-top: 10px;                                                      
+    }                                                                        
+    .next-btn:hover { background: var(--fx-cyan); }                          
+    .next-btn:disabled { background: var(--fx-base-500); cursor:             
+not-allowed; }                                                               
+    .results-panel {                                                         
+      text-align: center; padding: 20px 0;                                   
+    }                                                                        
+    .result-score {                                                          
+      font-size: 2em; font-weight: 300; color: var(--fx-green);              
+margin-bottom: 10px;                                                         
+    }                                                                        
+    .result-confidence {                                                     
+      font-size: 1.5em; font-weight: 300; color: var(--fx-cyan);             
+margin-bottom: 15px;                                                         
+    }                                                                        
+    .result-analysis {                                                       
+      font-size: 0.8em; color: var(--fx-base-700); line-height: 1.6;         
+      padding: 15px; background: var(--fx-paper); border-radius: 3px;        
+      border: 1px solid var(--fx-base-200); text-align: left;                
+    }                                                                        
+    .result-zone {                                                           
+      font-weight: 500; color: var(--fx-orange); display: block;             
+      margin-bottom: 8px; font-size: 0.95em;                                 
+    }                                                                        
+    .restart-btn {                                                           
+      font-family: 'IBM Plex Mono', monospace; background: var(--fx-purple); 
+      color: var(--fx-paper); border: none; padding: 10px 20px;              
+      font-size: 0.85em; cursor: pointer; border-radius: 3px; margin-top:    
+15px;                                                                        
+    }                                                                        
+    .restart-btn:hover { background: var(--fx-blue); }                       
+    .stage-labels {                                                          
+      font-size: 0.7em; color: var(--fx-base-700); margin-top: 15px;         
+      padding: 10px; background: var(--fx-paper); border-radius: 3px;        
+      border: 1px solid var(--fx-base-200);                                  
+    }                                                                        
+    .stage-item { margin: 6px 0; display: flex; align-items: flex-start; }   
+    .stage-num {                                                             
+      min-width: 18px; height: 18px; border-radius: 50%;                     
+      background: var(--fx-base-200); color: var(--fx-base-700);             
+      display: flex; align-items: center; justify-content: center;           
+      margin-right: 8px; font-size: 0.85em;                                  
+    }                                                                        
+    @media (max-width: 900px) {                                              
+      .main-grid { grid-template-columns: 1fr; }                             
+      canvas { height: 350px; }                                              
+      h1 { font-size: 1.2em; }                                               
+    }                                                                        
+  </style>                                                                   
+</head>                                                                      
+<body>                                                                       
+  <div class="container">                                                    
+    <h1>Dunning-Kruger Effect</h1>                                           
+    <p class="description">                                                  
+      Low-skill individuals overestimate their competence, while high-skill  
+individuals underestimate theirs. Take the quiz below: rate your confidence  
+before answering, then watch your position appear on the curve. The gap      
+between where you think you are and where you actually land reveals the bias 
+ at work.                                                                    
+    </p>                                                                     
+                                                                             
+    <div class="main-grid">                                                  
+      <div class="canvas-container">                                         
+        <canvas id="biasCanvas"></canvas>                                    
+        <div class="legend">                                                 
+          <div class="legend-item">                                          
+            <div class="legend-dot" style="background:                       
+var(--fx-cyan);"></div>                                                      
+            <span>Self-Assessment</span>                                     
+          </div>                                                             
+          <div class="legend-item">                                          
+            <div class="legend-dot" style="background:                       
+var(--fx-green);"></div>                                                     
+            <span>Actual Competence</span>                                   
+          </div>                                                             
+          <div class="legend-item">                                          
+            <div class="legend-dot" style="background:                       
+var(--fx-orange);"></div>                                                    
+            <span>Your Position</span>                                       
+          </div>                                                             
+        </div>                                                               
+      </div>                                                                 
+                                                                             
+      <div class="quiz-panel">                                               
+        <div class="quiz-header">Competence Assessment Quiz</div>            
+        <div class="quiz-progress">                                          
+          <span id="progressText">Question 1 of 5</span>                     
+          <div class="progress-bar">                                         
+            <div class="progress-fill" id="progressFill" style="width:       
+0%;"></div>                                                                  
+          </div>                                                             
+        </div>                                                               
+                                                                             
+        <div class="question-area" id="questionArea">                        
+          <div class="question-text" id="questionText"></div>                
+                                                                             
+          <div class="confidence-section" id="confidenceSection">            
+            <div class="confidence-label">How confident are you that you'll  
+answer correctly?</div>                                                      
+            <input type="range" class="confidence-slider"                    
+id="confidenceSlider" min="0" max="100" value="50">                          
+            <div class="confidence-value"><span                              
+id="confidenceValue">50</span>%</div>                                        
+          </div>                                                             
+                                                                             
+          <div class="answers" id="answersContainer"></div>                  
+                                                                             
+          <button class="next-btn" id="nextBtn" disabled>Next                
+Question</button>                                                            
+        </div>                                                               
+                                                                             
+        <div class="results-panel" id="resultsPanel" style="display: none;"> 
+          <div class="result-score">Actual: <span                            
+id="finalScore">0</span>%</div>                                              
+          <div class="result-confidence">Predicted: <span                    
+id="avgConfidence">0</span>%</div>                                           
+          <div class="result-analysis" id="resultAnalysis"></div>            
+          <button class="restart-btn" id="restartBtn">Try Again</button>     
+        </div>                                                               
+                                                                             
+        <div class="stage-labels">                                           
+          <div class="stage-item"><span class="stage-num">1</span>Peak of    
+Mt. Stupid: High confidence, low skill</div>                                 
+          <div class="stage-item"><span class="stage-num">2</span>Valley of  
+Despair: Confidence crashes as learning begins</div>                         
+          <div class="stage-item"><span class="stage-num">3</span>Slope of   
+Enlightenment: Skills grow, confidence rebuilds</div>                        
+          <div class="stage-item"><span class="stage-num">4</span>Plateau of 
+ Sustainability: Expertise with calibrated confidence</div>                  
+        </div>                                                               
+      </div>                                                                 
+    </div>                                                                   
+  </div>                                                                     
+                                                                             
+  <script>                                                                   
+    const canvas = document.getElementById('biasCanvas');                    
+    const ctx = canvas.getContext('2d');                                     
+    let width, height, dpr;                                                  
+                                                                             
+    // Quiz state                                                            
+    let currentQuestion = 0;                                                 
+    let confidences = [];                                                    
+    let correctAnswers = 0;                                                  
+    let answered = false;                                                    
+    let userMarker = null;                                                   
+    let animationProgress = 0;                                               
+                                                                             
+    const questions = [                                                      
+      {                                                                      
+        text: "What is the capital of Australia?",                           
+        answers: ["Sydney", "Melbourne", "Canberra", "Perth"],               
+        correct: 2                                                           
+      },                                                                     
+      {                                                                      
+        text: "Which planet is closest to the Sun?",                         
+        answers: ["Venus", "Mercury", "Mars", "Earth"],                      
+        correct: 1                                                           
+      },                                                                     
+      {                                                                      
+        text: "What year did World War II end?",                             
+        answers: ["1943", "1944", "1945", "1946"],                           
+        correct: 2                                                           
+      },                                                                     
+      {                                                                      
+        text: "Who wrote 'Romeo and Juliet'?",                               
+        answers: ["Charles Dickens", "William Shakespeare", "Jane Austen",   
+"Mark Twain"],                                                               
+        correct: 1                                                           
+      },                                                                     
+      {                                                                      
+        text: "What is the chemical symbol for Gold?",                       
+        answers: ["Go", "Gd", "Au", "Ag"],                                   
+        correct: 2                                                           
+      }                                                                      
+    ];                                                                       
+                                                                             
+    function resize() {                                                      
+      dpr = window.devicePixelRatio || 1;                                    
+      width = canvas.clientWidth;                                            
+      height = canvas.clientHeight;                                          
+      canvas.width = width * dpr;                                            
+      canvas.height = height * dpr;                                          
+      ctx.scale(dpr, dpr);                                                   
+    }                                                                        
+                                                                             
+    function getColor(varName) {                                             
+      return                                                                 
+getComputedStyle(document.documentElement).getPropertyValue(varName).trim(); 
+    }                                                                        
+                                                                             
+    // Dunning-Kruger curve function (self-assessment)                       
+    function selfAssessmentCurve(x) {                                        
+      // x is 0 to 1 (competence)                                            
+      // Returns confidence 0 to 1                                           
+      if (x < 0.15) {                                                        
+        // Rapid rise to peak of Mt. Stupid                                  
+        return 0.3 + 0.65 * (x / 0.15);                                      
+      } else if (x < 0.35) {                                                 
+        // Drop into Valley of Despair                                       
+        const t = (x - 0.15) / 0.2;                                          
+        return 0.95 - 0.6 * t;                                               
+      } else if (x < 0.7) {                                                  
+        // Slope of Enlightenment - gradual rise                             
+        const t = (x - 0.35) / 0.35;                                         
+        return 0.35 + 0.35 * t;                                              
+      } else {                                                               
+        // Plateau of Sustainability                                         
+        const t = (x - 0.7) / 0.3;                                           
+        return 0.7 + 0.1 * t;                                                
+      }                                                                      
+    }                                                                        
+                                                                             
+    // Actual competence - linear                                            
+    function actualCompetence(x) {                                           
+      return x;                                                              
+    }                                                                        
+                                                                             
+    function draw() {                                                        
+      const paper = getColor('--fx-paper');                                  
+      const base900 = getColor('--fx-base-900');                             
+      const base700 = getColor('--fx-base-700');                             
+      const base500 = getColor('--fx-base-500');                             
+      const base200 = getColor('--fx-base-200');                             
+      const cyan = getColor('--fx-cyan');                                    
+      const green = getColor('--fx-green');                                  
+      const orange = getColor('--fx-orange');                                
+      const red = getColor('--fx-red');                                      
+                                                                             
+      ctx.fillStyle = paper;                                                 
+      ctx.fillRect(0, 0, width, height);                                     
+                                                                             
+      const margin = { top: 60, right: 40, bottom: 60, left: 60 };           
+      const chartWidth = width - margin.left - margin.right;                 
+      const chartHeight = height - margin.top - margin.bottom;               
+                                                                             
+      // Draw grid                                                           
+      ctx.strokeStyle = base200;                                             
+      ctx.lineWidth = 1;                                                     
+      for (let i = 0; i <= 4; i++) {                                         
+        const y = margin.top + (chartHeight * i / 4);                        
+        ctx.beginPath();                                                     
+        ctx.moveTo(margin.left, y);                                          
+        ctx.lineTo(width - margin.right, y);                                 
+        ctx.stroke();                                                        
+      }                                                                      
+      for (let i = 0; i <= 4; i++) {                                         
+        const x = margin.left + (chartWidth * i / 4);                        
+        ctx.beginPath();                                                     
+        ctx.moveTo(x, margin.top);                                           
+        ctx.lineTo(x, height - margin.bottom);                               
+        ctx.stroke();                                                        
+      }                                                                      
+                                                                             
+      // Axes                                                                
+      ctx.strokeStyle = base700;                                             
+      ctx.lineWidth = 2;                                                     
+      ctx.beginPath();                                                       
+      ctx.moveTo(margin.left, margin.top);                                   
+      ctx.lineTo(margin.left, height - margin.bottom);                       
+      ctx.lineTo(width - margin.right, height - margin.bottom);              
+      ctx.stroke();                                                          
+                                                                             
+      // Axis labels                                                         
+      ctx.fillStyle = base700;                                               
+      ctx.font = '11px IBM Plex Mono';                                       
+      ctx.textAlign = 'center';                                              
+      ctx.fillText('Actual Competence / Experience', width / 2, height -     
+15);                                                                         
+                                                                             
+      ctx.save();                                                            
+      ctx.translate(18, height / 2);                                         
+      ctx.rotate(-Math.PI / 2);                                              
+      ctx.fillText('Confidence Level', 0, 0);                                
+      ctx.restore();                                                         
+                                                                             
+      // Stage labels on x-axis                                              
+      ctx.fillStyle = base500;                                               
+      ctx.font = '9px IBM Plex Mono';                                        
+      const stages = ['Novice', 'Beginner', 'Intermediate', 'Advanced',      
+'Expert'];                                                                   
+      stages.forEach((stage, i) => {                                         
+        const x = margin.left + (chartWidth * i / 4);                        
+        ctx.fillText(stage, x, height - margin.bottom + 20);                 
+      });                                                                    
+                                                                             
+      // Draw actual competence line (green, diagonal)                       
+      ctx.strokeStyle = green;                                               
+      ctx.lineWidth = 2;                                                     
+      ctx.setLineDash([5, 5]);                                               
+      ctx.beginPath();                                                       
+      for (let i = 0; i <= 100; i++) {                                       
+        const x = margin.left + (chartWidth * i / 100);                      
+        const y = margin.top + chartHeight * (1 - actualCompetence(i /       
+100));                                                                       
+        if (i === 0) ctx.moveTo(x, y);                                       
+        else ctx.lineTo(x, y);                                               
+      }                                                                      
+      ctx.stroke();                                                          
+      ctx.setLineDash([]);                                                   
+                                                                             
+      // Draw self-assessment curve (cyan)                                   
+      ctx.strokeStyle = cyan;                                                
+      ctx.lineWidth = 3;                                                     
+      ctx.beginPath();                                                       
+      for (let i = 0; i <= 100; i++) {                                       
+        const x = margin.left + (chartWidth * i / 100);                      
+        const y = margin.top + chartHeight * (1 - selfAssessmentCurve(i /    
+100));                                                                       
+        if (i === 0) ctx.moveTo(x, y);                                       
+        else ctx.lineTo(x, y);                                               
+      }                                                                      
+      ctx.stroke();                                                          
+                                                                             
+      // Stage markers                                                       
+      const stagePoints = [                                                  
+        { x: 0.12, label: 'Peak of\nMt. Stupid', color: red },               
+        { x: 0.35, label: 'Valley of\nDespair', color: base700 },            
+        { x: 0.55, label: 'Slope of\nEnlightenment', color: base700 },       
+        { x: 0.85, label: 'Plateau of\nSustainability', color: green }       
+      ];                                                                     
+                                                                             
+      ctx.font = '9px IBM Plex Mono';                                        
+      ctx.textAlign = 'center';                                              
+      stagePoints.forEach(point => {                                         
+        const x = margin.left + (chartWidth * point.x);                      
+        const y = margin.top + chartHeight * (1 -                            
+selfAssessmentCurve(point.x));                                               
+                                                                             
+        // Draw marker                                                       
+        ctx.fillStyle = point.color;                                         
+        ctx.beginPath();                                                     
+        ctx.arc(x, y, 5, 0, Math.PI * 2);                                    
+        ctx.fill();                                                          
+                                                                             
+        // Draw label                                                        
+        ctx.fillStyle = base700;                                             
+        const lines = point.label.split('\n');                               
+        const labelY = point.x < 0.3 ? y - 25 : y + 20;                      
+        lines.forEach((line, i) => {                                         
+          ctx.fillText(line, x, labelY + i * 12);                            
+        });                                                                  
+      });                                                                    
+                                                                             
+      // Draw user marker if exists                                          
+      if (userMarker) {                                                      
+        const targetX = margin.left + (chartWidth * userMarker.actual);      
+        const targetY = margin.top + chartHeight * (1 -                      
+userMarker.confidence);                                                      
+                                                                             
+        // Animate marker appearance                                         
+        if (animationProgress < 1) {                                         
+          animationProgress += 0.02;                                         
+        }                                                                    
+                                                                             
+        const currentX = targetX;                                            
+        const currentY = margin.top + chartHeight + (targetY - margin.top -  
+chartHeight) * Math.min(animationProgress, 1);                               
+                                                                             
+        // Draw line from actual competence point to confidence point        
+        const actualY = margin.top + chartHeight * (1 - userMarker.actual);  
+                                                                             
+        ctx.strokeStyle = orange;                                            
+        ctx.lineWidth = 1;                                                   
+        ctx.setLineDash([3, 3]);                                             
+        ctx.beginPath();                                                     
+        ctx.moveTo(currentX, actualY);                                       
+        ctx.lineTo(currentX, currentY);                                      
+        ctx.stroke();                                                        
+        ctx.setLineDash([]);                                                 
+                                                                             
+        // Gap label                                                         
+        if (animationProgress > 0.5) {                                       
+          const gap = Math.abs(userMarker.confidence - userMarker.actual);   
+          const midY = (actualY + currentY) / 2;                             
+          ctx.fillStyle = orange;                                            
+          ctx.font = '10px IBM Plex Mono';                                   
+          ctx.textAlign = 'left';                                            
+          ctx.fillText(`Gap: ${Math.round(gap * 100)}%`, currentX + 10,      
+midY);                                                                       
+        }                                                                    
+                                                                             
+        // User marker (confidence)                                          
+        ctx.fillStyle = orange;                                              
+        ctx.beginPath();                                                     
+        ctx.arc(currentX, currentY, 10, 0, Math.PI * 2);                     
+        ctx.fill();                                                          
+                                                                             
+        ctx.fillStyle = paper;                                               
+        ctx.font = 'bold 10px IBM Plex Mono';                                
+        ctx.textAlign = 'center';                                            
+        ctx.textBaseline = 'middle';                                         
+        ctx.fillText('You', currentX, currentY);                             
+                                                                             
+        // Actual competence marker                                          
+        ctx.strokeStyle = green;                                             
+        ctx.lineWidth = 2;                                                   
+        ctx.beginPath();                                                     
+        ctx.arc(currentX, actualY, 6, 0, Math.PI * 2);                       
+        ctx.stroke();                                                        
+      }                                                                      
+                                                                             
+      requestAnimationFrame(draw);                                           
+    }                                                                        
+                                                                             
+    // Quiz logic                                                            
+    function loadQuestion() {                                                
+      const q = questions[currentQuestion];                                  
+      document.getElementById('questionText').textContent = q.text;          
+      document.getElementById('progressText').textContent = `Question        
+${currentQuestion + 1} of ${questions.length}`;                              
+      document.getElementById('progressFill').style.width =                  
+`${(currentQuestion / questions.length) * 100}%`;                            
+                                                                             
+      const container = document.getElementById('answersContainer');         
+      container.innerHTML = '';                                              
+      q.answers.forEach((ans, i) => {                                        
+        const btn = document.createElement('button');                        
+        btn.className = 'answer-btn';                                        
+        btn.textContent = ans;                                               
+        btn.addEventListener('click', () => selectAnswer(i));                
+        container.appendChild(btn);                                          
+      });                                                                    
+                                                                             
+      document.getElementById('confidenceSlider').value = 50;                
+      document.getElementById('confidenceValue').textContent = '50';         
+      document.getElementById('confidenceSection').style.display = 'block';  
+      document.getElementById('nextBtn').disabled = true;                    
+      answered = false;                                                      
+    }                                                                        
+                                                                             
+    function selectAnswer(index) {                                           
+      if (answered) return;                                                  
+      answered = true;                                                       
+                                                                             
+      const q = questions[currentQuestion];                                  
+      const confidence =                                                     
+parseInt(document.getElementById('confidenceSlider').value);                 
+      confidences.push(confidence);                                          
+                                                                             
+      const isCorrect = index === q.correct;                                 
+      if (isCorrect) correctAnswers++;                                       
+                                                                             
+      const buttons = document.querySelectorAll('.answer-btn');              
+      buttons.forEach((btn, i) => {                                          
+        btn.disabled = true;                                                 
+        if (i === q.correct) {                                               
+          btn.classList.add('correct');                                      
+        } else if (i === index && !isCorrect) {                              
+          btn.classList.add('wrong');                                        
+        }                                                                    
+      });                                                                    
+                                                                             
+      document.getElementById('confidenceSection').style.display = 'none';   
+      document.getElementById('nextBtn').disabled = false;                   
+                                                                             
+      if (currentQuestion === questions.length - 1) {                        
+        document.getElementById('nextBtn').textContent = 'See Results';      
+      }                                                                      
+    }                                                                        
+                                                                             
+    function nextQuestion() {                                                
+      if (currentQuestion < questions.length - 1) {                          
+        currentQuestion++;                                                   
+        loadQuestion();                                                      
+      } else {                                                               
+        showResults();                                                       
+      }                                                                      
+    }                                                                        
+                                                                             
+    function showResults() {                                                 
+      document.getElementById('questionArea').style.display = 'none';        
+      document.getElementById('resultsPanel').style.display = 'block';       
+                                                                             
+      const avgConfidence = confidences.reduce((a, b) => a + b, 0) /         
+confidences.length;                                                          
+      const actualScore = (correctAnswers / questions.length) * 100;         
+                                                                             
+      document.getElementById('finalScore').textContent =                    
+Math.round(actualScore);                                                     
+      document.getElementById('avgConfidence').textContent =                 
+Math.round(avgConfidence);                                                   
+                                                                             
+      // Set user marker                                                     
+      userMarker = {                                                         
+        actual: actualScore / 100,                                           
+        confidence: avgConfidence / 100                                      
+      };                                                                     
+      animationProgress = 0;                                                 
+                                                                             
+      // Analysis                                                            
+      const gap = avgConfidence - actualScore;                               
+      let zone, analysis;                                                    
+                                                                             
+      if (gap > 30) {                                                        
+        zone = "Peak of Mt. Stupid";                                         
+        analysis = "Classic Dunning-Kruger: Your confidence significantly    
+exceeded your performance. This overconfidence is common when we lack the    
+expertise to recognize what we don't know.";                                 
+      } else if (gap > 10) {                                                 
+        zone = "Slight Overconfidence";                                      
+        analysis = "You showed mild overconfidence. While not extreme,       
+there's room to calibrate your self-assessment more accurately.";            
+      } else if (gap > -10) {                                                
+        zone = "Well Calibrated";                                            
+        analysis = "Your confidence closely matched your actual performance. 
+ This suggests good metacognitive awareness - you know what you know.";      
+      } else if (gap > -30) {                                                
+        zone = "Slight Underconfidence";                                     
+        analysis = "You underestimated yourself. This pattern often appears  
+as people gain genuine expertise and become aware of the vast landscape of   
+what they don't know.";                                                      
+      } else {                                                               
+        zone = "Valley of Despair / Impostor Syndrome";                      
+        analysis = "Significant underconfidence detected. Despite performing 
+ well, you doubted your abilities. This is common among experts who are      
+acutely aware of their knowledge gaps.";                                     
+      }                                                                      
+                                                                             
+      document.getElementById('resultAnalysis').innerHTML =                  
+        `<span class="result-zone">${zone}</span>${analysis}<br><br>Gap:     
+${gap > 0 ? '+' : ''}${Math.round(gap)}% (Predicted - Actual)`;              
+    }                                                                        
+                                                                             
+    function restart() {                                                     
+      currentQuestion = 0;                                                   
+      confidences = [];                                                      
+      correctAnswers = 0;                                                    
+      userMarker = null;                                                     
+      animationProgress = 0;                                                 
+                                                                             
+      document.getElementById('questionArea').style.display = 'block';       
+      document.getElementById('resultsPanel').style.display = 'none';        
+      document.getElementById('nextBtn').textContent = 'Next Question';      
+      loadQuestion();                                                        
+    }                                                                        
+                                                                             
+    // Event listeners                                                       
+    document.getElementById('confidenceSlider').addEventListener('input',    
+(e) => {                                                                     
+      document.getElementById('confidenceValue').textContent =               
+e.target.value;                                                              
+    });                                                                      
+                                                                             
+    document.getElementById('nextBtn').addEventListener('click',             
+nextQuestion);                                                               
+    document.getElementById('restartBtn').addEventListener('click',          
+restart);                                                                    
+                                                                             
+    // Initialize                                                            
+    resize();                                                                
+    window.addEventListener('resize', resize);                               
+    loadQuestion();                                                          
+    draw();                                                                  
+  </script>                                                                  
+</body>                                                                      
+</html>                                                                      

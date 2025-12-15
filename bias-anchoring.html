@@ -1,0 +1,556 @@
+<!DOCTYPE html>                                                              
+<html lang="en">                                                             
+<head>                                                                       
+  <meta charset="UTF-8">                                                     
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">     
+  <title>Anchoring Bias - Cognitive Bias Visualization</title>               
+  <style>                                                                    
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght 
+@200;300;400;500&display=swap');                                             
+                                                                             
+    :root {                                                                  
+      --fx-paper: #FFFCF0; --fx-base-900: #2D2B28; --fx-base-700: #6F6E69;   
+      --fx-base-500: #9F9D94; --fx-base-200: #DAD8CE; --fx-base-50: #F2F0E5; 
+      --fx-orange: #BC5215; --fx-blue: #205EA6; --fx-cyan: #24837B;          
+      --fx-red: #AF3029; --fx-purple: #5E409D; --fx-green: #66800B;          
+      --fx-yellow: #AD8301;                                                  
+    }                                                                        
+                                                                             
+    @media (prefers-color-scheme: dark) {                                    
+      :root {                                                                
+        --fx-paper: #100F0F; --fx-base-900: #CECDC3; --fx-base-700: #878580; 
+        --fx-base-500: #6F6E69; --fx-base-200: #403E3C; --fx-base-50:        
+#1C1B1A;                                                                     
+        --fx-orange: #DA702C; --fx-blue: #4385BE; --fx-cyan: #3AA99F;        
+        --fx-red: #D14D41; --fx-purple: #8B7EC8; --fx-green: #879A39;        
+        --fx-yellow: #D0A215;                                                
+      }                                                                      
+    }                                                                        
+                                                                             
+    * { margin: 0; padding: 0; box-sizing: border-box; }                     
+    body {                                                                   
+      font-family: 'IBM Plex Mono', monospace; background: var(--fx-paper);  
+      color: var(--fx-base-900); padding: 20px; min-height: 100vh;           
+    }                                                                        
+    .container { max-width: 1200px; margin: 0 auto; }                        
+    h1 {                                                                     
+      font-size: 1.5em; font-weight: 300; color: var(--fx-orange);           
+      margin-bottom: 10px; border-bottom: 1px solid var(--fx-base-200);      
+padding-bottom: 8px;                                                         
+    }                                                                        
+    .description {                                                           
+      font-size: 0.85em; color: var(--fx-base-700); margin-bottom: 20px;     
+line-height: 1.5;                                                            
+    }                                                                        
+    .canvas-container {                                                      
+      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);   
+      border-radius: 4px; margin-bottom: 20px; overflow: hidden; position:   
+relative;                                                                    
+      cursor: grab;                                                          
+    }                                                                        
+    .canvas-container.dragging { cursor: grabbing; }                         
+    canvas { display: block; width: 100%; height: 500px; }                   
+    .controls {                                                              
+      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);   
+      border-radius: 4px; padding: 15px;                                     
+    }                                                                        
+    .instruction { font-size: 0.8em; color: var(--fx-blue); margin-bottom:   
+12px; }                                                                      
+    button {                                                                 
+      font-family: 'IBM Plex Mono', monospace; background: var(--fx-blue);   
+      color: var(--fx-paper); border: none; padding: 8px 16px;               
+      font-size: 0.85em; cursor: pointer; border-radius: 3px; margin: 5px    
+5px 0 0;                                                                     
+    }                                                                        
+    button:hover { background: var(--fx-cyan); }                             
+    button.active { background: var(--fx-orange); color: var(--fx-paper); }  
+    .metrics {                                                               
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,   
+1fr));                                                                       
+      gap: 8px; margin-top: 15px; font-size: 0.75em;                         
+    }                                                                        
+    .metric-item {                                                           
+      padding: 10px; background: var(--fx-paper); border-radius: 3px;        
+      border: 1px solid var(--fx-base-200);                                  
+    }                                                                        
+    .metric-label { color: var(--fx-base-700); margin-bottom: 5px; }         
+    .metric-value {                                                          
+      font-size: 1.4em; font-weight: 500; color: var(--fx-base-900);         
+    }                                                                        
+    .metric-value.anchor { color: var(--fx-orange); }                        
+    .metric-value.distorted { color: var(--fx-red); }                        
+    .metric-value.normal { color: var(--fx-green); }                         
+    .perception-bar {                                                        
+      height: 6px; background: var(--fx-base-200); border-radius: 3px;       
+      margin-top: 8px; overflow: hidden;                                     
+    }                                                                        
+    .perception-fill {                                                       
+      height: 100%; background: var(--fx-orange); border-radius: 3px;        
+      transition: width 0.3s ease;                                           
+    }                                                                        
+    @media (max-width: 768px) {                                              
+      canvas { height: 400px; }                                              
+      h1 { font-size: 1.2em; }                                               
+    }                                                                        
+  </style>                                                                   
+</head>                                                                      
+<body>                                                                       
+  <div class="container">                                                    
+    <h1>Anchoring Bias</h1>                                                  
+    <p class="description">                                                  
+      The first number you encounter becomes a mental anchor, warping        
+perception of all subsequent values. A house listed at $500K makes $450K     
+feel like a bargain—even if it's worth $350K. Drag the anchor to a new       
+position and watch how the surrounding numbers re-normalize around it. What  
+seemed extreme becomes acceptable once the reference point shifts.           
+    </p>                                                                     
+                                                                             
+    <div class="canvas-container" id="canvasContainer">                      
+      <canvas id="biasCanvas"></canvas>                                      
+    </div>                                                                   
+                                                                             
+    <div class="controls">                                                   
+      <p class="instruction">Drag the orange anchor to reposition it. Watch  
+how numbers stretch when far from the anchor and normalize when close. Click 
+ buttons to set preset anchor values.</p>                                    
+      <button id="anchorLow">Anchor: $100K</button>                          
+      <button id="anchorMid" class="active">Anchor: $500K</button>           
+      <button id="anchorHigh">Anchor: $1M</button>                           
+      <button id="resetPositions">Reset Number Positions</button>            
+                                                                             
+      <div class="metrics">                                                  
+        <div class="metric-item">                                            
+          <div class="metric-label">Current Anchor</div>                     
+          <div class="metric-value anchor" id="anchorValue">$500K</div>      
+        </div>                                                               
+        <div class="metric-item">                                            
+          <div class="metric-label">Avg. Perceived "Normal"</div>            
+          <div class="metric-value normal" id="normalRange">$400K -          
+$600K</div>                                                                  
+        </div>                                                               
+        <div class="metric-item">                                            
+          <div class="metric-label">Distortion Zone</div>                    
+          <div class="metric-value distorted" id="distortionZone">Beyond     
+±40%</div>                                                                   
+        </div>                                                               
+        <div class="metric-item">                                            
+          <div class="metric-label">Anchor Influence</div>                   
+          <div class="perception-bar"><div class="perception-fill"           
+id="influenceFill" style="width: 75%"></div></div>                           
+        </div>                                                               
+      </div>                                                                 
+    </div>                                                                   
+  </div>                                                                     
+                                                                             
+  <script>                                                                   
+    const canvas = document.getElementById('biasCanvas');                    
+    const ctx = canvas.getContext('2d');                                     
+    const container = document.getElementById('canvasContainer');            
+    let width, height, dpr;                                                  
+                                                                             
+    const anchor = {                                                         
+      x: 0, y: 0,                                                            
+      targetX: 0, targetY: 0,                                                
+      value: 500000,                                                         
+      radius: 45,                                                            
+      dragging: false                                                        
+    };                                                                       
+                                                                             
+    const numbers = [];                                                      
+    const NUM_COUNT = 12;                                                    
+    const values = [50, 100, 150, 200, 250, 300, 350, 400, 450, 600, 750,    
+900];                                                                        
+                                                                             
+    function initNumbers() {                                                 
+      numbers.length = 0;                                                    
+      const centerX = width / 2;                                             
+      const centerY = height / 2;                                            
+                                                                             
+      values.forEach((val, i) => {                                           
+        const angle = (i / values.length) * Math.PI * 2 - Math.PI / 2;       
+        const radius = 120 + Math.random() * 80;                             
+        numbers.push({                                                       
+          value: val * 1000,                                                 
+          x: centerX + Math.cos(angle) * radius,                             
+          y: centerY + Math.sin(angle) * radius,                             
+          baseX: centerX + Math.cos(angle) * radius,                         
+          baseY: centerY + Math.sin(angle) * radius,                         
+          vx: (Math.random() - 0.5) * 0.3,                                   
+          vy: (Math.random() - 0.5) * 0.3,                                   
+          distortion: 0                                                      
+        });                                                                  
+      });                                                                    
+    }                                                                        
+                                                                             
+    function resize() {                                                      
+      dpr = window.devicePixelRatio || 1;                                    
+      width = canvas.clientWidth;                                            
+      height = canvas.clientHeight;                                          
+      canvas.width = width * dpr;                                            
+      canvas.height = height * dpr;                                          
+      ctx.scale(dpr, dpr);                                                   
+                                                                             
+      anchor.x = anchor.targetX = width / 2;                                 
+      anchor.y = anchor.targetY = height * 0.55;                             
+                                                                             
+      if (numbers.length === 0) initNumbers();                               
+    }                                                                        
+                                                                             
+    function formatValue(val) {                                              
+      if (val >= 1000000) return '$' + (val / 1000000).toFixed(1) + 'M';     
+      return '$' + (val / 1000) + 'K';                                       
+    }                                                                        
+                                                                             
+    function getDistortion(num) {                                            
+      const dx = num.x - anchor.x;                                           
+      const dy = num.y - anchor.y;                                           
+      const dist = Math.sqrt(dx * dx + dy * dy);                             
+      const valueDiff = Math.abs(num.value - anchor.value) / anchor.value;   
+                                                                             
+      const spatialDistortion = Math.min(dist / 150, 1);                     
+      const valueDistortion = Math.min(valueDiff, 1);                        
+                                                                             
+      return (spatialDistortion * 0.4 + valueDistortion * 0.6);              
+    }                                                                        
+                                                                             
+    function drawChainLink(x1, y1, x2, y2) {                                 
+      const dx = x2 - x1;                                                    
+      const dy = y2 - y1;                                                    
+      const dist = Math.sqrt(dx * dx + dy * dy);                             
+      const segments = Math.floor(dist / 15);                                
+                                                                             
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getProper 
+tyValue('--fx-base-500');                                                    
+      ctx.lineWidth = 2;                                                     
+                                                                             
+      for (let i = 0; i < segments; i++) {                                   
+        const t1 = i / segments;                                             
+        const t2 = (i + 0.7) / segments;                                     
+        const px1 = x1 + dx * t1;                                            
+        const py1 = y1 + dy * t1;                                            
+        const px2 = x1 + dx * t2;                                            
+        const py2 = y1 + dy * t2;                                            
+                                                                             
+        ctx.beginPath();                                                     
+        ctx.moveTo(px1, py1);                                                
+        ctx.lineTo(px2, py2);                                                
+        ctx.stroke();                                                        
+      }                                                                      
+    }                                                                        
+                                                                             
+    function drawAnchor() {                                                  
+      const x = anchor.x;                                                    
+      const y = anchor.y;                                                    
+      const r = anchor.radius;                                               
+                                                                             
+      // Chain to top                                                        
+      drawChainLink(x, y - r, x, 30);                                        
+                                                                             
+      // Anchor glow                                                         
+      const glowGradient = ctx.createRadialGradient(x, y, r * 0.5, x, y, r * 
+ 2.5);                                                                       
+      const orangeColor = getComputedStyle(document.documentElement).getProp 
+ertyValue('--fx-orange').trim();                                             
+      glowGradient.addColorStop(0, orangeColor + '40');                      
+      glowGradient.addColorStop(0.5, orangeColor + '20');                    
+      glowGradient.addColorStop(1, orangeColor + '00');                      
+      ctx.fillStyle = glowGradient;                                          
+      ctx.beginPath();                                                       
+      ctx.arc(x, y, r * 2.5, 0, Math.PI * 2);                                
+      ctx.fill();                                                            
+                                                                             
+      // Anchor body                                                         
+      ctx.fillStyle = orangeColor;                                           
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getProper 
+tyValue('--fx-base-900');                                                    
+      ctx.lineWidth = 2;                                                     
+                                                                             
+      // Ring at top                                                         
+      ctx.beginPath();                                                       
+      ctx.arc(x, y - r * 0.6, r * 0.25, 0, Math.PI * 2);                     
+      ctx.stroke();                                                          
+                                                                             
+      // Main shaft                                                          
+      ctx.beginPath();                                                       
+      ctx.moveTo(x, y - r * 0.35);                                           
+      ctx.lineTo(x, y + r * 0.5);                                            
+      ctx.lineWidth = 4;                                                     
+      ctx.stroke();                                                          
+                                                                             
+      // Cross bar                                                           
+      ctx.beginPath();                                                       
+      ctx.moveTo(x - r * 0.5, y - r * 0.1);                                  
+      ctx.lineTo(x + r * 0.5, y - r * 0.1);                                  
+      ctx.lineWidth = 3;                                                     
+      ctx.stroke();                                                          
+                                                                             
+      // Curved bottom with flukes                                           
+      ctx.beginPath();                                                       
+      ctx.moveTo(x - r * 0.6, y + r * 0.2);                                  
+      ctx.quadraticCurveTo(x - r * 0.6, y + r * 0.7, x, y + r * 0.5);        
+      ctx.quadraticCurveTo(x + r * 0.6, y + r * 0.7, x + r * 0.6, y + r *    
+0.2);                                                                        
+      ctx.lineWidth = 3;                                                     
+      ctx.stroke();                                                          
+                                                                             
+      // Fill anchor shape                                                   
+      ctx.fillStyle = orangeColor;                                           
+      ctx.beginPath();                                                       
+      ctx.arc(x, y, r * 0.3, 0, Math.PI * 2);                                
+      ctx.fill();                                                            
+                                                                             
+      // Anchor value label                                                  
+      ctx.fillStyle =                                                        
+getComputedStyle(document.documentElement).getPropertyValue('--fx-paper');   
+      ctx.font = 'bold 12px IBM Plex Mono';                                  
+      ctx.textAlign = 'center';                                              
+      ctx.textBaseline = 'middle';                                           
+      ctx.fillText(formatValue(anchor.value), x, y);                         
+    }                                                                        
+                                                                             
+    function drawNumber(num) {                                               
+      const distortion = getDistortion(num);                                 
+      num.distortion = distortion;                                           
+                                                                             
+      const dx = num.x - anchor.x;                                           
+      const dy = num.y - anchor.y;                                           
+      const dist = Math.sqrt(dx * dx + dy * dy);                             
+                                                                             
+      // Gravity effect - pull toward anchor                                 
+      if (dist > 50) {                                                       
+        const pullStrength = 0.0003;                                         
+        num.vx -= dx * pullStrength;                                         
+        num.vy -= dy * pullStrength;                                         
+      }                                                                      
+                                                                             
+      // Apply velocity with damping                                         
+      num.x += num.vx;                                                       
+      num.y += num.vy;                                                       
+      num.vx *= 0.98;                                                        
+      num.vy *= 0.98;                                                        
+                                                                             
+      // Boundary bounce                                                     
+      const margin = 60;                                                     
+      if (num.x < margin) { num.x = margin; num.vx *= -0.5; }                
+      if (num.x > width - margin) { num.x = width - margin; num.vx *= -0.5;  
+}                                                                            
+      if (num.y < margin) { num.y = margin; num.vy *= -0.5; }                
+      if (num.y > height - margin) { num.y = height - margin; num.vy *=      
+-0.5; }                                                                      
+                                                                             
+      // Gravity line to anchor                                              
+      const lineAlpha = Math.max(0.1, 0.4 - distortion * 0.3);               
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getProper 
+tyValue('--fx-base-200');                                                    
+      ctx.globalAlpha = lineAlpha;                                           
+      ctx.lineWidth = 1;                                                     
+      ctx.setLineDash([3, 3]);                                               
+      ctx.beginPath();                                                       
+      ctx.moveTo(anchor.x, anchor.y);                                        
+      ctx.lineTo(num.x, num.y);                                              
+      ctx.stroke();                                                          
+      ctx.setLineDash([]);                                                   
+      ctx.globalAlpha = 1;                                                   
+                                                                             
+      // Number bubble                                                       
+      ctx.save();                                                            
+      ctx.translate(num.x, num.y);                                           
+                                                                             
+      // Distortion scaling - stretch vertically when far                    
+      const stretchY = 1 + distortion * 0.5;                                 
+      const stretchX = 1 - distortion * 0.15;                                
+      ctx.scale(stretchX, stretchY);                                         
+                                                                             
+      // Background with distortion-based color                              
+      const baseColor = getComputedStyle(document.documentElement).getProper 
+tyValue('--fx-base-700').trim();                                             
+      const redColor = getComputedStyle(document.documentElement).getPropert 
+yValue('--fx-red').trim();                                                   
+      const greenColor = getComputedStyle(document.documentElement).getPrope 
+rtyValue('--fx-green').trim();                                               
+                                                                             
+      let bubbleColor;                                                       
+      if (distortion < 0.3) {                                                
+        bubbleColor = greenColor;                                            
+      } else if (distortion < 0.6) {                                         
+        bubbleColor = baseColor;                                             
+      } else {                                                               
+        bubbleColor = redColor;                                              
+      }                                                                      
+                                                                             
+      const bubbleRadius = 28;                                               
+      ctx.fillStyle = bubbleColor;                                           
+      ctx.globalAlpha = 0.9 - distortion * 0.3;                              
+      ctx.beginPath();                                                       
+      ctx.ellipse(0, 0, bubbleRadius, bubbleRadius, 0, 0, Math.PI * 2);      
+      ctx.fill();                                                            
+      ctx.globalAlpha = 1;                                                   
+                                                                             
+      // Border                                                              
+      ctx.strokeStyle = bubbleColor;                                         
+      ctx.lineWidth = 2;                                                     
+      ctx.stroke();                                                          
+                                                                             
+      // Text with blur effect for distorted numbers                         
+      ctx.fillStyle =                                                        
+getComputedStyle(document.documentElement).getPropertyValue('--fx-paper');   
+      ctx.font = `${11 - distortion * 2}px IBM Plex Mono`;                   
+      ctx.textAlign = 'center';                                              
+      ctx.textBaseline = 'middle';                                           
+                                                                             
+      // Multiple offset renders for blur effect                             
+      if (distortion > 0.5) {                                                
+        ctx.globalAlpha = 0.3;                                               
+        ctx.fillText(formatValue(num.value), distortion * 2, 0);             
+        ctx.fillText(formatValue(num.value), -distortion * 2, 0);            
+      }                                                                      
+      ctx.globalAlpha = 1;                                                   
+      ctx.fillText(formatValue(num.value), 0, 0);                            
+                                                                             
+      ctx.restore();                                                         
+    }                                                                        
+                                                                             
+    function updateMetrics() {                                               
+      document.getElementById('anchorValue').textContent =                   
+formatValue(anchor.value);                                                   
+                                                                             
+      const lowBound = anchor.value * 0.8;                                   
+      const highBound = anchor.value * 1.2;                                  
+      document.getElementById('normalRange').textContent =                   
+        formatValue(lowBound) + ' - ' + formatValue(highBound);              
+                                                                             
+      const avgDistortion = numbers.reduce((sum, n) => sum + n.distortion,   
+0) / numbers.length;                                                         
+      const influence = Math.round((1 - avgDistortion) * 100);               
+      document.getElementById('influenceFill').style.width = influence +     
+'%';                                                                         
+    }                                                                        
+                                                                             
+    function draw() {                                                        
+      const paperColor =                                                     
+getComputedStyle(document.documentElement).getPropertyValue('--fx-paper');   
+      ctx.fillStyle = paperColor;                                            
+      ctx.fillRect(0, 0, width, height);                                     
+                                                                             
+      // Smooth anchor movement                                              
+      anchor.x += (anchor.targetX - anchor.x) * 0.1;                         
+      anchor.y += (anchor.targetY - anchor.y) * 0.1;                         
+                                                                             
+      // Draw numbers                                                        
+      numbers.forEach(num => drawNumber(num));                               
+                                                                             
+      // Draw anchor on top                                                  
+      drawAnchor();                                                          
+                                                                             
+      updateMetrics();                                                       
+      requestAnimationFrame(draw);                                           
+    }                                                                        
+                                                                             
+    // Interaction handlers                                                  
+    function getMousePos(e) {                                                
+      const rect = canvas.getBoundingClientRect();                           
+      const scaleX = width / rect.width;                                     
+      const scaleY = height / rect.height;                                   
+      return {                                                               
+        x: (e.clientX - rect.left) * scaleX,                                 
+        y: (e.clientY - rect.top) * scaleY                                   
+      };                                                                     
+    }                                                                        
+                                                                             
+    function isOverAnchor(pos) {                                             
+      const dx = pos.x - anchor.x;                                           
+      const dy = pos.y - anchor.y;                                           
+      return Math.sqrt(dx * dx + dy * dy) < anchor.radius * 1.5;             
+    }                                                                        
+                                                                             
+    canvas.addEventListener('mousedown', (e) => {                            
+      const pos = getMousePos(e);                                            
+      if (isOverAnchor(pos)) {                                               
+        anchor.dragging = true;                                              
+        container.classList.add('dragging');                                 
+      }                                                                      
+    });                                                                      
+                                                                             
+    canvas.addEventListener('mousemove', (e) => {                            
+      const pos = getMousePos(e);                                            
+      if (anchor.dragging) {                                                 
+        anchor.targetX = Math.max(80, Math.min(width - 80, pos.x));          
+        anchor.targetY = Math.max(80, Math.min(height - 80, pos.y));         
+      }                                                                      
+      canvas.style.cursor = isOverAnchor(pos) ? 'grab' : 'default';          
+    });                                                                      
+                                                                             
+    canvas.addEventListener('mouseup', () => {                               
+      anchor.dragging = false;                                               
+      container.classList.remove('dragging');                                
+    });                                                                      
+                                                                             
+    canvas.addEventListener('mouseleave', () => {                            
+      anchor.dragging = false;                                               
+      container.classList.remove('dragging');                                
+    });                                                                      
+                                                                             
+    // Touch support                                                         
+    canvas.addEventListener('touchstart', (e) => {                           
+      e.preventDefault();                                                    
+      const touch = e.touches[0];                                            
+      const pos = getMousePos(touch);                                        
+      if (isOverAnchor(pos)) {                                               
+        anchor.dragging = true;                                              
+        container.classList.add('dragging');                                 
+      }                                                                      
+    });                                                                      
+                                                                             
+    canvas.addEventListener('touchmove', (e) => {                            
+      e.preventDefault();                                                    
+      if (anchor.dragging) {                                                 
+        const touch = e.touches[0];                                          
+        const pos = getMousePos(touch);                                      
+        anchor.targetX = Math.max(80, Math.min(width - 80, pos.x));          
+        anchor.targetY = Math.max(80, Math.min(height - 80, pos.y));         
+      }                                                                      
+    });                                                                      
+                                                                             
+    canvas.addEventListener('touchend', () => {                              
+      anchor.dragging = false;                                               
+      container.classList.remove('dragging');                                
+    });                                                                      
+                                                                             
+    // Button handlers                                                       
+    function setAnchor(value) {                                              
+      anchor.value = value;                                                  
+      document.querySelectorAll('.controls button').forEach(b =>             
+b.classList.remove('active'));                                               
+    }                                                                        
+                                                                             
+    document.getElementById('anchorLow').addEventListener('click', (e) => {  
+      setAnchor(100000);                                                     
+      e.target.classList.add('active');                                      
+    });                                                                      
+                                                                             
+    document.getElementById('anchorMid').addEventListener('click', (e) => {  
+      setAnchor(500000);                                                     
+      e.target.classList.add('active');                                      
+    });                                                                      
+                                                                             
+    document.getElementById('anchorHigh').addEventListener('click', (e) => { 
+      setAnchor(1000000);                                                    
+      e.target.classList.add('active');                                      
+    });                                                                      
+                                                                             
+    document.getElementById('resetPositions').addEventListener('click', ()   
+=> {                                                                         
+      anchor.targetX = width / 2;                                            
+      anchor.targetY = height * 0.55;                                        
+      initNumbers();                                                         
+    });                                                                      
+                                                                             
+    resize();                                                                
+    window.addEventListener('resize', () => {                                
+      resize();                                                              
+      initNumbers();                                                         
+    });                                                                      
+    draw();                                                                  
+  </script>                                                                  
+</body>                                                                      
+</html>                                                                      

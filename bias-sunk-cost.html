@@ -1,0 +1,473 @@
+<!DOCTYPE html>                                                              
+<html lang="en">                                                             
+<head>                                                                       
+  <meta charset="UTF-8">                                                     
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">     
+  <title>Sunk Cost Fallacy - Cognitive Bias Visualization</title>            
+  <style>                                                                    
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght 
+@200;300;400;500&display=swap');                                             
+                                                                             
+    :root {                                                                  
+      --fx-paper: #FFFCF0; --fx-base-900: #2D2B28; --fx-base-700: #6F6E69;   
+      --fx-base-500: #9F9D94; --fx-base-200: #DAD8CE; --fx-base-50: #F2F0E5; 
+      --fx-orange: #BC5215; --fx-blue: #205EA6; --fx-cyan: #24837B;          
+      --fx-red: #AF3029; --fx-purple: #5E409D; --fx-green: #66800B;          
+      --fx-yellow: #AD8301;                                                  
+    }                                                                        
+                                                                             
+    @media (prefers-color-scheme: dark) {                                    
+      :root {                                                                
+        --fx-paper: #100F0F; --fx-base-900: #CECDC3; --fx-base-700: #878580; 
+        --fx-base-500: #6F6E69; --fx-base-200: #403E3C; --fx-base-50:        
+#1C1B1A;                                                                     
+        --fx-orange: #DA702C; --fx-blue: #4385BE; --fx-cyan: #3AA99F;        
+        --fx-red: #D14D41; --fx-purple: #8B7EC8; --fx-green: #879A39;        
+        --fx-yellow: #D0A215;                                                
+      }                                                                      
+    }                                                                        
+                                                                             
+    * { margin: 0; padding: 0; box-sizing: border-box; }                     
+    body {                                                                   
+      font-family: 'IBM Plex Mono', monospace; background: var(--fx-paper);  
+      color: var(--fx-base-900); padding: 20px; min-height: 100vh;           
+    }                                                                        
+    .container { max-width: 1200px; margin: 0 auto; }                        
+    h1 {                                                                     
+      font-size: 1.5em; font-weight: 300; color: var(--fx-orange);           
+      margin-bottom: 10px; border-bottom: 1px solid var(--fx-base-200);      
+padding-bottom: 8px;                                                         
+    }                                                                        
+    .description {                                                           
+      font-size: 0.85em; color: var(--fx-base-700); margin-bottom: 20px;     
+line-height: 1.5;                                                            
+    }                                                                        
+    .pit-container {                                                         
+      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);   
+      border-radius: 4px; margin-bottom: 20px; overflow: hidden; position:   
+relative;                                                                    
+      height: 550px;                                                         
+    }                                                                        
+    canvas { display: block; width: 100%; height: 100%; }                    
+                                                                             
+    .invest-btn {                                                            
+      position: absolute; left: 50%; transform: translateX(-50%);            
+      font-family: 'IBM Plex Mono', monospace; background: var(--fx-orange); 
+      color: var(--fx-paper); border: none; padding: 12px 24px;              
+      font-size: 1em; cursor: pointer; border-radius: 4px;                   
+      transition: all 0.4s ease-out; z-index: 10;                            
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);                                
+    }                                                                        
+    .invest-btn:hover { background: var(--fx-yellow); transform:             
+translateX(-50%) scale(1.05); }                                              
+    .invest-btn:active { transform: translateX(-50%) scale(0.95); }          
+    .invest-btn.sunk { opacity: 0.7; }                                       
+    .invest-btn.revealed { display: none; }                                  
+                                                                             
+    .stats-panel {                                                           
+      position: absolute; top: 15px; left: 15px;                             
+      background: var(--fx-paper); border: 1px solid var(--fx-base-200);     
+      border-radius: 4px; padding: 12px 16px; font-size: 0.8em;              
+    }                                                                        
+    .stat-row { margin: 4px 0; }                                             
+    .stat-label { color: var(--fx-base-700); }                               
+    .stat-value { font-weight: 500; color: var(--fx-red); }                  
+    .stat-value.clicks { color: var(--fx-orange); }                          
+                                                                             
+    .revelation {                                                            
+      position: absolute; bottom: 20px; left: 50%; transform:                
+translateX(-50%);                                                            
+      background: var(--fx-paper); border: 2px solid var(--fx-green);        
+      border-radius: 4px; padding: 20px 30px; text-align: center;            
+      max-width: 90%; opacity: 0; transition: opacity 0.8s ease-in;          
+      pointer-events: none; z-index: 20;                                     
+    }                                                                        
+    .revelation.visible { opacity: 1; pointer-events: auto; }                
+    .revelation h3 { color: var(--fx-green); margin-bottom: 8px; font-size:  
+1em; font-weight: 500; }                                                     
+    .revelation p { font-size: 0.85em; color: var(--fx-base-700);            
+line-height: 1.5; }                                                          
+                                                                             
+    .controls {                                                              
+      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);   
+      border-radius: 4px; padding: 15px;                                     
+    }                                                                        
+    .instruction { font-size: 0.8em; color: var(--fx-blue); margin-bottom:   
+12px; }                                                                      
+    button.reset-btn {                                                       
+      font-family: 'IBM Plex Mono', monospace; background: var(--fx-blue);   
+      color: var(--fx-paper); border: none; padding: 8px 16px;               
+      font-size: 0.85em; cursor: pointer; border-radius: 3px;                
+    }                                                                        
+    button.reset-btn:hover { background: var(--fx-cyan); }                   
+                                                                             
+    .money-float {                                                           
+      position: absolute; font-weight: 500; color: var(--fx-red);            
+      pointer-events: none; animation: floatUp 1.5s ease-out forwards;       
+      font-size: 0.9em; z-index: 15;                                         
+    }                                                                        
+    @keyframes floatUp {                                                     
+      0% { opacity: 1; transform: translateY(0) translateX(-50%); }          
+      100% { opacity: 0; transform: translateY(-60px) translateX(-50%); }    
+    }                                                                        
+                                                                             
+    @media (max-width: 768px) {                                              
+      .pit-container { height: 450px; }                                      
+      h1 { font-size: 1.2em; }                                               
+      .invest-btn { padding: 10px 18px; font-size: 0.9em; }                  
+    }                                                                        
+  </style>                                                                   
+</head>                                                                      
+<body>                                                                       
+  <div class="container">                                                    
+    <h1>Sunk Cost Fallacy</h1>                                               
+    <p class="description">                                                  
+      We continue investing in failing ventures because of past investment,  
+convinced we can't "waste" what's already spent. But sunk costs are gone     
+forever—they shouldn't influence future decisions. Watch as each investment  
+deepens your commitment... and your pit.                                     
+    </p>                                                                     
+                                                                             
+    <div class="pit-container" id="pitContainer">                            
+      <canvas id="pitCanvas"></canvas>                                       
+                                                                             
+      <div class="stats-panel">                                              
+        <div class="stat-row">                                               
+          <span class="stat-label">Total Invested: </span>                   
+          <span class="stat-value" id="totalInvested">$0</span>              
+        </div>                                                               
+        <div class="stat-row">                                               
+          <span class="stat-label">Investments Made: </span>                 
+          <span class="stat-value clicks" id="clickCount">0</span>           
+        </div>                                                               
+        <div class="stat-row">                                               
+          <span class="stat-label">Return on Investment: </span>             
+          <span class="stat-value" id="roi">$0</span>                        
+        </div>                                                               
+      </div>                                                                 
+                                                                             
+      <button class="invest-btn" id="investBtn">Invest $100</button>         
+                                                                             
+      <div class="revelation" id="revelation">                               
+        <h3>This is the Sunk Cost Fallacy</h3>                               
+        <p>Past investments are gone—they shouldn't determine future         
+decisions.<br>                                                               
+        The rational choice is to evaluate only future costs and             
+benefits.<br>                                                                
+        <strong>You invested $<span id="finalAmount">0</span> with $0        
+return.</strong><br>                                                         
+        Each click felt necessary to justify the last, but cutting losses    
+early is wisdom, not waste.</p>                                              
+      </div>                                                                 
+    </div>                                                                   
+                                                                             
+    <div class="controls">                                                   
+      <p class="instruction">Click "Invest $100" to pour money into the      
+venture. Watch as you sink deeper and the button becomes harder to           
+resist—and harder to reach.</p>                                              
+      <button class="reset-btn" id="resetBtn">Reset Demonstration</button>   
+    </div>                                                                   
+  </div>                                                                     
+                                                                             
+  <script>                                                                   
+    const canvas = document.getElementById('pitCanvas');                     
+    const ctx = canvas.getContext('2d');                                     
+    const container = document.getElementById('pitContainer');               
+    const investBtn = document.getElementById('investBtn');                  
+    const revelation = document.getElementById('revelation');                
+                                                                             
+    let width, height, dpr;                                                  
+    let totalInvested = 0;                                                   
+    let clickCount = 0;                                                      
+    let pitDepth = 0;                                                        
+    let targetPitDepth = 0;                                                  
+    let btnTop = 60;                                                         
+    let targetBtnTop = 60;                                                   
+    let btnScale = 1;                                                        
+    let targetBtnScale = 1;                                                  
+    let coins = [];                                                          
+    let isRevealed = false;                                                  
+                                                                             
+    const maxClicks = 15;                                                    
+    const investAmount = 100;                                                
+                                                                             
+    function resize() {                                                      
+      dpr = window.devicePixelRatio || 1;                                    
+      width = canvas.clientWidth;                                            
+      height = canvas.clientHeight;                                          
+      canvas.width = width * dpr;                                            
+      canvas.height = height * dpr;                                          
+      ctx.scale(dpr, dpr);                                                   
+    }                                                                        
+                                                                             
+    function getColor(varName) {                                             
+      return                                                                 
+getComputedStyle(document.documentElement).getPropertyValue(varName).trim(); 
+    }                                                                        
+                                                                             
+    function addCoin(x, y) {                                                 
+      const targetY = height - 30 - (Math.random() * pitDepth * 0.3);        
+      coins.push({                                                           
+        x: x + (Math.random() - 0.5) * 100,                                  
+        y: y,                                                                
+        targetY: targetY,                                                    
+        vy: 0,                                                               
+        rotation: Math.random() * Math.PI * 2,                               
+        size: 12 + Math.random() * 8                                         
+      });                                                                    
+    }                                                                        
+                                                                             
+    function updateCoins() {                                                 
+      coins.forEach(coin => {                                                
+        if (coin.y < coin.targetY) {                                         
+          coin.vy += 0.5;                                                    
+          coin.y += coin.vy;                                                 
+          coin.rotation += 0.1;                                              
+          if (coin.y > coin.targetY) {                                       
+            coin.y = coin.targetY;                                           
+            coin.vy = -coin.vy * 0.3;                                        
+          }                                                                  
+        }                                                                    
+      });                                                                    
+    }                                                                        
+                                                                             
+    function drawCoin(x, y, size, rotation) {                                
+      ctx.save();                                                            
+      ctx.translate(x, y);                                                   
+      ctx.rotate(rotation);                                                  
+                                                                             
+      ctx.fillStyle = getColor('--fx-yellow');                               
+      ctx.beginPath();                                                       
+      ctx.ellipse(0, 0, size, size * 0.6, 0, 0, Math.PI * 2);                
+      ctx.fill();                                                            
+                                                                             
+      ctx.fillStyle = getColor('--fx-orange');                               
+      ctx.font = `${size * 0.8}px IBM Plex Mono`;                            
+      ctx.textAlign = 'center';                                              
+      ctx.textBaseline = 'middle';                                           
+      ctx.fillText('$', 0, 0);                                               
+                                                                             
+      ctx.restore();                                                         
+    }                                                                        
+                                                                             
+    function draw() {                                                        
+      ctx.fillStyle = getColor('--fx-paper');                                
+      ctx.fillRect(0, 0, width, height);                                     
+                                                                             
+      // Smooth animations                                                   
+      pitDepth += (targetPitDepth - pitDepth) * 0.08;                        
+      btnTop += (targetBtnTop - btnTop) * 0.06;                              
+      btnScale += (targetBtnScale - btnScale) * 0.08;                        
+                                                                             
+      // Draw ground level                                                   
+      const groundY = height * 0.25;                                         
+      ctx.fillStyle = getColor('--fx-base-200');                             
+      ctx.fillRect(0, groundY - 5, width, 10);                               
+                                                                             
+      // Draw the pit                                                        
+      const pitWidth = Math.min(400, width * 0.6);                           
+      const pitX = (width - pitWidth) / 2;                                   
+      const pitBottom = groundY + pitDepth;                                  
+                                                                             
+      // Pit gradient - gets darker/redder as it deepens                     
+      const pitGradient = ctx.createLinearGradient(0, groundY, 0,            
+pitBottom);                                                                  
+      const depthRatio = pitDepth / (height * 0.65);                         
+      pitGradient.addColorStop(0, getColor('--fx-base-200'));                
+      pitGradient.addColorStop(0.3, getColor('--fx-red') + '40');            
+      pitGradient.addColorStop(1, getColor('--fx-red') + '90');              
+                                                                             
+      // Draw pit shape (trapezoid getting narrower)                         
+      const narrowing = pitDepth * 0.15;                                     
+      ctx.fillStyle = pitGradient;                                           
+      ctx.beginPath();                                                       
+      ctx.moveTo(pitX, groundY);                                             
+      ctx.lineTo(pitX + narrowing, pitBottom);                               
+      ctx.lineTo(pitX + pitWidth - narrowing, pitBottom);                    
+      ctx.lineTo(pitX + pitWidth, groundY);                                  
+      ctx.closePath();                                                       
+      ctx.fill();                                                            
+                                                                             
+      // Pit edges                                                           
+      ctx.strokeStyle = getColor('--fx-red');                                
+      ctx.lineWidth = 2;                                                     
+      ctx.beginPath();                                                       
+      ctx.moveTo(pitX, groundY);                                             
+      ctx.lineTo(pitX + narrowing, pitBottom);                               
+      ctx.moveTo(pitX + pitWidth, groundY);                                  
+      ctx.lineTo(pitX + pitWidth - narrowing, pitBottom);                    
+      ctx.stroke();                                                          
+                                                                             
+      // Draw depth markers                                                  
+      ctx.fillStyle = getColor('--fx-base-700');                             
+      ctx.font = '10px IBM Plex Mono';                                       
+      ctx.textAlign = 'right';                                               
+      for (let i = 1; i <= Math.floor(pitDepth / 50); i++) {                 
+        const markerY = groundY + i * 50;                                    
+        ctx.fillText(`-${i * 100}`, pitX - 10, markerY + 4);                 
+        ctx.strokeStyle = getColor('--fx-base-500') + '60';                  
+        ctx.lineWidth = 1;                                                   
+        ctx.setLineDash([3, 3]);                                             
+        ctx.beginPath();                                                     
+        ctx.moveTo(pitX, markerY);                                           
+        ctx.lineTo(pitX + pitWidth, markerY);                                
+        ctx.stroke();                                                        
+        ctx.setLineDash([]);                                                 
+      }                                                                      
+                                                                             
+      // Update and draw coins                                               
+      updateCoins();                                                         
+      coins.forEach(coin => {                                                
+        if (coin.y > groundY) {                                              
+          drawCoin(coin.x, coin.y, coin.size, coin.rotation);                
+        }                                                                    
+      });                                                                    
+                                                                             
+      // Draw "invested" pile at bottom                                      
+      if (coins.length > 0) {                                                
+        const pileHeight = Math.min(coins.length * 3, pitDepth * 0.4);       
+        const pileGradient = ctx.createLinearGradient(0, pitBottom -         
+pileHeight, 0, pitBottom);                                                   
+        pileGradient.addColorStop(0, getColor('--fx-yellow') + '80');        
+        pileGradient.addColorStop(1, getColor('--fx-orange') + '60');        
+                                                                             
+        ctx.fillStyle = pileGradient;                                        
+        const pileWidth = pitWidth - narrowing * 2 - 20;                     
+        ctx.beginPath();                                                     
+        ctx.ellipse(width / 2, pitBottom - 5, pileWidth / 2, pileHeight / 2, 
+ 0, 0, Math.PI * 2);                                                         
+        ctx.fill();                                                          
+      }                                                                      
+                                                                             
+      // Labels                                                              
+      ctx.fillStyle = getColor('--fx-base-700');                             
+      ctx.font = '11px IBM Plex Mono';                                       
+      ctx.textAlign = 'center';                                              
+      ctx.fillText('Your Venture', width / 2, groundY - 15);                 
+                                                                             
+      if (pitDepth > 100) {                                                  
+        ctx.fillStyle = getColor('--fx-red');                                
+        ctx.font = '10px IBM Plex Mono';                                     
+        ctx.fillText('"I\'ve invested too much to quit now..."', width / 2,  
+groundY + pitDepth * 0.5);                                                   
+      }                                                                      
+                                                                             
+      // Update button position and scale                                    
+      investBtn.style.top = btnTop + 'px';                                   
+      investBtn.style.transform = `translateX(-50%) scale(${btnScale})`;     
+      investBtn.style.opacity = isRevealed ? '0' : Math.max(0.4, 1 -         
+(clickCount / maxClicks) * 0.5);                                             
+                                                                             
+      requestAnimationFrame(draw);                                           
+    }                                                                        
+                                                                             
+    function createFloatingMoney(x, y) {                                     
+      const float = document.createElement('div');                           
+      float.className = 'money-float';                                       
+      float.textContent = '-$100';                                           
+      float.style.left = x + 'px';                                           
+      float.style.top = y + 'px';                                            
+      container.appendChild(float);                                          
+      setTimeout(() => float.remove(), 1500);                                
+    }                                                                        
+                                                                             
+    function invest() {                                                      
+      if (isRevealed) return;                                                
+                                                                             
+      clickCount++;                                                          
+      totalInvested += investAmount;                                         
+                                                                             
+      document.getElementById('totalInvested').textContent = '$' +           
+totalInvested.toLocaleString();                                              
+      document.getElementById('clickCount').textContent = clickCount;        
+      document.getElementById('roi').textContent = '$0';                     
+                                                                             
+      // Deepen the pit                                                      
+      targetPitDepth = Math.min(height * 0.65, clickCount * 25);             
+                                                                             
+      // Move and shrink button                                              
+      targetBtnTop = 60 + clickCount * 28;                                   
+      targetBtnScale = Math.max(0.5, 1 - clickCount * 0.03);                 
+                                                                             
+      // Add coins falling                                                   
+      const btnRect = investBtn.getBoundingClientRect();                     
+      const containerRect = container.getBoundingClientRect();               
+      const coinX = width / 2;                                               
+      const coinY = btnRect.top - containerRect.top + 20;                    
+                                                                             
+      for (let i = 0; i < 3; i++) {                                          
+        setTimeout(() => addCoin(coinX, coinY), i * 100);                    
+      }                                                                      
+                                                                             
+      // Floating money indicator                                            
+      createFloatingMoney(btnRect.left - containerRect.left + btnRect.width  
+/ 2, btnRect.top - containerRect.top);                                       
+                                                                             
+      // Update button text with increasing desperation                      
+      const messages = [                                                     
+        'Invest $100',                                                       
+        'Invest $100 more',                                                  
+        'Just $100 more...',                                                 
+        'Can\'t stop now...',                                                
+        'Almost there...',                                                   
+        'One more...',                                                       
+        'Just one more...',                                                  
+        'So close...',                                                       
+        'Must continue...',                                                  
+        'Can\'t waste it...',                                                
+        'Too deep to quit...',                                               
+        'Keep going...',                                                     
+        'Don\'t give up...',                                                 
+        'It\'ll pay off...',                                                 
+        'Final push...'                                                      
+      ];                                                                     
+      investBtn.textContent = messages[Math.min(clickCount, messages.length  
+- 1)];                                                                       
+                                                                             
+      // Check for revelation                                                
+      if (clickCount >= maxClicks) {                                         
+        setTimeout(reveal, 800);                                             
+      }                                                                      
+    }                                                                        
+                                                                             
+    function reveal() {                                                      
+      isRevealed = true;                                                     
+      investBtn.classList.add('revealed');                                   
+      revelation.classList.add('visible');                                   
+      document.getElementById('finalAmount').textContent =                   
+totalInvested.toLocaleString();                                              
+    }                                                                        
+                                                                             
+    function reset() {                                                       
+      totalInvested = 0;                                                     
+      clickCount = 0;                                                        
+      pitDepth = 0;                                                          
+      targetPitDepth = 0;                                                    
+      btnTop = 60;                                                           
+      targetBtnTop = 60;                                                     
+      btnScale = 1;                                                          
+      targetBtnScale = 1;                                                    
+      coins = [];                                                            
+      isRevealed = false;                                                    
+                                                                             
+      investBtn.textContent = 'Invest $100';                                 
+      investBtn.classList.remove('revealed', 'sunk');                        
+      investBtn.style.opacity = '1';                                         
+      revelation.classList.remove('visible');                                
+                                                                             
+      document.getElementById('totalInvested').textContent = '$0';           
+      document.getElementById('clickCount').textContent = '0';               
+      document.getElementById('roi').textContent = '$0';                     
+                                                                             
+      document.querySelectorAll('.money-float').forEach(el => el.remove());  
+    }                                                                        
+                                                                             
+    investBtn.addEventListener('click', invest);                             
+    document.getElementById('resetBtn').addEventListener('click', reset);    
+                                                                             
+    resize();                                                                
+    window.addEventListener('resize', resize);                               
+    draw();                                                                  
+  </script>                                                                  
+</body>                                                                      
+</html>                                                                      

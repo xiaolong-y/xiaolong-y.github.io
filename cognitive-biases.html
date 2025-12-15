@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cognitive Biases - Interactive Visualizations</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0; --fx-base-900: #2D2B28; --fx-base-700: #6F6E69;
+      --fx-base-500: #9F9D94; --fx-base-200: #DAD8CE; --fx-base-50: #F2F0E5;
+      --fx-orange: #BC5215; --fx-blue: #205EA6; --fx-cyan: #24837B;
+      --fx-red: #AF3029; --fx-purple: #5E409D; --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F; --fx-base-900: #CECDC3; --fx-base-700: #878580;
+        --fx-base-500: #6F6E69; --fx-base-200: #403E3C; --fx-base-50: #1C1B1A;
+        --fx-orange: #DA702C; --fx-blue: #4385BE; --fx-cyan: #3AA99F;
+        --fx-red: #D14D41; --fx-purple: #8B7EC8; --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 1400px; margin: 0 auto; }
+
+    header {
+      margin-bottom: 40px;
+      border-bottom: 2px solid var(--fx-base-200);
+      padding-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      font-weight: 300;
+      color: var(--fx-yellow);
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 1em;
+      color: var(--fx-base-700);
+      line-height: 1.6;
+      max-width: 800px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .bias-card {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 6px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bias-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent-color);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .bias-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-color: var(--accent-color);
+    }
+
+    .bias-card:hover::before {
+      opacity: 1;
+    }
+
+    .bias-card[data-category="perception"] { --accent-color: var(--fx-blue); }
+    .bias-card[data-category="memory"] { --accent-color: var(--fx-purple); }
+    .bias-card[data-category="judgment"] { --accent-color: var(--fx-orange); }
+    .bias-card[data-category="social"] { --accent-color: var(--fx-cyan); }
+    .bias-card[data-category="decision"] { --accent-color: var(--fx-red); }
+
+    .bias-title {
+      font-size: 1.2em;
+      font-weight: 500;
+      color: var(--fx-base-900);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bias-icon {
+      font-size: 1.5em;
+      filter: grayscale(0.3);
+    }
+
+    .bias-description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .bias-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .tag {
+      font-size: 0.7em;
+      padding: 3px 8px;
+      border-radius: 3px;
+      border: 1px solid var(--tag-color);
+      color: var(--tag-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tag.perception { --tag-color: var(--fx-blue); }
+    .tag.memory { --tag-color: var(--fx-purple); }
+    .tag.judgment { --tag-color: var(--fx-orange); }
+    .tag.social { --tag-color: var(--fx-cyan); }
+    .tag.decision { --tag-color: var(--fx-red); }
+
+    .stats {
+      margin-top: 30px;
+      padding: 20px;
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2em;
+      font-weight: 500;
+      color: var(--fx-yellow);
+    }
+
+    .stat-label {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-top: 5px;
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 1.8em; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Cognitive Biases</h1>
+      <p class="subtitle">
+        Interactive visualizations of the mental shortcuts and systematic errors that shape how we think,
+        remember, and make decisions. Each visualization demonstrates a different cognitive bias through
+        interactive examples built with canvas-based animations.
+      </p>
+    </header>
+
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-value">13</div>
+        <div class="stat-label">Biases</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">5</div>
+        <div class="stat-label">Categories</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">100%</div>
+        <div class="stat-label">Interactive</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <a href="bias-confirmation.html" class="bias-card" data-category="perception">
+        <div class="bias-title">
+          <span class="bias-icon">🧲</span>
+          Confirmation Bias
+        </div>
+        <div class="bias-description">
+          We seek out information that confirms existing beliefs while ignoring contradicting evidence.
+          Watch how confirming evidence is magnetically attracted while contradicting evidence is repelled.
+        </div>
+        <div class="bias-meta">
+          <span class="tag perception">Perception</span>
+        </div>
+      </a>
+
+      <a href="bias-anchoring.html" class="bias-card" data-category="judgment">
+        <div class="bias-title">
+          <span class="bias-icon">⚓</span>
+          Anchoring Bias
+        </div>
+        <div class="bias-description">
+          The first number encountered acts as a reference point, distorting perception of subsequent values.
+          Drag the anchor to see how numbers re-normalize around new reference points.
+        </div>
+        <div class="bias-meta">
+          <span class="tag judgment">Judgment</span>
+        </div>
+      </a>
+
+      <a href="bias-hindsight.html" class="bias-card" data-category="memory">
+        <div class="bias-title">
+          <span class="bias-icon">🔮</span>
+          Hindsight Bias
+        </div>
+        <div class="bias-description">
+          After an outcome is known, we believe we 'knew it all along' and the path seems inevitable.
+          Watch how multiple possible paths morph to make the chosen path appear obvious.
+        </div>
+        <div class="bias-meta">
+          <span class="tag memory">Memory</span>
+        </div>
+      </a>
+
+      <a href="bias-dunning-kruger.html" class="bias-card" data-category="judgment">
+        <div class="bias-title">
+          <span class="bias-icon">📊</span>
+          Dunning-Kruger Effect
+        </div>
+        <div class="bias-description">
+          Low-skill individuals overestimate their competence while high-skill individuals underestimate.
+          Take a quiz to see where you fall on the confidence-competence curve.
+        </div>
+        <div class="bias-meta">
+          <span class="tag judgment">Judgment</span>
+        </div>
+      </a>
+
+      <a href="bias-bandwagon.html" class="bias-card" data-category="social">
+        <div class="bias-title">
+          <span class="bias-icon">🚂</span>
+          Bandwagon Effect
+        </div>
+        <div class="bias-description">
+          We adopt beliefs because many others do, experiencing gravitational pull toward popular opinions.
+          Feel how larger opinion bubbles exert stronger pull, making popular choices easier to click.
+        </div>
+        <div class="bias-meta">
+          <span class="tag social">Social</span>
+        </div>
+      </a>
+
+      <a href="bias-spotlight.html" class="bias-card" data-category="perception">
+        <div class="bias-title">
+          <span class="bias-icon">💡</span>
+          Spotlight Effect
+        </div>
+        <div class="bias-description">
+          We overestimate how much others notice us, feeling like a spotlight is always on us.
+          Reveal where observers are actually looking versus where you think they're looking.
+        </div>
+        <div class="bias-meta">
+          <span class="tag perception">Perception</span>
+        </div>
+      </a>
+
+      <a href="bias-sunk-cost.html" class="bias-card" data-category="decision">
+        <div class="bias-title">
+          <span class="bias-icon">⛏️</span>
+          Sunk Cost Fallacy
+        </div>
+        <div class="bias-description">
+          We continue investing in failing ventures because of past investment, unable to 'waste' what's already spent.
+          Watch the pit deepen and the button sink as you keep investing.
+        </div>
+        <div class="bias-meta">
+          <span class="tag decision">Decision</span>
+        </div>
+      </a>
+
+      <a href="bias-framing.html" class="bias-card" data-category="decision">
+        <div class="bias-title">
+          <span class="bias-icon">🖼️</span>
+          Framing Effect
+        </div>
+        <div class="bias-description">
+          The same information presented differently produces different decisions.
+          Compare your choice between '90% survival rate' versus '10% mortality rate'.
+        </div>
+        <div class="bias-meta">
+          <span class="tag decision">Decision</span>
+        </div>
+      </a>
+
+      <a href="bias-availability.html" class="bias-card" data-category="memory">
+        <div class="bias-title">
+          <span class="bias-icon">☁️</span>
+          Availability Heuristic
+        </div>
+        <div class="bias-description">
+          We judge frequency by how easily examples come to mind. Vivid rare events (shark attacks)
+          loom large while common threats fade into the background.
+        </div>
+        <div class="bias-meta">
+          <span class="tag memory">Memory</span>
+        </div>
+      </a>
+
+      <a href="bias-halo.html" class="bias-card" data-category="perception">
+        <div class="bias-title">
+          <span class="bias-icon">✨</span>
+          Halo Effect
+        </div>
+        <div class="bias-description">
+          One positive trait casts a golden glow over everything else. Watch how a single glowing
+          attribute bleeds its color into unrelated traits.
+        </div>
+        <div class="bias-meta">
+          <span class="tag perception">Perception</span>
+        </div>
+      </a>
+
+      <a href="bias-loss-aversion.html" class="bias-card" data-category="decision">
+        <div class="bias-title">
+          <span class="bias-icon">⚖️</span>
+          Loss Aversion
+        </div>
+        <div class="bias-description">
+          Losses hurt about twice as much as equivalent gains feel good. Feel the asymmetric weight
+          on the balance scale as losses pull harder than gains.
+        </div>
+        <div class="bias-meta">
+          <span class="tag decision">Decision</span>
+        </div>
+      </a>
+
+      <a href="bias-recency.html" class="bias-card" data-category="memory">
+        <div class="bias-title">
+          <span class="bias-icon">⏰</span>
+          Recency Bias
+        </div>
+        <div class="bias-description">
+          Recent events weigh more heavily than older ones in memory and judgment.
+          Watch newest shapes shine large and vibrant while oldest fade to grayscale.
+        </div>
+        <div class="bias-meta">
+          <span class="tag memory">Memory</span>
+        </div>
+      </a>
+
+      <a href="bias-survivorship.html" class="bias-card" data-category="judgment">
+        <div class="bias-title">
+          <span class="bias-icon">✈️</span>
+          Survivorship Bias
+        </div>
+        <div class="bias-description">
+          We focus on survivors while ignoring those who didn't make it. Reveal the ghost planes
+          that were hit in critical areas—the ones that never came back.
+        </div>
+        <div class="bias-meta">
+          <span class="tag judgment">Judgment</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
