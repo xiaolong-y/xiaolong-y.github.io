@@ -177,10 +177,10 @@
   
   /* Horizontal rules - clear float to avoid cutting across art */
   hr {
-    clear: both;
-    border: none;
-    border-top: 1px solid var(--fx-base-200);
-    margin: 2em 0;
+    clear: both !important;
+    border: none !important;
+    border-top: 1px solid var(--fx-base-200) !important;
+    margin: 2em 0 !important;
   }
 
   /* Code styling */
@@ -242,7 +242,7 @@
   <canvas id="neuron-canvas" role="img" aria-label="Interactive neural network visualization showing neurons connected by dendrites with animated synaptic signals"></canvas>
   <p class="neural-caption">
     <em>Neural Connection Symphony</em> visualizes the invisible music of thought. Each neuron fires with biologically-accurate action potentials—sharp depolarization flashes followed by refractory "cooling" periods. Signals cascade through dendrites using saltatory conduction, while calcium blooms mark synaptic arrivals. The psychedelic color palette evokes altered states where creativity flourishes. Click any neuron to trigger a cascade; the burst particles follow actual dendrite angles, simulating back-propagating action potentials. This is consciousness rendered visible: the tension between organic unpredictability and algorithmic precision.<br><br>
-    <em>Inspired by <a href="https://zairja.com" target="_blank" rel="noopener">Neuropit #13</a> by the Zairja Collective. Created with Claude AI.</em>
+    <em>Inspired by Neuropit #13 by the Zairja Collective. Created with Claude AI.</em>
   </p>
 </div>
 <script src="assets/js/neural-symphony.js"></script>
@@ -275,6 +275,8 @@ I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu
 Non-academically, I write on my [bear blog](https://xiaolongy.bearblog.dev) occasionally.
 
 I also keep my favorite [quotes](quotes.md) and [bookshelf](bookshelf.md) here.
+
+<div style="clear: both;"></div>
 
 ---
 
