@@ -38,14 +38,18 @@ NC='\033[0m' # No Color
 CATEGORIES=("philosophy" "science" "technology" "economics" "fiction")
 ACCENT_COLORS=("red" "orange" "yellow" "green" "cyan" "blue" "purple" "magenta")
 
-# Category to color mapping
-declare -A CATEGORY_COLORS=(
-    ["philosophy"]="purple"
-    ["science"]="cyan"
-    ["technology"]="blue"
-    ["economics"]="green"
-    ["fiction"]="magenta"
-)
+# Category to color mapping (function instead of associative array for bash 3 compatibility)
+get_category_color() {
+    local cat="$1"
+    case "$cat" in
+        philosophy) echo "purple" ;;
+        science) echo "cyan" ;;
+        technology) echo "blue" ;;
+        economics) echo "green" ;;
+        fiction) echo "magenta" ;;
+        *) echo "blue" ;;
+    esac
+}
 
 show_help() {
     echo -e "${CYAN}add-book.sh${NC} - Add a book to your bookshelf with auto-fill"
@@ -421,7 +425,7 @@ interactive_mode() {
     fi
 
     # Accent color - default based on category
-    local default_color="${CATEGORY_COLORS[$CATEGORY]:-blue}"
+    local default_color=$(get_category_color "$CATEGORY")
     echo -ne "${GREEN}Accent color${NC} (${ACCENT_COLORS[*]}) ${YELLOW}[$default_color]${NC}: "
     read -r ACCENT
     if [[ -z "$ACCENT" ]]; then
