@@ -7,11 +7,13 @@
 
   let books = [];
   let currentFilter = 'all';
+  let isOverviewMode = false;
   const NUM_COLUMNS = 4;
 
   const bookGrid = document.querySelector('.book-grid');
   const filterButtons = document.querySelectorAll('.filter-btn');
   const themeToggle = document.querySelector('.theme-toggle');
+  const overviewToggle = document.getElementById('overview-toggle');
   const modalOverlay = document.querySelector('.book-modal-overlay');
   const modalClose = document.querySelector('.modal-close');
   const emptyState = document.getElementById('empty-state');
@@ -35,6 +37,14 @@
     const newTheme = current === 'dark' ? 'light' : (current === 'light' ? 'dark' : (prefersDark ? 'light' : 'dark'));
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('bookshelf-theme', newTheme);
+  }
+
+  function toggleOverview() {
+    isOverviewMode = !isOverviewMode;
+    bookGrid.classList.toggle('overview-mode', isOverviewMode);
+    overviewToggle.classList.toggle('active', isOverviewMode);
+    overviewToggle.setAttribute('aria-pressed', isOverviewMode);
+    renderBooks();
   }
 
   async function loadBooks() {
@@ -61,33 +71,41 @@
 
     emptyState.style.display = 'none';
 
-    // Distribute books across columns
-    var columns = [];
-    for (var c = 0; c < NUM_COLUMNS; c++) {
-      columns.push([]);
-    }
-    filtered.forEach(function(book, i) {
-      columns[i % NUM_COLUMNS].push(book);
-    });
-
-    // Render columns with infinite scroll (duplicate books for seamless loop)
-    var columnsHTML = '';
-    for (var col = 0; col < NUM_COLUMNS; col++) {
-      var colBooks = columns[col];
-      if (colBooks.length === 0) continue;
-
-      // Duplicate books for infinite scroll effect
-      var duplicatedBooks = colBooks.concat(colBooks);
-
+    if (isOverviewMode) {
+      // Overview mode: simple grid, no columns, no duplicates
       var cardsHTML = '';
-      for (var b = 0; b < duplicatedBooks.length; b++) {
-        cardsHTML += createBookCard(duplicatedBooks[b]);
+      for (var i = 0; i < filtered.length; i++) {
+        cardsHTML += createBookCard(filtered[i]);
+      }
+      bookGrid.innerHTML = '<div class="book-column"><div class="book-column-inner">' + cardsHTML + '</div></div>';
+    } else {
+      // Normal mode: columns with duplicates for infinite scroll
+      var columns = [];
+      for (var c = 0; c < NUM_COLUMNS; c++) {
+        columns.push([]);
+      }
+      filtered.forEach(function(book, i) {
+        columns[i % NUM_COLUMNS].push(book);
+      });
+
+      var columnsHTML = '';
+      for (var col = 0; col < NUM_COLUMNS; col++) {
+        var colBooks = columns[col];
+        if (colBooks.length === 0) continue;
+
+        // Duplicate books for infinite scroll effect
+        var duplicatedBooks = colBooks.concat(colBooks);
+
+        var cardsHTML = '';
+        for (var b = 0; b < duplicatedBooks.length; b++) {
+          cardsHTML += createBookCard(duplicatedBooks[b]);
+        }
+
+        columnsHTML += '<div class="book-column"><div class="book-column-inner">' + cardsHTML + '</div></div>';
       }
 
-      columnsHTML += '<div class="book-column"><div class="book-column-inner">' + cardsHTML + '</div></div>';
+      bookGrid.innerHTML = columnsHTML;
     }
-
-    bookGrid.innerHTML = columnsHTML;
 
     // Add click handlers
     var cards = document.querySelectorAll('.book-card');
@@ -197,6 +215,7 @@
       });
     });
 
+    overviewToggle.addEventListener('click', toggleOverview);
     themeToggle.addEventListener('click', toggleTheme);
     modalClose.addEventListener('click', closeModal);
     modalOverlay.addEventListener('click', function(e) { if (e.target === modalOverlay) closeModal(); });

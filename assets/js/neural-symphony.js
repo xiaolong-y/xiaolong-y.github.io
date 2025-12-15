@@ -469,6 +469,14 @@
 
       // Wave boost (from Design Spec - wave pattern effect)
       this.waveBoost = 0;
+
+      // Depolarization flash properties (biological accuracy improvement)
+      this.flashAlpha = 0;
+      this.flashPhase = 0;
+      this.flashStartTime = 0;
+
+      // Refractory state (biological accuracy improvement)
+      this.refractoryUntil = 0;
     }
 
     update(time) {
@@ -486,6 +494,15 @@
         if (this.activation < 0.01) this.activation = 0;
       }
 
+      // Update depolarization flash (80ms duration)
+      if (this.flashAlpha > 0) {
+        const flashDuration = 80; // ms
+        const elapsed = time - this.flashStartTime;
+        this.flashPhase = Math.min(1, elapsed / flashDuration);
+        // Sharp spike decay - fast attack, quick decay
+        this.flashAlpha = Math.max(0, 1 - this.flashPhase);
+      }
+
       // Update dendrites
       this.dendrites.forEach(d => d.update(time));
     }
@@ -493,6 +510,14 @@
     activate(intensity = 1, time = 0) {
       this.activation = Math.min(1, this.activation + intensity);
       this.lastFireTime = time;
+
+      // Trigger depolarization flash (biological accuracy - sharp voltage spike)
+      this.flashAlpha = intensity;
+      this.flashPhase = 0;
+      this.flashStartTime = time;
+
+      // Set refractory period (150ms - neuron appears 'spent')
+      this.refractoryUntil = time + 150;
 
       // Activate dendrites
       this.dendrites.forEach(d => d.activate(intensity));
@@ -502,6 +527,12 @@
       // Draw dendrites first (behind soma)
       this.dendrites.forEach(d => d.draw(ctx, colors, time));
 
+      // Check if in refractory state (biological accuracy - 'spent' appearance)
+      const isRefractory = time < this.refractoryUntil;
+      const refractoryProgress = isRefractory
+        ? 1 - (this.refractoryUntil - time) / 150
+        : 1;
+
       // Draw soma glow
       const glowRadius = this.currentRadius * (2 + this.activation);
       const gradient = ctx.createRadialGradient(
@@ -509,7 +540,9 @@
         this.x, this.y, glowRadius
       );
 
-      const glowAlpha = (this.glowIntensity + this.activation * 0.5) * CONFIG.glowIntensity;
+      // Dim the glow when refractory
+      const refractoryDim = isRefractory ? 0.6 : 1;
+      const glowAlpha = (this.glowIntensity + this.activation * 0.5) * CONFIG.glowIntensity * refractoryDim;
       gradient.addColorStop(0, colors.neuronGlow.replace(/[\d.]+\)$/, `${glowAlpha})`));
       gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
@@ -522,7 +555,20 @@
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.currentRadius, 0, Math.PI * 2);
       ctx.fillStyle = colors.neuronCore;
+      // Apply refractory dimming
+      if (isRefractory) {
+        ctx.globalAlpha = 0.6 + refractoryProgress * 0.4;
+      }
       ctx.fill();
+
+      // Refractory blue tinge overlay (biological accuracy - sodium channel recovery)
+      if (isRefractory) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.currentRadius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(100, 150, 200, ${0.3 * (1 - refractoryProgress)})`;
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
 
       // Inner highlight
       const highlightGradient = ctx.createRadialGradient(
@@ -538,6 +584,34 @@
       ctx.arc(this.x, this.y, this.currentRadius, 0, Math.PI * 2);
       ctx.fillStyle = highlightGradient;
       ctx.fill();
+
+      // Draw depolarization flash (biological accuracy - action potential spike)
+      if (this.flashAlpha > 0) {
+        // White-hot expanding flash that fades rapidly
+        const flashRadius = this.currentRadius * (1 + this.flashPhase * 2.5);
+        const flashOpacity = this.flashAlpha * (1 - this.flashPhase);
+
+        // Outer glow
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, flashRadius * 1.5, 0, Math.PI * 2);
+        const flashGradient = ctx.createRadialGradient(
+          this.x, this.y, 0,
+          this.x, this.y, flashRadius * 1.5
+        );
+        flashGradient.addColorStop(0, `rgba(255, 252, 240, ${flashOpacity * 0.8})`);
+        flashGradient.addColorStop(0.5, `rgba(255, 252, 240, ${flashOpacity * 0.4})`);
+        flashGradient.addColorStop(1, 'rgba(255, 252, 240, 0)');
+        ctx.fillStyle = flashGradient;
+        ctx.fill();
+
+        // Inner white-hot core
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, flashRadius * 0.6, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 252, 240, ${flashOpacity})`;
+        ctx.fill();
+        ctx.restore();
+      }
     }
 
     getAllDendriteEndpoints() {
@@ -571,9 +645,12 @@
       this.trail = [];
       this.size = 3;
       this.intensity = 1;
+      this.parent = null;
+      this.hasArrived = false;
+      this.arrivalTime = 0;
     }
 
-    init(source, target, connection) {
+    init(source, target, connection, parent = null) {
       this.active = true;
       this.progress = 0;
       this.speed = Utils.random(CONFIG.signalSpeed.min, CONFIG.signalSpeed.max);
@@ -583,16 +660,31 @@
       this.trail = [];
       this.size = Utils.random(2, 4);
       this.intensity = 1;
+      this.parent = parent;
+      this.hasArrived = false;
+      this.arrivalTime = 0;
       return this;
     }
 
-    update(deltaTime) {
+    update(deltaTime, currentTime) {
       if (!this.active) return false;
+
+      // Handle calcium bloom delay before target activation
+      if (this.hasArrived) {
+        const timeSinceArrival = currentTime - this.arrivalTime;
+        // 30ms synaptic delay before target activation
+        if (timeSinceArrival >= 30) {
+          this.target.activate(0.8, currentTime);
+          this.active = false;
+          return false;
+        }
+        return true;
+      }
 
       this.progress += this.speed * deltaTime;
 
       // Get current position on bezier path
-      const pos = this.path.getPointAt(this.progress);
+      const pos = this.path.getPointAt(Math.min(this.progress, 1));
 
       // Add to trail
       this.trail.unshift({ x: pos.x, y: pos.y, alpha: 1 });
@@ -605,11 +697,16 @@
         point.alpha = 1 - (i / CONFIG.signalTrailLength);
       });
 
-      // Check if reached target
+      // Check if reached target - spawn calcium bloom (biological accuracy)
       if (this.progress >= 1) {
-        this.target.activate(0.8);
-        this.active = false;
-        return false;
+        this.hasArrived = true;
+        this.arrivalTime = currentTime;
+
+        // Spawn calcium bloom at arrival point (synaptic calcium cascade)
+        if (this.parent) {
+          this.parent.spawnCalciumBloom(this.target.x, this.target.y);
+        }
+        return true;
       }
 
       return true;
@@ -896,6 +993,7 @@
       this.life = 0;
       this.maxLife = 0;
       this.colorPhase = 0;
+      this.isCalciumBloom = false;
     }
 
     init(x, y, angle) {
@@ -936,9 +1034,36 @@
       const lifeRatio = this.life / this.maxLife;
       const alpha = Utils.easeSynapticBurst(1 - lifeRatio);
 
-      // Color sequence: White -> Magenta -> Purple -> Cyan -> Fade
-      // From Design Spec color sequence
       let color;
+
+      // Calcium bloom particles: always cyan (biological accuracy - Ca2+ influx)
+      if (this.isCalciumBloom) {
+        color = isDark ? '#3AA99F' : '#24837B'; // Cyan for calcium
+
+        // Draw glow
+        if (alpha > 0.2) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size * 1.5, 0, Math.PI * 2);
+          ctx.fillStyle = color;
+          ctx.globalAlpha = alpha * 0.4;
+          ctx.filter = 'blur(3px)';
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Draw particle
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size * (1 - lifeRatio * 0.3), 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.globalAlpha = alpha;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        return;
+      }
+
+      // Regular burst: Color sequence: White -> Magenta -> Purple -> Cyan -> Fade
+      // From Design Spec color sequence
       if (this.colorPhase < 0.1) {
         color = '#FFFCF0'; // White
       } else if (this.colorPhase < 0.25) {
@@ -1169,7 +1294,7 @@
 
     fireSignal(source, target, connection) {
       const signal = this.signalPool.acquire();
-      signal.init(source, target, connection);
+      signal.init(source, target, connection, this);
       connection.activate();
     }
 
@@ -1180,12 +1305,12 @@
       const intensity = isSupernova ? 1 : CONFIG.spontaneousFireIntensity;
       neuron.activate(intensity, this.time);
 
-      // Spawn burst particles on activation
+      // Spawn burst particles on activation (with directional dendrite burst)
       const burstCount = isSupernova
         ? CONFIG.burstParticleCount.max * CONFIG.supernovaMultiplier
         : Utils.randomInt(CONFIG.burstParticleCount.min, CONFIG.burstParticleCount.max);
 
-      this.spawnBurst(neuron.x, neuron.y, burstCount);
+      this.spawnBurst(neuron.x, neuron.y, burstCount, neuron);
 
       // Mark as recently fired
       this.recentlyFiredNeurons.add(neuron.id);
@@ -1203,11 +1328,50 @@
     }
 
     // Spawn particle burst at position (from Design Spec)
-    spawnBurst(x, y, count) {
+    // Enhanced with directional dendrite burst (biological accuracy - back-propagating action potentials)
+    spawnBurst(x, y, count, neuron = null) {
+      // Get dendrite angles if neuron is provided
+      const dendriteAngles = neuron ? neuron.dendrites.map(d => d.angle) : [];
+
       for (let i = 0; i < count; i++) {
         const particle = this.burstPool.acquire();
-        const angle = (i / count) * Math.PI * 2 + Utils.random(-0.2, 0.2);
+        let angle;
+
+        // 70% of particles follow dendrite directions (back-propagating action potentials)
+        // 30% radial for ambient effect
+        if (Math.random() < 0.7 && dendriteAngles.length > 0) {
+          // Pick a dendrite direction with some spread
+          const baseAngle = dendriteAngles[Math.floor(Math.random() * dendriteAngles.length)];
+          angle = baseAngle + Utils.random(-0.4, 0.4);
+        } else {
+          // Radial distribution for ambient particles
+          angle = (i / count) * Math.PI * 2 + Utils.random(-0.2, 0.2);
+        }
+
         particle.init(x, y, angle);
+      }
+    }
+
+    // Spawn calcium bloom at signal arrival point (biological accuracy - synaptic calcium cascade)
+    spawnCalciumBloom(x, y) {
+      // Spawn 3-5 tiny cyan particles that rapidly expand and fade
+      const count = Utils.randomInt(3, 5);
+
+      for (let i = 0; i < count; i++) {
+        const particle = this.burstPool.acquire();
+        const angle = (i / count) * Math.PI * 2 + Utils.random(-0.3, 0.3);
+
+        // Initialize with calcium bloom properties (smaller, cyan-tinted)
+        particle.x = x;
+        particle.y = y;
+        const speed = Utils.random(20, 40); // Slower than regular burst
+        particle.vx = Math.cos(angle) * speed;
+        particle.vy = Math.sin(angle) * speed;
+        particle.size = Utils.random(1.5, 3); // Smaller particles
+        particle.life = 0;
+        particle.maxLife = Utils.random(100, 150); // Shorter duration
+        particle.colorPhase = 0;
+        particle.isCalciumBloom = true; // Flag for special rendering
       }
     }
 
@@ -1452,10 +1616,10 @@
         neuron.draw(this.ctx, colors, currentTime);
       });
 
-      // Update and draw signals
+      // Update and draw signals (pass currentTime for calcium bloom timing)
       const deadSignals = [];
       this.signalPool.forEach(signal => {
-        if (!signal.update(deltaTime)) {
+        if (!signal.update(deltaTime, currentTime)) {
           deadSignals.push(signal);
         }
       });

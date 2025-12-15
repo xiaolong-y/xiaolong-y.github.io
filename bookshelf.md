@@ -192,11 +192,11 @@ title: Bookshelf
   }
 
   .book-column:nth-child(odd) .book-column-inner {
-    animation: scroll-down 60s linear infinite;
+    animation: scroll-down 84s linear infinite;
   }
 
   .book-column:nth-child(even) .book-column-inner {
-    animation: scroll-up 55s linear infinite;
+    animation: scroll-up 77s linear infinite;
   }
 
   /* Pause on hover for readability */
@@ -204,56 +204,89 @@ title: Bookshelf
     animation-play-state: paused;
   }
 
-  /* ========== BOOK CARD - 3D BOOK COVERS ========== */
+  /* ========== BOOK CARD - 3D BOOK MODEL ========== */
   .book-card {
     flex-shrink: 0;
-    border-radius: 4px;
     overflow: visible;
     cursor: pointer;
     position: relative;
     transform-style: preserve-3d;
+    perspective: 1000px;
     transition: transform 0.3s ease;
   }
 
-  /* 3D book effect - pages underneath */
+  /* Book spine (left side - bound edge) */
   .book-card::before {
     content: '';
     position: absolute;
-    top: 3px;
-    left: 3px;
-    right: -3px;
-    bottom: -3px;
-    background: repeating-linear-gradient(
-      90deg,
-      var(--fx-base-100) 0px,
-      var(--fx-base-200) 1px,
-      var(--fx-base-100) 2px
-    );
-    border-radius: 2px 4px 4px 2px;
-    transform: translateZ(-2px);
-    box-shadow:
-      2px 2px 4px rgba(0,0,0,0.1),
-      4px 4px 8px rgba(0,0,0,0.08);
+    top: 0;
+    left: -8px;
+    bottom: 4px;
+    width: 8px;
+    background: linear-gradient(90deg,
+      var(--fx-base-400) 0%,
+      var(--fx-base-300) 40%,
+      var(--fx-base-200) 100%);
+    border-radius: 3px 0 0 3px;
+    transform: rotateY(-90deg) translateZ(4px);
+    transform-origin: right center;
+    box-shadow: -2px 0 4px rgba(0,0,0,0.2);
   }
 
-  /* Book spine shadow */
+  /* Page edges (right side - opens here) */
   .book-card::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: -6px;
+    bottom: 6px;
+    width: 6px;
+    background: repeating-linear-gradient(
+      180deg,
+      #f8f6f0 0px,
+      #e8e6e0 1px,
+      #f5f3ed 2px,
+      #eae8e2 3px
+    );
+    border-radius: 0 2px 2px 0;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  }
+
+  /* Book bottom edge (thickness) */
+  .book-cover-wrapper::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -6px;
+    height: 6px;
+    background: linear-gradient(180deg,
+      var(--fx-base-200) 0%,
+      var(--fx-base-300) 50%,
+      var(--fx-base-400) 100%);
+    border-radius: 0 0 2px 2px;
+    transform: rotateX(-90deg) translateZ(3px);
+    transform-origin: top center;
+  }
+
+  /* Spine shadow on cover */
+  .book-cover-wrapper::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     bottom: 0;
-    width: 8px;
+    width: 20px;
     background: linear-gradient(90deg,
-      rgba(0,0,0,0.2) 0%,
-      rgba(0,0,0,0.05) 50%,
+      rgba(0,0,0,0.15) 0%,
+      rgba(0,0,0,0.05) 40%,
       transparent 100%);
-    border-radius: 4px 0 0 4px;
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
+    border-radius: 2px 0 0 2px;
   }
 
-  .book-card:focus { outline: 3px solid var(--fx-cyan); outline-offset: 4px; }
+  .book-card:focus { outline: 3px solid var(--fx-cyan); outline-offset: 6px; }
 
   /* ========== HOVER SHAKE ANIMATION ========== */
   @keyframes gentle-shake {
@@ -274,18 +307,19 @@ title: Bookshelf
     z-index: 10;
   }
 
-  .book-card:hover::before {
-    box-shadow:
-      4px 4px 8px rgba(0,0,0,0.15),
-      8px 8px 16px rgba(0,0,0,0.1);
+  .book-card:hover::after {
+    box-shadow: 3px 3px 6px rgba(0,0,0,0.15);
   }
 
   .book-cover-wrapper {
     position: relative;
     z-index: 1;
-    border-radius: 4px;
+    border-radius: 2px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    box-shadow:
+      0 1px 2px rgba(0,0,0,0.1),
+      0 4px 8px rgba(0,0,0,0.1),
+      0 8px 16px rgba(0,0,0,0.05);
   }
 
   .book-cover {
@@ -668,10 +702,101 @@ title: Bookshelf
     display: block;
   }
 
+  /* ========== OVERVIEW MODE ========== */
+  .overview-toggle {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    margin-left: 8px;
+  }
+
+  .overview-toggle:hover {
+    border-color: var(--fx-cyan);
+    color: var(--fx-cyan);
+  }
+
+  .overview-toggle.active {
+    background: var(--fx-cyan);
+    border-color: var(--fx-cyan);
+    color: white;
+  }
+
+  .overview-toggle svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+  }
+
+  /* Overview mode grid */
+  .book-grid.overview-mode {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 16px;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding: 0 24px 60px;
+  }
+
+  .book-grid.overview-mode .book-column {
+    display: contents;
+  }
+
+  .book-grid.overview-mode .book-column-inner {
+    display: contents;
+    animation: none !important;
+  }
+
+  .book-grid.overview-mode .book-card {
+    width: 100%;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  .book-grid.overview-mode .book-card::before,
+  .book-grid.overview-mode .book-card::after {
+    display: none;
+  }
+
+  .book-grid.overview-mode .book-cover-wrapper::before,
+  .book-grid.overview-mode .book-cover-wrapper::after {
+    display: none;
+  }
+
+  .book-grid.overview-mode .book-cover-wrapper {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border-radius: 3px;
+  }
+
+  .book-grid.overview-mode .book-card:hover {
+    animation: none;
+    transform: scale(1.08);
+    z-index: 10;
+  }
+
+  .book-grid.overview-mode .book-card:hover .book-cover-wrapper {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  }
+
+  /* Transition between modes */
+  .book-grid {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
   /* ========== RESPONSIVE ========== */
   @media (max-width: 1200px) {
     .book-grid { gap: 20px; }
     .book-column:nth-child(4) { display: none; }
+    .book-grid.overview-mode { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
   }
 
   @media (max-width: 900px) {
@@ -681,6 +806,7 @@ title: Bookshelf
     .modal-header { flex-direction: column; align-items: center; text-align: center; }
     .modal-cover, .modal-cover-fallback { width: 140px; height: 210px; }
     .modal-content { padding: 32px 24px 32px 34px; }
+    .book-grid.overview-mode { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 12px; }
   }
 
   @media (max-width: 600px) {
@@ -691,6 +817,8 @@ title: Bookshelf
     .modal-cover, .modal-cover-fallback { width: 120px; height: 180px; }
     .modal-info h2 { font-size: 1.4rem; }
     .modal-content { padding: 28px 20px 28px 30px; }
+    .book-grid.overview-mode { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; padding: 0 16px 40px; }
+    .overview-toggle span { display: none; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -747,6 +875,10 @@ title: Bookshelf
   <button class="filter-btn" data-category="technology">Technology</button>
   <button class="filter-btn" data-category="economics">Economics</button>
   <button class="filter-btn" data-category="fiction">Fiction</button>
+  <button class="overview-toggle" id="overview-toggle" aria-label="Toggle overview">
+    <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span>Overview</span>
+  </button>
   <button class="theme-toggle" aria-label="Toggle theme">
     <svg class="sun-icon" viewBox="0 0 24 24"><path d="M12 7a5 5 0 100 10 5 5 0 000-10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
     <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
