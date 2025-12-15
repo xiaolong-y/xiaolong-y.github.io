@@ -101,7 +101,7 @@
     text-align: center;
   }
   
-  .neural-container img {
+  .neural-container img, .neural-container canvas {
     width: 85%;
     max-width: 400px;
     margin: 0 auto;
@@ -128,7 +128,7 @@
       margin: 0 0 25px 25px;
     }
     
-    .neural-container img {
+    .neural-container img, .neural-container canvas {
       width: 100%;
     }
     
@@ -157,7 +157,7 @@
   
   /* Handle landscape orientation on phones */
   @media (max-width: 768px) and (orientation: landscape) {
-    .neural-container img {
+    .neural-container img, .neural-container canvas {
       width: 50%;
       max-width: 300px;
     }
@@ -186,18 +186,19 @@
       color: var(--fx-base-400);
     }
     
-    .neural-container img {
+    .neural-container img, .neural-container canvas {
       box-shadow: 0 2px 8px rgba(28, 27, 24, 0.4);
     }
   }
 </style>
 
 <div class="neural-container">
-  <img src="neuron.gif" alt="Neural Connection Symphony" loading="lazy">
+  <canvas id="neuron-canvas"></canvas>
   <p class="neural-caption">
     Neural Connection Symphony: a microscopic journey through living neural networks during moments of profound human experience—learning, excitement, and love. Inspired by Neuropit #13 by the Zairja Collective; created with sora and claude ai.
   </p>
 </div>
+<script src="assets/js/neuron-ascii.js"></script>
 
 Welcome! I am a G2 graduate student in Harvard University's Master's program of [Regional Studies - East Asia](https://rsea.fas.harvard.edu) at the Kenneth C. Griffin Graduate School of Arts and Sciences.
 

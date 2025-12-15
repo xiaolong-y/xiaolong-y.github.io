@@ -1,0 +1,232 @@
+{
+  "books": [
+    {
+      "id": "1",
+      "title": "Thinking, Fast and Slow",
+      "author": "Daniel Kahneman",
+      "year": 2011,
+      "category": "science",
+      "description": "A groundbreaking exploration of the two systems that drive the way we think. System 1 is fast, intuitive, and emotional; System 2 is slower, more deliberative, and more logical. Kahneman exposes the extraordinary capabilities and also the faults and biases of fast thinking.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1317793965i/11468377.jpg",
+      "accentColor": "#BC5215",
+      "rating": 5,
+      "quote": {
+        "text": "A reliable way to make people believe in falsehoods is frequent repetition, because familiarity is not easily distinguished from truth.",
+        "author": "Daniel Kahneman"
+      },
+      "links": {
+        "amazon": "https://www.amazon.com/dp/0374533555",
+        "goodreads": "https://www.goodreads.com/book/show/11468377-thinking-fast-and-slow"
+      }
+    },
+    {
+      "id": "2",
+      "title": "The Structure of Scientific Revolutions",
+      "author": "Thomas S. Kuhn",
+      "year": 1962,
+      "category": "philosophy",
+      "description": "A landmark work that introduced the concept of paradigm shifts and fundamentally changed how we understand scientific progress. Kuhn argues that scientific advancement is not evolutionary, but rather a series of peaceful interludes punctuated by intellectually violent revolutions.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1396422530i/61539.jpg",
+      "accentColor": "#5E409D",
+      "rating": 5,
+      "quote": {
+        "text": "Normal science, the activity in which most scientists inevitably spend almost all their time, is predicated on the assumption that the scientific community knows what the world is like.",
+        "author": "Thomas S. Kuhn"
+      },
+      "links": {
+        "amazon": "https://www.amazon.com/dp/0226458121",
+        "goodreads": "https://www.goodreads.com/book/show/61539.The_Structure_of_Scientific_Revolutions"
+      }
+    },
+    {
+      "id": "3",
+      "title": "Gödel, Escher, Bach",
+      "author": "Douglas Hofstadter",
+      "year": 1979,
+      "category": "science",
+      "description": "An eternal golden braid weaving together mathematics, art, and music to explore the nature of consciousness and self-reference. Through the works of Gödel, Escher, and Bach, Hofstadter examines how systems can acquire meaning despite being made of meaningless elements.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1547125681i/24113.jpg",
+      "accentColor": "#AD8301",
+      "rating": 5,
+      "quote": {
+        "text": "In the end, we self-perceiving, self-inventing, locked-in mirages are little miracles of self-reference.",
+        "author": "Douglas Hofstadter"
+      },
+      "links": {
+        "amazon": "https://www.amazon.com/dp/0465026567",
+        "goodreads": "https://www.goodreads.com/book/show/24113.G_del_Escher_Bach"
+      }
+    },
+    {
+      "id": "4",
+      "title": "The Art of Doing Science and Engineering",
+      "author": "Richard Hamming",
+      "year": 1997,
+      "category": "technology",
+      "description": "Hamming's reflections on 'learning to learn' distilled from decades at Bell Labs. This book teaches not just technical skills, but how to think about problems, manage your career, and position yourself to do great work in science and engineering.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1587164062i/530415.jpg",
+      "accentColor": "#24837B",
+      "rating": 5,
+      "quote": {
+        "text": "If you do not work on an important problem, it's unlikely you'll do important work.",
+        "author": "Richard Hamming"
+      },
+      "links": {
+        "amazon": "https://www.amazon.com/dp/1732265178",
+        "goodreads": "https://www.goodreads.com/book/show/530415.The_Art_of_Doing_Science_and_Engineering"
+      }
+    },
+    {
+      "id": "5",
+      "title": "The Wealth of Nations",
+      "author": "Adam Smith",
+      "year": 1776,
+      "category": "economics",
+      "description": "The foundational text of modern economics. Smith analyzes the nature and causes of national wealth, introducing concepts like the division of labor, free markets, and the invisible hand that have shaped economic thought for nearly 250 years.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1547570288i/25698.jpg",
+      "accentColor": "#66800B",
+      "rating": 4,
+      "quote": {
+        "text": "It is not from the benevolence of the butcher, the brewer, or the baker that we expect our dinner, but from their regard to their own interest.",
+        "author": "Adam Smith"
+      },
+      "links": {
+        "amazon": "https://www.amazon.com/dp/0679783369",
+        "goodreads": "https://www.goodreads.com/book/show/25698.The_Wealth_of_Nations"
+      }
+    },
+    {
+      "id": "6",
+      "title": "Meditations",
+      "author": "Marcus Aurelius",
+      "year": 180,
+      "category": "philosophy",
+      "description": "The private philosophical writings of the Roman Emperor, never intended for publication. These reflections on Stoic philosophy offer timeless wisdom on self-discipline, acceptance, and living according to nature.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1421618636i/30659.jpg",
+      "accentColor": "#AF3029",
+      "rating": 5,
+      "quote": {
+        "text": "You have power over your mind - not outside events. Realize this, and you will find strength.",
+        "author": "Marcus Aurelius"
+      },
+      "links": {
+        "amazon": "https://www.amazon.com/dp/0140449337",
+        "goodreads": "https://www.goodreads.com/book/show/30659.Meditations"
+      }
+    },
+    {
+      "id": "7",
+      "title": "The Elements of Statistical Learning",
+      "author": "Hastie, Tibshirani, Friedman",
+      "year": 2009,
+      "category": "science",
+      "description": "The essential reference for statistical learning and data mining. Covers supervised and unsupervised learning with a comprehensive treatment of regression, classification, neural networks, and ensemble methods.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1348725957i/148009.jpg",
+      "accentColor": "#205EA6",
+      "rating": 5,
+      "quote": {
+        "text": "With enough data, the distinction between learning and statistics tends to blur.",
+        "author": "Trevor Hastie"
+      },
+      "links": {
+        "amazon": "https://www.amazon.com/dp/0387848576",
+        "goodreads": "https://www.goodreads.com/book/show/148009.The_Elements_of_Statistical_Learning"
+      }
+    },
+    {
+      "id": "8",
+      "title": "The Master and Margarita",
+      "author": "Mikhail Bulgakov",
+      "year": 1967,
+      "category": "fiction",
+      "description": "A surreal masterpiece blending satire, romance, and supernatural fantasy. The Devil visits Soviet Moscow, interweaving with the story of Pontius Pilate and Jesus, and a writer's doomed love affair with his muse Margarita.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327867963i/117833.jpg",
+      "accentColor": "#A02F6F",
+      "rating": 5,
+      "quote": {
+        "text": "Manuscripts don't burn.",
+        "author": "Mikhail Bulgakov"
+      },
+      "links": {
+        "amazon": "https://www.amazon.com/dp/0141180145",
+        "goodreads": "https://www.goodreads.com/book/show/117833.The_Master_and_Margarita"
+      }
+    },
+    {
+      "id": "9",
+      "title": "The Innovator's Dilemma",
+      "author": "Clayton Christensen",
+      "year": 1997,
+      "category": "technology",
+      "description": "Why do successful companies fail when confronted with technological change? Christensen introduces the concept of disruptive innovation and explains why great companies can do everything right and still lose their market leadership.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1347654027i/2615.jpg",
+      "accentColor": "#BC5215",
+      "rating": 4,
+      "quote": {
+        "text": "Disruptive technology should be framed as a marketing challenge, not a technological one.",
+        "author": "Clayton Christensen"
+      },
+      "links": {
+        "amazon": "https://www.amazon.com/dp/0062060244",
+        "goodreads": "https://www.goodreads.com/book/show/2615.The_Innovator_s_Dilemma"
+      }
+    },
+    {
+      "id": "10",
+      "title": "Capital in the Twenty-First Century",
+      "author": "Thomas Piketty",
+      "year": 2013,
+      "category": "economics",
+      "description": "A comprehensive analysis of wealth and income inequality using centuries of data. Piketty argues that when the rate of return on capital exceeds economic growth, inequality increases, threatening democracy and social justice.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1393243739i/18736925.jpg",
+      "accentColor": "#66800B",
+      "rating": 4,
+      "quote": {
+        "text": "When the rate of return on capital exceeds the rate of growth of output and income, capitalism automatically generates arbitrary and unsustainable inequalities.",
+        "author": "Thomas Piketty"
+      },
+      "links": {
+        "amazon": "https://www.amazon.com/dp/067443000X",
+        "goodreads": "https://www.goodreads.com/book/show/18736925-capital-in-the-twenty-first-century"
+      }
+    },
+    {
+      "id": "11",
+      "title": "Zen and the Art of Motorcycle Maintenance",
+      "author": "Robert M. Pirsig",
+      "year": 1974,
+      "category": "philosophy",
+      "description": "A philosophical novel that examines concepts of Quality through the lens of a cross-country motorcycle trip. Part autobiography, part philosophy, it explores the intersection of art, science, and the search for meaning.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1410136019i/629.jpg",
+      "accentColor": "#24837B",
+      "rating": 4,
+      "quote": {
+        "text": "The real cycle you're working on is a cycle called yourself.",
+        "author": "Robert M. Pirsig"
+      },
+      "links": {
+        "amazon": "https://www.amazon.com/dp/0060839872",
+        "goodreads": "https://www.goodreads.com/book/show/629.Zen_and_the_Art_of_Motorcycle_Maintenance"
+      }
+    },
+    {
+      "id": "12",
+      "title": "One Hundred Years of Solitude",
+      "author": "Gabriel García Márquez",
+      "year": 1967,
+      "category": "fiction",
+      "description": "The multi-generational saga of the Buendía family in the fictional town of Macondo. A cornerstone of magical realism that weaves history, myth, and family drama into an unforgettable narrative about the cyclical nature of time.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327881361i/320.jpg",
+      "accentColor": "#AD8301",
+      "rating": 5,
+      "quote": {
+        "text": "It's enough for me to be sure that you and I exist at this moment.",
+        "author": "Gabriel García Márquez"
+      },
+      "links": {
+        "amazon": "https://www.amazon.com/dp/0060883286",
+        "goodreads": "https://www.goodreads.com/book/show/320.One_Hundred_Years_of_Solitude"
+      }
+    }
+  ]
+}
