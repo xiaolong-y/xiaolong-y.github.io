@@ -101,16 +101,20 @@
       bookGrid.innerHTML = cardsHTML;
     } else {
       // Normal mode: columns for infinite scroll (no duplicates)
+      // Ensure each column has at least 2 different books for visual variety
+      var MIN_BOOKS_PER_COLUMN = 2;
+      var effectiveColumns = Math.min(NUM_COLUMNS, Math.max(1, Math.ceil(filtered.length / MIN_BOOKS_PER_COLUMN)));
+
       var columns = [];
-      for (var c = 0; c < NUM_COLUMNS; c++) {
+      for (var c = 0; c < effectiveColumns; c++) {
         columns.push([]);
       }
       filtered.forEach(function(book, i) {
-        columns[i % NUM_COLUMNS].push(book);
+        columns[i % effectiveColumns].push(book);
       });
 
       var columnsHTML = '';
-      for (var col = 0; col < NUM_COLUMNS; col++) {
+      for (var col = 0; col < effectiveColumns; col++) {
         var colBooks = columns[col];
         if (colBooks.length === 0) continue;
 
@@ -324,7 +328,7 @@
 
       var isOddColumn = columnIndex % 2 === 0;
       var animationName = isOddColumn ? 'scroll-down-' + columnIndex : 'scroll-up-' + columnIndex;
-      var duration = isOddColumn ? 40 : 35; // Different speeds for visual interest
+      var duration = isOddColumn ? 52 : 46; // Different speeds for visual interest (30% slower)
 
       // Create dynamic keyframe animation
       var styleSheet = document.styleSheets[document.styleSheets.length - 1];
