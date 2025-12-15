@@ -99,7 +99,7 @@
       }).join('');
       bookGrid.innerHTML = cardsHTML;
     } else {
-      // Normal mode: columns with duplicates for infinite scroll
+      // Normal mode: columns for infinite scroll (no duplicates)
       var columns = [];
       for (var c = 0; c < NUM_COLUMNS; c++) {
         columns.push([]);
@@ -113,12 +113,9 @@
         var colBooks = columns[col];
         if (colBooks.length === 0) continue;
 
-        // Duplicate books for infinite scroll effect
-        var duplicatedBooks = colBooks.concat(colBooks);
-
         var cardsHTML = '';
-        for (var b = 0; b < duplicatedBooks.length; b++) {
-          cardsHTML += createBookCard(duplicatedBooks[b]);
+        for (var b = 0; b < colBooks.length; b++) {
+          cardsHTML += createBookCard(colBooks[b]);
         }
 
         columnsHTML += '<div class="book-column"><div class="book-column-inner">' + cardsHTML + '</div></div>';

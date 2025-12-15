@@ -180,23 +180,18 @@ title: Bookshelf
     will-change: transform;
   }
 
-  /* Infinite scroll animations - alternating directions */
-  @keyframes scroll-down {
-    0% { transform: translateY(-50%); }
-    100% { transform: translateY(0%); }
-  }
-
-  @keyframes scroll-up {
+  /* Smooth scroll animations - alternating directions, no duplicates */
+  @keyframes scroll-column {
     0% { transform: translateY(0%); }
-    100% { transform: translateY(-50%); }
+    100% { transform: translateY(calc(-100% + 85vh)); }
   }
 
   .book-column:nth-child(odd) .book-column-inner {
-    animation: scroll-down 84s linear infinite;
+    animation: scroll-column 60s ease-in-out infinite alternate;
   }
 
   .book-column:nth-child(even) .book-column-inner {
-    animation: scroll-up 77s linear infinite;
+    animation: scroll-column 55s ease-in-out infinite alternate-reverse;
   }
 
   /* Pause on hover for readability */
