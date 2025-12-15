@@ -175,19 +175,65 @@
     }
   }
   
+  /* Horizontal rules - clear float to avoid cutting across art */
+  hr {
+    clear: both;
+    border: none;
+    border-top: 1px solid var(--fx-base-200);
+    margin: 2em 0;
+  }
+
+  /* Code styling */
+  code {
+    background-color: var(--fx-base-50);
+    color: var(--fx-orange);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  /* Headings with Flexoki styling */
+  h1 {
+    color: var(--fx-orange);
+    border-bottom: 1px solid var(--fx-base-200);
+    padding-bottom: 0.3em;
+  }
+
+  h2, h3 {
+    color: var(--fx-base-800);
+    margin-top: 1.5em;
+  }
+
   /* Flexoki Dark mode support */
   @media (prefers-color-scheme: dark) {
     body {
       background-color: var(--fx-base-950);
-      color: var(--fx-base-100);
+      color: var(--fx-base-200);
     }
-    
+
     .neural-caption {
       color: var(--fx-base-400);
     }
-    
+
     .neural-container img, .neural-container canvas {
       box-shadow: 0 2px 8px rgba(28, 27, 24, 0.4);
+    }
+
+    hr {
+      border-top-color: var(--fx-base-800);
+    }
+
+    code {
+      background-color: var(--fx-base-900);
+      color: var(--fx-orange);
+    }
+
+    h1 {
+      border-bottom-color: var(--fx-base-800);
+    }
+
+    h2, h3 {
+      color: var(--fx-base-300);
     }
   }
 </style>
