@@ -1,14 +1,13 @@
 /**
- * Bookshelf - Interactive book collection display
- * Inspired by Stripe Press
+ * Bookshelf - Real bookshelf with spines and pull-out animations
  *
  * Features:
- * - Filter by category
- * - Sort by title, author, year, rating
+ * - Books displayed as spines on wooden shelves
+ * - Click to open modal with book details
+ * - Fallback covers for broken images
+ * - Filter by category, sort by various fields
  * - Theme toggle (light/dark)
- * - Modal detail view
  * - Keyboard navigation
- * - Smooth animations
  */
 
 (function() {
@@ -18,7 +17,14 @@
   let books = [];
   let currentFilter = 'all';
   let currentSort = 'title';
-  let focusedBookIndex = -1;
+  let isAnimating = false;
+  let activeSpine = null;
+  const BOOKS_PER_SHELF = 12;
+
+  // Animation timings (ms)
+  const PULL_OUT_DURATION = 400;
+  const PAGE_FLIP_DURATION = 300;
+  const MODAL_DELAY = 100;
 
   // DOM Elements
   const bookGrid = document.querySelector('.book-grid');
@@ -28,6 +34,23 @@
   const modalOverlay = document.querySelector('.book-modal-overlay');
   const modalClose = document.querySelector('.modal-close');
   const emptyState = document.getElementById('empty-state');
+
+  // Color mapping for accent colors
+  const colorMap = {
+    '#AF3029': 'red', '#D14D41': 'red',
+    '#BC5215': 'orange', '#DA702C': 'orange',
+    '#AD8301': 'yellow', '#D0A215': 'yellow',
+    '#66800B': 'green', '#879A39': 'green',
+    '#24837B': 'cyan', '#3AA99F': 'cyan',
+    '#205EA6': 'blue', '#4385BE': 'blue',
+    '#5E409D': 'purple', '#8B7EC8': 'purple',
+    '#A02F6F': 'magenta', '#CE5D97': 'magenta'
+  };
+
+  // Thickness/height variations for visual interest
+  const thicknesses = ['thin', 'medium', 'medium', 'thick', 'chunky'];
+  const heights = ['short', 'medium', 'medium', 'tall'];
+  const patterns = ['', '', '', 'leather', 'cloth', 'striped'];
 
   // Initialize
   document.addEventListener('DOMContentLoaded', init);
@@ -56,7 +79,6 @@
     } else if (currentTheme === 'light') {
       newTheme = 'dark';
     } else {
-      // No explicit theme set, toggle from system preference
       newTheme = prefersDark ? 'light' : 'dark';
     }
 
@@ -71,7 +93,7 @@
       if (!response.ok) throw new Error('Failed to load books');
       const data = await response.json();
       books = data.books;
-      renderBooks();
+      renderBookshelf();
     } catch (error) {
       console.error('Error loading books:', error);
       bookGrid.innerHTML = `
@@ -86,8 +108,8 @@
     }
   }
 
-  // Rendering
-  function renderBooks() {
+  // Render bookshelf with shelves
+  function renderBookshelf() {
     const filteredBooks = filterBooks(books, currentFilter);
     const sortedBooks = sortBooks(filteredBooks, currentSort);
 
@@ -98,63 +120,107 @@
     }
 
     emptyState.style.display = 'none';
-    bookGrid.innerHTML = sortedBooks.map((book, index) => createBookCard(book, index)).join('');
 
-    // Add click handlers to cards
-    document.querySelectorAll('.book-card').forEach((card, index) => {
-      card.addEventListener('click', () => openModal(sortedBooks[index]));
-      card.addEventListener('keydown', (e) => {
+    // Split books into shelves
+    const shelves = [];
+    for (let i = 0; i < sortedBooks.length; i += BOOKS_PER_SHELF) {
+      shelves.push(sortedBooks.slice(i, i + BOOKS_PER_SHELF));
+    }
+
+    // Render shelves
+    bookGrid.innerHTML = shelves.map((shelfBooks, shelfIndex) =>
+      createShelf(shelfBooks, shelfIndex)
+    ).join('');
+
+    // Add click handlers to spines
+    document.querySelectorAll('.book-spine').forEach(spine => {
+      const bookId = spine.dataset.bookId;
+      const book = sortedBooks.find(b => b.id === bookId);
+
+      spine.addEventListener('click', () => handleBookClick(spine, book));
+      spine.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          openModal(sortedBooks[index]);
+          handleBookClick(spine, book);
         }
       });
     });
   }
 
-  function createBookCard(book, index) {
-    const stars = createStarRating(book.rating);
+  // Handle book click with pull-out animation
+  function handleBookClick(spine, book) {
+    if (isAnimating || !book) return;
+    isAnimating = true;
+    activeSpine = spine;
+
+    // Phase 1: Pull out the book from the shelf
+    spine.classList.add('pulling-out');
+
+    // Phase 2: After pull-out, start page flip and show modal
+    setTimeout(() => {
+      spine.classList.remove('pulling-out');
+      spine.classList.add('pulled-out');
+
+      // Phase 3: Open modal with page flip effect
+      setTimeout(() => {
+        openModal(book);
+        isAnimating = false;
+      }, PAGE_FLIP_DURATION);
+    }, PULL_OUT_DURATION);
+  }
+
+  // Create a shelf with books
+  function createShelf(shelfBooks, shelfIndex) {
+    const spines = shelfBooks.map((book, idx) => createBookSpine(book, shelfIndex * BOOKS_PER_SHELF + idx)).join('');
 
     return `
-      <article class="book-card"
-               tabindex="0"
-               role="listitem"
-               aria-label="${book.title} by ${book.author}"
-               data-index="${index}">
-        <div class="book-cover-container" style="background-color: ${book.accentColor}20">
-          <img class="book-cover"
-               src="${book.coverUrl}"
-               alt="Cover of ${book.title}"
-               loading="lazy"
-               onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 120 180%22><rect fill=%22%23${book.accentColor.slice(1)}%22 width=%22120%22 height=%22180%22/><text x=%2260%22 y=%2290%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2214%22>${encodeURIComponent(book.title.substring(0, 15))}</text></svg>'">
+      <div class="bookshelf">
+        <div class="shelf-row" role="list">
+          ${spines}
         </div>
-        <div class="book-info">
-          <span class="book-category">${book.category}</span>
-          <h3 class="book-title">${book.title}</h3>
-          <p class="book-author">${book.author}</p>
-          <p class="book-description">${book.description}</p>
-          <div class="book-meta">
-            <span class="book-year">${book.year}</span>
-            <div class="book-rating" aria-label="Rating: ${book.rating} out of 5 stars">
-              ${stars}
-            </div>
-          </div>
-        </div>
-      </article>
+        <div class="shelf-board"></div>
+      </div>
     `;
   }
 
-  function createStarRating(rating) {
-    let stars = '';
-    for (let i = 1; i <= 5; i++) {
-      const filled = i <= rating;
-      stars += `
-        <svg class="star ${filled ? '' : 'empty'}" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-        </svg>
-      `;
-    }
-    return stars;
+  // Create a book spine
+  function createBookSpine(book, index) {
+    const accentName = getAccentName(book.accentColor);
+    const thickness = thicknesses[index % thicknesses.length];
+    const height = heights[index % heights.length];
+    const pattern = patterns[index % patterns.length];
+
+    // Truncate title for spine
+    const spineTitle = book.title.length > 25 ? book.title.substring(0, 22) + '...' : book.title;
+    const spineAuthor = book.author.split(',')[0].split(' ').pop(); // Last name only
+
+    return `
+      <div class="book-spine"
+           tabindex="0"
+           role="listitem"
+           data-book-id="${book.id}"
+           data-accent="${accentName}"
+           data-thickness="${thickness}"
+           data-height="${height}"
+           ${pattern ? `data-pattern="${pattern}"` : ''}
+           data-title="${book.title}"
+           aria-label="${book.title} by ${book.author}">
+        <div class="spine-wrapper">
+          <div class="spine-face">
+            <span class="spine-title">${spineTitle}</span>
+            <div class="spine-decoration"></div>
+            <span class="spine-author">${spineAuthor}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Get accent color name from hex
+  function getAccentName(hexColor) {
+    if (!hexColor) return 'blue';
+    const upper = hexColor.toUpperCase();
+    return colorMap[upper] || 'blue';
   }
 
   // Filtering
@@ -166,14 +232,13 @@
   function setFilter(category) {
     currentFilter = category;
 
-    // Update button states
     filterButtons.forEach(btn => {
       const isActive = btn.dataset.category === category;
       btn.classList.toggle('active', isActive);
       btn.setAttribute('aria-pressed', isActive);
     });
 
-    renderBooks();
+    renderBookshelf();
   }
 
   // Sorting
@@ -188,10 +253,10 @@
         sorted.sort((a, b) => a.author.localeCompare(b.author));
         break;
       case 'year':
-        sorted.sort((a, b) => b.year - a.year); // Newest first
+        sorted.sort((a, b) => b.year - a.year);
         break;
       case 'rating':
-        sorted.sort((a, b) => b.rating - a.rating); // Highest first
+        sorted.sort((a, b) => b.rating - a.rating);
         break;
     }
 
@@ -200,58 +265,36 @@
 
   function setSort(sortBy) {
     currentSort = sortBy;
-    renderBooks();
+    renderBookshelf();
   }
 
-  // Modal
+  // Modal - No external links, just cover, title, author, quote, description
   function openModal(book) {
-    const modal = modalOverlay;
+    if (!book) return;
 
-    // Populate modal content
-    document.getElementById('modal-cover').src = book.coverUrl;
-    document.getElementById('modal-cover').alt = `Cover of ${book.title}`;
+    const modal = modalOverlay;
+    const accentName = getAccentName(book.accentColor);
+
+    // Set modal cover (with fallback)
+    const coverContainer = document.getElementById('modal-cover-container');
+    coverContainer.innerHTML = createModalCover(book, accentName);
+
+    // Set other info
     document.getElementById('modal-title').textContent = book.title;
     document.getElementById('modal-author').textContent = book.author;
     document.getElementById('modal-year').textContent = `Published ${book.year}`;
     document.getElementById('modal-category').textContent = capitalizeFirst(book.category);
-    document.getElementById('modal-rating').textContent = `${'★'.repeat(book.rating)}${'☆'.repeat(5 - book.rating)}`;
+
     document.getElementById('modal-description').textContent = book.description;
 
     // Quote
     const quoteContainer = document.getElementById('modal-quote-container');
-    if (book.quote) {
-      document.getElementById('modal-quote').textContent = `"${book.quote.text}"`;
+    if (book.quote && book.quote.text) {
+      document.getElementById('modal-quote').textContent = book.quote.text;
       document.getElementById('modal-quote-author').textContent = `— ${book.quote.author}`;
       quoteContainer.style.display = 'block';
     } else {
       quoteContainer.style.display = 'none';
-    }
-
-    // Links
-    const linksContainer = document.getElementById('modal-links');
-    linksContainer.innerHTML = '';
-
-    if (book.links) {
-      if (book.links.amazon) {
-        linksContainer.innerHTML += `
-          <a href="${book.links.amazon}" class="modal-link" target="_blank" rel="noopener noreferrer">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M21.21 10.95l-2.12-5.41A2.87 2.87 0 0016.37 4H7.63a2.87 2.87 0 00-2.72 1.54L2.79 10.95A2.94 2.94 0 002 13v6a2 2 0 002 2h16a2 2 0 002-2v-6a2.94 2.94 0 00-.79-2.05z"/>
-            </svg>
-            Buy on Amazon
-          </a>
-        `;
-      }
-      if (book.links.goodreads) {
-        linksContainer.innerHTML += `
-          <a href="${book.links.goodreads}" class="modal-link secondary" target="_blank" rel="noopener noreferrer">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-            </svg>
-            View on Goodreads
-          </a>
-        `;
-      }
     }
 
     // Show modal
@@ -261,22 +304,66 @@
 
     // Focus management
     modalClose.focus();
-
-    // Trap focus in modal
     modal.addEventListener('keydown', trapFocus);
   }
 
-  function closeModal() {
-    modalOverlay.classList.remove('active');
-    modalOverlay.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    modalOverlay.removeEventListener('keydown', trapFocus);
-
-    // Return focus to the grid
-    const cards = document.querySelectorAll('.book-card');
-    if (cards.length > 0) {
-      cards[0].focus();
+  // Create modal cover with fallback
+  function createModalCover(book, accentName) {
+    if (book.coverUrl) {
+      return `
+        <img class="modal-cover"
+             src="${book.coverUrl}"
+             alt="Cover of ${book.title}"
+             onerror="this.parentElement.innerHTML = createFallbackCover('${escapeHtml(book.title)}', '${escapeHtml(book.author)}', '${accentName}')">
+      `;
     }
+    return createFallbackCoverHTML(book.title, book.author, accentName);
+  }
+
+  // Create fallback cover HTML
+  function createFallbackCoverHTML(title, author, accentName) {
+    return `
+      <div class="modal-cover-fallback" data-accent="${accentName}" style="--book-accent: var(--fx-${accentName})">
+        <div>
+          <div class="fallback-title">${title}</div>
+          <div class="fallback-decoration"></div>
+        </div>
+        <div class="fallback-author">${author}</div>
+      </div>
+    `;
+  }
+
+  // Expose for onerror handler
+  window.createFallbackCover = function(title, author, accentName) {
+    return createFallbackCoverHTML(title, author, accentName);
+  };
+
+  function closeModal() {
+    // Add closing animation class
+    modalOverlay.classList.add('closing');
+
+    setTimeout(() => {
+      modalOverlay.classList.remove('active', 'closing');
+      modalOverlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      modalOverlay.removeEventListener('keydown', trapFocus);
+
+      // Reset the pulled-out spine with slide-back animation
+      if (activeSpine) {
+        activeSpine.classList.add('sliding-back');
+        activeSpine.classList.remove('pulled-out');
+
+        setTimeout(() => {
+          activeSpine.classList.remove('sliding-back');
+          activeSpine.focus();
+          activeSpine = null;
+        }, PULL_OUT_DURATION);
+      } else {
+        // Fallback: focus first spine
+        const firstSpine = document.querySelector('.book-spine');
+        if (firstSpine) firstSpine.focus();
+      }
+    }, 200);
   }
 
   function trapFocus(e) {
@@ -299,24 +386,19 @@
 
   // Event Listeners
   function setupEventListeners() {
-    // Filter buttons
     filterButtons.forEach(btn => {
       btn.addEventListener('click', () => setFilter(btn.dataset.category));
     });
 
-    // Sort select
     sortSelect.addEventListener('change', (e) => setSort(e.target.value));
 
-    // Theme toggle
     themeToggle.addEventListener('click', toggleTheme);
 
-    // Modal close
     modalClose.addEventListener('click', closeModal);
     modalOverlay.addEventListener('click', (e) => {
       if (e.target === modalOverlay) closeModal();
     });
 
-    // Keyboard navigation
     document.addEventListener('keydown', handleKeydown);
   }
 
@@ -327,40 +409,28 @@
       return;
     }
 
-    // Grid navigation with arrow keys
-    const cards = document.querySelectorAll('.book-card');
-    if (cards.length === 0) return;
+    // Arrow key navigation for spines
+    const spines = document.querySelectorAll('.book-spine');
+    if (spines.length === 0) return;
 
     const activeElement = document.activeElement;
-    const isCardFocused = activeElement.classList.contains('book-card');
+    if (!activeElement.classList.contains('book-spine')) return;
 
-    if (!isCardFocused) return;
-
-    const currentIndex = Array.from(cards).indexOf(activeElement);
+    const currentIndex = Array.from(spines).indexOf(activeElement);
     let newIndex = currentIndex;
-
-    // Calculate grid columns
-    const gridStyle = window.getComputedStyle(bookGrid);
-    const gridColumns = gridStyle.gridTemplateColumns.split(' ').length;
 
     switch (e.key) {
       case 'ArrowRight':
-        newIndex = Math.min(currentIndex + 1, cards.length - 1);
+        newIndex = Math.min(currentIndex + 1, spines.length - 1);
         break;
       case 'ArrowLeft':
         newIndex = Math.max(currentIndex - 1, 0);
-        break;
-      case 'ArrowDown':
-        newIndex = Math.min(currentIndex + gridColumns, cards.length - 1);
-        break;
-      case 'ArrowUp':
-        newIndex = Math.max(currentIndex - gridColumns, 0);
         break;
       case 'Home':
         newIndex = 0;
         break;
       case 'End':
-        newIndex = cards.length - 1;
+        newIndex = spines.length - 1;
         break;
       default:
         return;
@@ -368,7 +438,7 @@
 
     if (newIndex !== currentIndex) {
       e.preventDefault();
-      cards[newIndex].focus();
+      spines[newIndex].focus();
     }
   }
 
@@ -377,8 +447,7 @@
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-  // Smooth scroll behavior for filter changes
-  function smoothScrollToGrid() {
-    bookGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  function escapeHtml(str) {
+    return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
   }
 })();

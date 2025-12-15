@@ -193,12 +193,12 @@
 </style>
 
 <div class="neural-container">
-  <canvas id="neuron-canvas"></canvas>
+  <canvas id="neuron-canvas" role="img" aria-label="Interactive neural network visualization showing neurons connected by dendrites with animated synaptic signals"></canvas>
   <p class="neural-caption">
     Neural Connection Symphony: a microscopic journey through living neural networks during moments of profound human experience—learning, excitement, and love. Inspired by Neuropit #13 by the Zairja Collective; created with sora and claude ai.
   </p>
 </div>
-<script src="assets/js/neuron-ascii.js"></script>
+<script src="assets/js/neural-symphony.js"></script>
 
 Welcome! I am a G2 graduate student in Harvard University's Master's program of [Regional Studies - East Asia](https://rsea.fas.harvard.edu) at the Kenneth C. Griffin Graduate School of Arts and Sciences.
 
