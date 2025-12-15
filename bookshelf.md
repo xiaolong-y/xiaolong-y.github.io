@@ -12,8 +12,8 @@ title: Bookshelf
 </script>
 
 <style>
-  /* IBM Plex Mono Font Import */
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+  /* Typography - Crimson Pro for headings, Inter for body (Stripe Press inspired) */
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
 
   /* Flexoki Color Palette Variables */
   :root {
@@ -101,15 +101,24 @@ title: Bookshelf
   body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
-    font-family: 'IBM Plex Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-    font-weight: 200;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 400;
     transition: background-color 0.3s ease, color 0.3s ease;
-    line-height: 1.6;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  strong, b { font-weight: 500; }
-  h1, h2, h3, h4, h5, h6 { font-weight: 300; }
-  em, i { font-style: italic; font-weight: 200; }
+  /* Serif headings for elegance */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Crimson Pro', Georgia, 'Times New Roman', serif;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+  }
+
+  strong, b { font-weight: 600; }
+  em, i { font-style: italic; }
 
   a {
     color: var(--fx-blue);
@@ -122,25 +131,27 @@ title: Bookshelf
     text-decoration: underline;
   }
 
-  /* Page Header */
+  /* Page Header - Generous whitespace like Stripe Press */
   .bookshelf-header {
     text-align: center;
-    margin-bottom: 40px;
-    padding-bottom: 30px;
+    margin-bottom: 60px;
+    padding: 60px 0 50px;
     border-bottom: 1px solid var(--border-color);
   }
 
   .bookshelf-header h1 {
-    font-size: 2.5em;
-    margin-bottom: 10px;
+    font-size: 3.5rem;
+    margin-bottom: 16px;
     color: var(--text-primary);
+    font-weight: 400;
   }
 
   .bookshelf-header p {
     color: var(--text-muted);
-    font-size: 1em;
-    max-width: 600px;
+    font-size: 1.125rem;
+    max-width: 550px;
     margin: 0 auto;
+    line-height: 1.6;
   }
 
   /* Controls Bar */
@@ -259,28 +270,51 @@ title: Bookshelf
     :root:not([data-theme="light"]) .theme-toggle .moon-icon { display: none; }
   }
 
-  /* Book Grid */
+  /* Book Catalog - Vertical scrolling like Stripe Press */
   .book-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 30px;
-    margin-bottom: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    margin-bottom: 60px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  /* Book Card */
+  /* Book Card - Horizontal layout with 3D cover */
   .book-card {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 40px;
+    padding: 40px;
     background: var(--bg-secondary);
-    border-radius: 12px;
-    overflow: hidden;
+    border-radius: 16px;
     border: 1px solid var(--border-color);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
     cursor: pointer;
     position: relative;
+    overflow: hidden;
+  }
+
+  /* Per-book accent color bar */
+  .book-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background: var(--book-accent, var(--fx-blue));
+    transition: width 0.3s ease;
   }
 
   .book-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 40px var(--shadow-hover);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px var(--shadow-hover);
+  }
+
+  .book-card:hover::before {
+    width: 7px;
   }
 
   .book-card:focus {
@@ -288,84 +322,173 @@ title: Bookshelf
     outline-offset: 2px;
   }
 
+  /* 3D Book Cover Container */
   .book-cover-container {
     position: relative;
-    padding: 30px;
+    perspective: 1200px;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 200px;
-    transition: background-color 0.3s ease;
   }
 
+  /* 3D Book Cover with spine, shadows, and shininess */
   .book-cover {
-    width: 120px;
-    height: 180px;
+    position: relative;
+    width: 140px;
+    height: 200px;
+    background: linear-gradient(
+      135deg,
+      var(--book-accent, var(--fx-blue)) 0%,
+      color-mix(in srgb, var(--book-accent, var(--fx-blue)) 70%, #000) 100%
+    );
+    border-radius: 3px 8px 8px 3px;
+    transform: rotateY(-8deg) rotateX(2deg);
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s ease;
+    box-shadow:
+      /* Main shadow */
+      0 4px 8px var(--shadow-color),
+      6px 6px 12px var(--shadow-color),
+      12px 12px 24px var(--shadow-hover),
+      /* Inner glow on right edge */
+      inset -3px 0 10px rgba(0,0,0,0.15);
+  }
+
+  /* Book spine effect */
+  .book-cover::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 12px;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      rgba(0,0,0,0.25) 0%,
+      rgba(0,0,0,0.1) 40%,
+      rgba(255,255,255,0.05) 60%,
+      transparent 100%
+    );
+    border-radius: 3px 0 0 3px;
+  }
+
+  /* Glossy highlight/shininess effect */
+  .book-cover::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      120deg,
+      transparent 30%,
+      rgba(255,255,255,0.08) 42%,
+      rgba(255,255,255,0.18) 50%,
+      rgba(255,255,255,0.08) 58%,
+      transparent 70%
+    );
+    border-radius: 3px 8px 8px 3px;
+    pointer-events: none;
+  }
+
+  /* Book cover image */
+  .book-cover img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    border-radius: 4px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    transition: transform 0.3s ease;
+    border-radius: 3px 8px 8px 3px;
   }
 
+  /* Placeholder for books without covers */
+  .book-cover-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .book-cover-placeholder span {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-style: italic;
+    color: rgba(255,255,255,0.92);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    line-height: 1.3;
+  }
+
+  /* 3D hover effect */
   .book-card:hover .book-cover {
-    transform: scale(1.05) rotate(-2deg);
+    transform: rotateY(-12deg) rotateX(3deg) translateZ(12px);
+    box-shadow:
+      0 6px 12px var(--shadow-color),
+      10px 10px 20px var(--shadow-color),
+      18px 18px 36px var(--shadow-hover),
+      inset -3px 0 10px rgba(0,0,0,0.15);
   }
 
+  /* Book Info - Clean typography hierarchy */
   .book-info {
-    padding: 20px;
-    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 0;
   }
 
   .book-category {
-    font-size: 0.75em;
+    font-size: 0.75rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--fx-cyan);
-    margin-bottom: 8px;
-    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: var(--book-accent, var(--fx-cyan));
+    margin-bottom: 10px;
   }
 
   .book-title {
-    font-size: 1.1em;
-    font-weight: 400;
-    margin-bottom: 5px;
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: 6px;
     color: var(--text-primary);
     line-height: 1.3;
   }
 
   .book-author {
-    font-size: 0.9em;
+    font-size: 1rem;
     color: var(--text-muted);
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }
 
   .book-description {
-    font-size: 0.85em;
+    font-size: 0.95rem;
     color: var(--text-secondary);
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    line-height: 1.7;
+    margin-bottom: 20px;
   }
 
   .book-meta {
     display: flex;
-    justify-content: space-between;
+    gap: 24px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .book-meta span {
+    display: flex;
     align-items: center;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
+    gap: 6px;
   }
 
   .book-year {
-    font-size: 0.8em;
+    font-size: 0.85rem;
     color: var(--text-muted);
   }
 
   .book-rating {
     display: flex;
-    gap: 2px;
+    gap: 3px;
   }
 
   .star {
@@ -377,6 +500,41 @@ title: Bookshelf
   .star.empty {
     fill: var(--border-color);
   }
+
+  /* Book Tags */
+  .book-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .book-tag {
+    padding: 5px 14px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+  }
+
+  .book-tag:hover {
+    background: var(--book-accent, var(--fx-blue));
+    color: white;
+    border-color: var(--book-accent, var(--fx-blue));
+  }
+
+  /* ===== PER-BOOK ACCENT COLORS ===== */
+  .book-card[data-accent="red"] { --book-accent: var(--fx-red); }
+  .book-card[data-accent="orange"] { --book-accent: var(--fx-orange); }
+  .book-card[data-accent="yellow"] { --book-accent: var(--fx-yellow); }
+  .book-card[data-accent="green"] { --book-accent: var(--fx-green); }
+  .book-card[data-accent="cyan"] { --book-accent: var(--fx-cyan); }
+  .book-card[data-accent="blue"] { --book-accent: var(--fx-blue); }
+  .book-card[data-accent="purple"] { --book-accent: var(--fx-purple); }
+  .book-card[data-accent="magenta"] { --book-accent: var(--fx-magenta); }
 
   /* Book Modal */
   .book-modal-overlay {
@@ -605,15 +763,45 @@ title: Bookshelf
     to { transform: rotate(360deg); }
   }
 
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .bookshelf-header h1 {
-      font-size: 2em;
+  /* ===== RESPONSIVE DESIGN ===== */
+
+  /* Tablet */
+  @media (max-width: 900px) {
+    .bookshelf-header {
+      padding: 40px 0 35px;
+      margin-bottom: 40px;
     }
 
+    .bookshelf-header h1 {
+      font-size: 2.5rem;
+    }
+
+    .bookshelf-header p {
+      font-size: 1rem;
+    }
+
+    .book-card {
+      grid-template-columns: 150px 1fr;
+      gap: 30px;
+      padding: 30px;
+    }
+
+    .book-cover {
+      width: 120px;
+      height: 170px;
+    }
+
+    .book-title {
+      font-size: 1.35rem;
+    }
+  }
+
+  /* Mobile Landscape / Small Tablet */
+  @media (max-width: 700px) {
     .controls-bar {
       flex-direction: column;
       align-items: stretch;
+      gap: 12px;
     }
 
     .filter-controls {
@@ -625,8 +813,93 @@ title: Bookshelf
     }
 
     .book-grid {
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 30px;
+    }
+
+    .book-card {
+      grid-template-columns: 130px 1fr;
+      gap: 24px;
+      padding: 24px;
+    }
+
+    .book-cover {
+      width: 100px;
+      height: 145px;
+    }
+
+    .book-title {
+      font-size: 1.25rem;
+    }
+
+    .book-description {
+      font-size: 0.9rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+
+  /* Mobile Portrait */
+  @media (max-width: 540px) {
+    .bookshelf-header {
+      padding: 30px 0 25px;
+      margin-bottom: 30px;
+    }
+
+    .bookshelf-header h1 {
+      font-size: 2rem;
+    }
+
+    .book-grid {
+      gap: 24px;
+    }
+
+    /* Stack vertically on mobile */
+    .book-card {
+      grid-template-columns: 1fr;
       gap: 20px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .book-card::before {
+      width: 100%;
+      height: 4px;
+      left: 0;
+      top: 0;
+    }
+
+    .book-card:hover::before {
+      width: 100%;
+      height: 6px;
+    }
+
+    .book-cover-container {
+      justify-content: center;
+    }
+
+    .book-cover {
+      width: 130px;
+      height: 185px;
+      transform: rotateY(0) rotateX(0);
+    }
+
+    .book-card:hover .book-cover {
+      transform: translateY(-8px);
+    }
+
+    .book-info {
+      text-align: center;
+    }
+
+    .book-meta {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .book-tags {
+      justify-content: center;
     }
 
     .modal-header {
@@ -654,20 +927,26 @@ title: Bookshelf
     }
   }
 
-  @media (max-width: 480px) {
-    .book-grid {
-      grid-template-columns: 1fr;
+  @media (max-width: 400px) {
+    .filter-btn {
+      padding: 6px 10px;
+      font-size: 0.8rem;
     }
 
-    .filter-btn {
-      padding: 6px 12px;
-      font-size: 0.8em;
+    .book-title {
+      font-size: 1.15rem;
+    }
+
+    .book-description {
+      font-size: 0.85rem;
     }
   }
 
   /* Accessibility: Reduced Motion */
   @media (prefers-reduced-motion: reduce) {
-    * {
+    *,
+    *::before,
+    *::after {
       animation: none !important;
       transition: none !important;
     }
@@ -676,8 +955,12 @@ title: Bookshelf
       transform: none;
     }
 
+    .book-cover {
+      transform: none !important;
+    }
+
     .book-card:hover .book-cover {
-      transform: none;
+      transform: none !important;
     }
   }
 
@@ -686,9 +969,21 @@ title: Bookshelf
   .filter-btn:focus-visible,
   .sort-select:focus-visible,
   .theme-toggle:focus-visible,
-  .modal-close:focus-visible {
+  .modal-close:focus-visible,
+  .book-tag:focus-visible {
     outline: 3px solid var(--fx-cyan);
     outline-offset: 2px;
+  }
+
+  /* High contrast mode support */
+  @media (forced-colors: active) {
+    .book-card {
+      border: 2px solid CanvasText;
+    }
+
+    .book-cover {
+      border: 1px solid CanvasText;
+    }
   }
 
   /* Screen reader only */
@@ -702,6 +997,26 @@ title: Bookshelf
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+
+  /* Print styles */
+  @media print {
+    .controls-bar,
+    .theme-toggle,
+    .nav-links {
+      display: none;
+    }
+
+    .book-card {
+      break-inside: avoid;
+      box-shadow: none;
+      border: 1px solid #ccc;
+    }
+
+    .book-cover {
+      transform: none;
+      box-shadow: none;
+    }
   }
 </style>
 
