@@ -223,11 +223,11 @@ Teaching and learning are bonded intellectual activities. I am particularly than
 
 I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu/)'s teaching team for the celebrated introductory level data science course for social scientists - [QSS](https://kosukeimai.github.io/qss-todai/) at the University of Tokyo in 2022. We taught a series of TA lectures on tidyverse - a popular syntax of R. Slides are provided [here](https://github.com/xiaolong-y/qss-inst-tidyverse).
 
-## miscellaneous 
+## miscellaneous
 
 Non-academically, I write on my [bear blog](https://xiaolongy.bearblog.dev) occasionally.
 
-I also keep my favorite [quotes](quotes.md) here.
+I also keep my favorite [quotes](quotes.md) and [bookshelf](bookshelf.md) here.
 
 ---
 

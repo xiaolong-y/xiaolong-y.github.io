@@ -30,9 +30,6 @@
     modalClose = document.querySelector('.modal-close');
     emptyState = document.getElementById('empty-state');
 
-    // Debug logging
-    console.log('Bookshelf init - overviewToggle:', overviewToggle);
-
     initTheme();
     loadBooks();
     setupEventListeners();
@@ -52,13 +49,10 @@
   }
 
   function toggleOverview() {
-    console.log('toggleOverview called, current mode:', isOverviewMode);
     isOverviewMode = !isOverviewMode;
-    console.log('new mode:', isOverviewMode);
 
     if (bookGrid) {
       bookGrid.classList.toggle('overview-mode', isOverviewMode);
-      console.log('bookGrid classes:', bookGrid.className);
     }
     if (overviewToggle) {
       overviewToggle.classList.toggle('active', isOverviewMode);
@@ -245,10 +239,7 @@
     }
 
     if (overviewToggle) {
-      console.log('Adding click listener to overviewToggle');
       overviewToggle.addEventListener('click', toggleOverview);
-    } else {
-      console.error('overviewToggle not found!');
     }
 
     if (themeToggle) {

@@ -787,10 +787,29 @@ title: Bookshelf
     box-shadow: 0 8px 24px rgba(0,0,0,0.25);
   }
 
-  /* Transition between modes */
-  .book-grid {
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Smaller text for overview mode fallback covers */
+  .book-grid.overview-mode .fallback-title {
+    font-size: 0.65rem;
+    line-height: 1.2;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
   }
+
+  .book-grid.overview-mode .fallback-author {
+    font-size: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .book-grid.overview-mode .book-cover-fallback {
+    padding: 10px;
+  }
+
+  /* Transition between modes - only animate safe properties to prevent jiggle */
+  /* Avoid transitioning height, display, overflow which cause layout thrashing */
 
   /* ========== RESPONSIVE ========== */
   @media (max-width: 1200px) {
