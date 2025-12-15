@@ -227,6 +227,17 @@
         "amazon": "https://www.amazon.com/dp/0060883286",
         "goodreads": "https://www.goodreads.com/book/show/320.One_Hundred_Years_of_Solitude"
       }
+    },
+    {
+      "id": "13",
+      "title": "A Pattern Language",
+      "author": "Christopher Alexander, Sara Ishikawa, and Murray Silverstein",
+      "year": 1977,
+      "category": "philosophy",
+      "description": "Two hundred and fifty-three archetypal patterns consisting of problem statements, discussions, illustrations, and solutions provide lay persons with a framework for engaging in architectural design. ",
+      "coverUrl": "https://books.google.com/books/content?id=hwAHmktpk5IC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api",
+      "accentColor": "#5E409D",
+      "rating": 5
     }
   ]
 }
