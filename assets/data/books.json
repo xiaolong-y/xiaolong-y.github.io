@@ -238,6 +238,120 @@
       "coverUrl": "https://books.google.com/books/content?id=hwAHmktpk5IC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api",
       "accentColor": "#5E409D",
       "rating": 5
+    },
+    {
+      "id": "14",
+      "title": "Tractatus Logico-Philosophicus",
+      "author": "Ludwig Wittgenstein",
+      "year": 1922,
+      "category": "philosophy",
+      "description": "The only book-length philosophical work published during Wittgenstein's lifetime. Written in the trenches of World War I, this revolutionary work attempts to define the limits of meaningful language through a series of numbered propositions. It profoundly influenced logical positivism and the philosophy of language.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1396830687i/12075.jpg",
+      "accentColor": "#5E409D",
+      "rating": 5,
+      "quote": {
+        "text": "Whereof one cannot speak, thereof one must be silent.",
+        "author": "Ludwig Wittgenstein"
+      },
+      "links": {
+        "goodreads": "https://www.goodreads.com/book/show/12075.Tractatus_Logico_Philosophicus"
+      }
+    },
+    {
+      "id": "15",
+      "title": "Image and Brain: The Resolution of the Imagery Debate",
+      "author": "Stephen M. Kosslyn",
+      "year": 1994,
+      "category": "science",
+      "description": "A comprehensive resolution of the long-standing debate about the nature of mental imagery. Kosslyn combines insights from computer vision, neurobiology, and cognitive science to develop a general theory of visual mental imagery and its implementation in the human brain. Essential reading for understanding how we visualize and think.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1426383806i/6352017.jpg",
+      "accentColor": "#205EA6",
+      "rating": 5,
+      "links": {
+        "goodreads": "https://www.goodreads.com/book/show/6352017-image-and-brain"
+      }
+    },
+    {
+      "id": "16",
+      "title": "Giant Brains: or Machines That Think",
+      "author": "Edmund Callis Berkeley",
+      "year": 1949,
+      "category": "technology",
+      "description": "The first popular book on electronic computers, written when computers were virtually unknown to the general public. Berkeley, a mathematician and actuary who co-founded the ACM, introduces the revolutionary concept of thinking machines to lay readers. A historical artifact from the dawn of the Information Age.",
+      "coverUrl": "https://archive.org/services/img/in.ernet.dli.2015.233530",
+      "accentColor": "#24837B",
+      "rating": 4,
+      "links": {
+        "goodreads": "https://www.goodreads.com/book/show/25696020"
+      }
+    },
+    {
+      "id": "17",
+      "title": "Biophilia",
+      "author": "Edward O. Wilson",
+      "year": 1984,
+      "category": "science",
+      "description": "Wilson's most personal book, exploring the innate human tendency to focus on life and lifelike processes. An eloquent statement of the conservation ethic that weaves together autobiography, evolutionary biology, and environmental philosophy to argue for our deep biological need to connect with nature.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1348192604i/153268.jpg",
+      "accentColor": "#66800B",
+      "rating": 5,
+      "quote": {
+        "text": "We are human in good part because of the particular way we affiliate with other organisms.",
+        "author": "Edward O. Wilson"
+      },
+      "links": {
+        "goodreads": "https://www.goodreads.com/book/show/153268.Biophilia"
+      }
+    },
+    {
+      "id": "18",
+      "title": "The Idea Factory: Bell Labs and the Great Age of American Innovation",
+      "author": "Jon Gertner",
+      "year": 2012,
+      "category": "technology",
+      "description": "The fascinating story of Bell Labs, arguably the greatest innovation factory in history. From the transistor to the laser to information theory, this book chronicles how a unique institution combined brilliant minds with patient capital to create the technological foundations of the modern world. Essential reading for understanding innovation.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1338504885i/11797471.jpg",
+      "accentColor": "#BC5215",
+      "rating": 5,
+      "links": {
+        "goodreads": "https://www.goodreads.com/book/show/11797471-the-idea-factory"
+      }
+    },
+    {
+      "id": "19",
+      "title": "Metamagical Themas: Questing for the Essence of Mind and Pattern",
+      "author": "Douglas R. Hofstadter",
+      "year": 1985,
+      "category": "science",
+      "description": "A dazzling collection of Hofstadter's Scientific American columns exploring the nature of mind, consciousness, creativity, and self-reference. From artificial intelligence to the structure of concepts, from personal identity to cooperation, Hofstadter weaves together computer science, cognitive science, and philosophy with playful brilliance.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1386921379i/181239.jpg",
+      "accentColor": "#AD8301",
+      "rating": 5,
+      "quote": {
+        "text": "The self is a hallucination hallucinated by a hallucination.",
+        "author": "Douglas R. Hofstadter"
+      },
+      "links": {
+        "goodreads": "https://www.goodreads.com/book/show/181239.Metamagical_Themas"
+      }
+    },
+    {
+      "id": "20",
+      "title": "The Dream Machine: J.C.R. Licklider and the Revolution That Made Computing Personal",
+      "author": "M. Mitchell Waldrop",
+      "year": 2001,
+      "category": "technology",
+      "description": "The biography of J.C.R. Licklider, the visionary who imagined the personal computer and the internet decades before they existed. As a psychologist turned ARPA program manager, Licklider funded and inspired the research that transformed computers from calculating machines into tools for human thought and communication.",
+      "coverUrl": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1309212000i/722412.jpg",
+      "accentColor": "#205EA6",
+      "rating": 5,
+      "quote": {
+        "text": "Man-computer symbiosis is a subclass of man-machine systems. There are many man-machine systems. At present, however, there are no man-computer symbioses.",
+        "author": "J.C.R. Licklider"
+      },
+      "links": {
+        "goodreads": "https://www.goodreads.com/book/show/722412.The_Dream_Machine"
+      }
     }
   ]
 }
