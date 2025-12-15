@@ -105,6 +105,9 @@
       var MIN_BOOKS_PER_COLUMN = 2;
       var effectiveColumns = Math.min(NUM_COLUMNS, Math.max(1, Math.ceil(filtered.length / MIN_BOOKS_PER_COLUMN)));
 
+      // Set data attribute for CSS to limit column width when fewer columns
+      bookGrid.setAttribute('data-columns', effectiveColumns);
+
       var columns = [];
       for (var c = 0; c < effectiveColumns; c++) {
         columns.push([]);

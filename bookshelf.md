@@ -180,6 +180,25 @@ title: Bookshelf
     will-change: transform;
   }
 
+  /* Limit column width when fewer columns to prevent oversized covers */
+  .book-grid[data-columns="1"] {
+    justify-content: center;
+  }
+
+  .book-grid[data-columns="1"] .book-column {
+    flex: 0 0 auto;
+    max-width: 280px;
+  }
+
+  .book-grid[data-columns="2"] {
+    justify-content: center;
+  }
+
+  .book-grid[data-columns="2"] .book-column {
+    flex: 0 0 auto;
+    max-width: 280px;
+  }
+
   /* Animations are created dynamically by JavaScript based on content height */
   /* This allows perfect looping without visible seams */
 
