@@ -325,19 +325,23 @@
 
       for (var i = 0; i < halfCards; i++) {
         totalHeight += cards[i].offsetHeight;
-        // Add gap height (24px as defined in CSS)
-        if (i < halfCards - 1) totalHeight += 24;
+        // Add gap after each card (including the trailing gap before duplicates)
+        totalHeight += 24;
       }
 
-      var isOddColumn = columnIndex % 2 === 0;
-      var animationName = isOddColumn ? 'scroll-down-' + columnIndex : 'scroll-up-' + columnIndex;
-      var duration = isOddColumn ? 52 : 46; // Different speeds for visual interest (30% slower)
+      var isEvenColumn = columnIndex % 2 === 0;
+      var animationName = isEvenColumn ? 'scroll-down-' + columnIndex : 'scroll-up-' + columnIndex;
+      // Target scroll speed: ~30px per second for comfortable viewing
+      var targetSpeed = 30;
+      var baseDuration = Math.max(20, totalHeight / targetSpeed); // Minimum 20s to prevent too-fast scrolling
+      // Apply slight variation for visual interest (even columns 12% faster)
+      var duration = isEvenColumn ? baseDuration : baseDuration * 0.88;
 
       // Create dynamic keyframe animation
       var styleSheet = document.styleSheets[document.styleSheets.length - 1];
       var keyframes = '';
 
-      if (isOddColumn) {
+      if (isEvenColumn) {
         // Scroll down: move from 0 to -totalHeight
         keyframes = '@keyframes ' + animationName + ' { from { transform: translateY(0); } to { transform: translateY(-' + totalHeight + 'px); } }';
       } else {
