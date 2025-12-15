@@ -305,11 +305,12 @@ prompt_category() {
     local suggested="$1"
     local cat=""
 
-    echo -ne "${GREEN}Category${NC} (${CATEGORIES[*]})"
+    # Redirect prompts to stderr so they don't get captured
+    echo -ne "${GREEN}Category${NC} (${CATEGORIES[*]}) or ${YELLOW}new${NC}" >&2
     if [[ -n "$suggested" ]]; then
-        echo -ne " ${YELLOW}[$suggested]${NC}"
+        echo -ne " ${YELLOW}[$suggested]${NC}" >&2
     fi
-    echo -ne ": "
+    echo -ne ": " >&2
 
     while true; do
         read -r cat
@@ -320,10 +321,21 @@ prompt_category() {
         fi
 
         cat=$(echo "$cat" | tr '[:upper:]' '[:lower:]')
+
+        # Allow new custom categories
         if validate_category "$cat"; then
             break
+        elif [[ -n "$cat" ]]; then
+            # Ask if they want to add this as a new category
+            echo -ne "${YELLOW}\"$cat\" is not a standard category. Use it anyway? (y/n):${NC} " >&2
+            read -r use_custom
+            if [[ "$use_custom" == "y" || "$use_custom" == "Y" ]]; then
+                break
+            else
+                echo -e "${RED}Choose from:${NC} ${CATEGORIES[*]}" >&2
+            fi
         else
-            echo -e "${RED}Invalid category. Choose from:${NC} ${CATEGORIES[*]}"
+            echo -e "${RED}Category required. Choose from:${NC} ${CATEGORIES[*]}" >&2
         fi
     done
     echo "$cat"
@@ -331,7 +343,8 @@ prompt_category() {
 
 prompt_rating() {
     local rating=""
-    echo -ne "${GREEN}Rating${NC} (1-5) ${YELLOW}[4]${NC}: "
+    # Redirect prompts to stderr so they don't get captured
+    echo -ne "${GREEN}Rating${NC} (1-5) ${YELLOW}[4]${NC}: " >&2
     while true; do
         read -r rating
         if [[ -z "$rating" ]]; then
@@ -340,7 +353,7 @@ prompt_rating() {
         elif [[ "$rating" =~ ^[1-5]$ ]]; then
             break
         else
-            echo -e "${RED}Please enter a number between 1 and 5.${NC}"
+            echo -e "${RED}Please enter a number between 1 and 5.${NC}" >&2
         fi
     done
     echo "$rating"
@@ -483,6 +496,20 @@ add_book_to_json() {
 
     # Clean description (remove newlines, escape quotes)
     DESCRIPTION=$(echo "$DESCRIPTION" | tr '\n' ' ' | sed 's/  */ /g')
+
+    # Ensure YEAR and RATING are valid numbers for jq --argjson
+    # Extract only digits (and optional leading minus for year)
+    YEAR=$(echo "$YEAR" | grep -oE '^-?[0-9]+' | head -1)
+    RATING=$(echo "$RATING" | grep -oE '^[0-9]+' | head -1)
+
+    # Default values if empty
+    if [[ -z "$YEAR" ]]; then
+        YEAR="2024"
+        echo -e "${YELLOW}Warning: Invalid year, defaulting to 2024${NC}"
+    fi
+    if [[ -z "$RATING" ]]; then
+        RATING="4"
+    fi
 
     # Build the book JSON object
     local book_json
