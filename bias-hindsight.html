@@ -1,468 +1,487 @@
-<!DOCTYPE html>                                                              
-<html lang="en">                                                             
-<head>                                                                       
-  <meta charset="UTF-8">                                                     
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">     
-  <title>Hindsight Bias - Cognitive Bias Visualization</title>               
-  <style>                                                                    
-    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght 
-@200;300;400;500&display=swap');                                             
-                                                                             
-    :root {                                                                  
-      --fx-paper: #FFFCF0; --fx-base-900: #2D2B28; --fx-base-700: #6F6E69;   
-      --fx-base-500: #9F9D94; --fx-base-200: #DAD8CE; --fx-base-50: #F2F0E5; 
-      --fx-orange: #BC5215; --fx-blue: #205EA6; --fx-cyan: #24837B;          
-      --fx-red: #AF3029; --fx-purple: #5E409D; --fx-green: #66800B;          
-      --fx-yellow: #AD8301;                                                  
-    }                                                                        
-                                                                             
-    @media (prefers-color-scheme: dark) {                                    
-      :root {                                                                
-        --fx-paper: #100F0F; --fx-base-900: #CECDC3; --fx-base-700: #878580; 
-        --fx-base-500: #6F6E69; --fx-base-200: #403E3C; --fx-base-50:        
-#1C1B1A;                                                                     
-        --fx-orange: #DA702C; --fx-blue: #4385BE; --fx-cyan: #3AA99F;        
-        --fx-red: #D14D41; --fx-purple: #8B7EC8; --fx-green: #879A39;        
-        --fx-yellow: #D0A215;                                                
-      }                                                                      
-    }                                                                        
-                                                                             
-    * { margin: 0; padding: 0; box-sizing: border-box; }                     
-    body {                                                                   
-      font-family: 'IBM Plex Mono', monospace; background: var(--fx-paper);  
-      color: var(--fx-base-900); padding: 20px; min-height: 100vh;           
-    }                                                                        
-    .container { max-width: 1200px; margin: 0 auto; }                        
-    h1 {                                                                     
-      font-size: 1.5em; font-weight: 300; color: var(--fx-purple);           
-      margin-bottom: 10px; border-bottom: 1px solid var(--fx-base-200);      
-padding-bottom: 8px;                                                         
-    }                                                                        
-    .description {                                                           
-      font-size: 0.85em; color: var(--fx-base-700); margin-bottom: 20px;     
-line-height: 1.5;                                                            
-    }                                                                        
-    .canvas-container {                                                      
-      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);   
-      border-radius: 4px; margin-bottom: 20px; overflow: hidden; position:   
-relative;                                                                    
-    }                                                                        
-    canvas { display: block; width: 100%; height: 500px; }                   
-    .controls {                                                              
-      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);   
-      border-radius: 4px; padding: 15px;                                     
-    }                                                                        
-    .instruction { font-size: 0.8em; color: var(--fx-blue); margin-bottom:   
-12px; }                                                                      
-    button {                                                                 
-      font-family: 'IBM Plex Mono', monospace; background: var(--fx-purple); 
-      color: var(--fx-paper); border: none; padding: 8px 16px;               
-      font-size: 0.85em; cursor: pointer; border-radius: 3px; margin: 5px    
-5px 0 0;                                                                     
-    }                                                                        
-    button:hover { background: var(--fx-cyan); }                             
-    button.revealed { background: var(--fx-yellow); color:                   
-var(--fx-base-900); }                                                        
-    .outcome-list {                                                          
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,   
-1fr));                                                                       
-      gap: 8px; margin-top: 15px; font-size: 0.75em;                         
-    }                                                                        
-    .outcome-item {                                                          
-      padding: 8px; background: var(--fx-paper); border-radius: 3px;         
-      border: 1px solid var(--fx-base-200); text-align: center;              
-      transition: all 0.5s ease;                                             
-    }                                                                        
-    .outcome-item.actual {                                                   
-      border-color: var(--fx-purple); background: var(--fx-purple);          
-      color: var(--fx-paper);                                                
-    }                                                                        
-    .outcome-item.faded {                                                    
-      opacity: 0.4; border-style: dashed;                                    
-    }                                                                        
-    .outcome-label { font-weight: 500; margin-bottom: 4px; }                 
-    .outcome-prob { color: var(--fx-base-700); font-size: 0.9em; }           
-    .outcome-item.actual .outcome-prob { color: var(--fx-base-200); }        
-    .hindsight-quote {                                                       
-      margin-top: 15px; padding: 12px; background: var(--fx-paper);          
-      border-left: 3px solid var(--fx-purple); font-style: italic;           
-      font-size: 0.8em; color: var(--fx-base-700);                           
-      opacity: 0; transition: opacity 0.8s ease;                             
-    }                                                                        
-    .hindsight-quote.visible { opacity: 1; }                                 
-    @media (max-width: 768px) {                                              
-      canvas { height: 400px; }                                              
-      h1 { font-size: 1.2em; }                                               
-    }                                                                        
-  </style>                                                                   
-</head>                                                                      
-<body>                                                                       
-  <div class="container">                                                    
-    <h1>Hindsight Bias</h1>                                                  
-    <p class="description">                                                  
-      "I knew it all along." After learning an outcome, we reconstruct the   
-past to make that outcome seem inevitable. The paths not taken fade from     
-memory, and the actual path glows with false obviousness. Click below to     
-reveal the outcome and watch your perception of the past transform.          
-    </p>                                                                     
-                                                                             
-    <div class="canvas-container">                                           
-      <canvas id="biasCanvas"></canvas>                                      
-    </div>                                                                   
-                                                                             
-    <div class="controls">                                                   
-      <p class="instruction">Before the outcome is known, all paths seem     
-equally possible. Click to reveal which path was taken.</p>                  
-      <button id="revealOutcome">Reveal Outcome</button>                     
-      <button id="resetView">Reset to Uncertainty</button>                   
-                                                                             
-      <div class="outcome-list">                                             
-        <div class="outcome-item" id="outcome-a">                            
-          <div class="outcome-label">Outcome A</div>                         
-          <div class="outcome-prob" id="prob-a">25% likely</div>             
-        </div>                                                               
-        <div class="outcome-item" id="outcome-b">                            
-          <div class="outcome-label">Outcome B</div>                         
-          <div class="outcome-prob" id="prob-b">25% likely</div>             
-        </div>                                                               
-        <div class="outcome-item" id="outcome-c">                            
-          <div class="outcome-label">Outcome C</div>                         
-          <div class="outcome-prob" id="prob-c">25% likely</div>             
-        </div>                                                               
-        <div class="outcome-item" id="outcome-d">                            
-          <div class="outcome-label">Outcome D</div>                         
-          <div class="outcome-prob" id="prob-d">25% likely</div>             
-        </div>                                                               
-      </div>                                                                 
-                                                                             
-      <div class="hindsight-quote" id="quote">                               
-        "Of course it was Outcome B. Looking back, all the signs were there. 
- It was obvious from the start."                                             
-      </div>                                                                 
-    </div>                                                                   
-  </div>                                                                     
-                                                                             
-  <script>                                                                   
-    const canvas = document.getElementById('biasCanvas');                    
-    const ctx = canvas.getContext('2d');                                     
-    let width, height, dpr;                                                  
-                                                                             
-    let outcomeRevealed = false;                                             
-    let revealProgress = 0;                                                  
-    const actualOutcome = 1; // Index of "actual" outcome (B)                
-                                                                             
-    const paths = [                                                          
-      { label: 'A', endY: 0.15, color: null, probability: 0.25 },            
-      { label: 'B', endY: 0.38, color: null, probability: 0.25 },            
-      { label: 'C', endY: 0.62, color: null, probability: 0.25 },            
-      { label: 'D', endY: 0.85, color: null, probability: 0.25 },            
-    ];                                                                       
-                                                                             
-    // Control points for curved paths (will be computed on resize)          
-    let pathCurves = [];                                                     
-                                                                             
-    function resize() {                                                      
-      dpr = window.devicePixelRatio || 1;                                    
-      width = canvas.clientWidth;                                            
-      height = canvas.clientHeight;                                          
-      canvas.width = width * dpr;                                            
-      canvas.height = height * dpr;                                          
-      ctx.scale(dpr, dpr);                                                   
-                                                                             
-      // Compute bezier curves for each path                                 
-      const startX = 80;                                                     
-      const startY = height / 2;                                             
-      const endX = width - 80;                                               
-                                                                             
-      pathCurves = paths.map((p, i) => {                                     
-        const endY = height * p.endY;                                        
-        // Create natural branching with control points                      
-        const midX = width * 0.5;                                            
-        const branchStart = width * 0.25;                                    
-                                                                             
-        return {                                                             
-          start: { x: startX, y: startY },                                   
-          cp1: { x: branchStart, y: startY },                                
-          cp2: { x: midX, y: startY + (endY - startY) * 0.3 },               
-          cp3: { x: width * 0.7, y: endY },                                  
-          end: { x: endX, y: endY },                                         
-          label: p.label,                                                    
-          index: i                                                           
-        };                                                                   
-      });                                                                    
-    }                                                                        
-                                                                             
-    function getColor(name) {                                                
-      return                                                                 
-getComputedStyle(document.documentElement).getPropertyValue(name).trim();    
-    }                                                                        
-                                                                             
-    function drawPath(curve, alpha, lineWidth, color, dashOffset = 0,        
-distort = 0) {                                                               
-      ctx.save();                                                            
-      ctx.globalAlpha = alpha;                                               
-      ctx.strokeStyle = color;                                               
-      ctx.lineWidth = lineWidth;                                             
-                                                                             
-      if (distort > 0) {                                                     
-        ctx.setLineDash([8, 4]);                                             
-        ctx.lineDashOffset = dashOffset;                                     
-      }                                                                      
-                                                                             
-      ctx.beginPath();                                                       
-                                                                             
-      // Draw as quadratic bezier segments for smoother curves               
-      ctx.moveTo(curve.start.x, curve.start.y);                              
-                                                                             
-      // Add slight wobble for distorted paths                               
-      const wobble = distort * Math.sin(Date.now() / 500) * 5;               
-                                                                             
-      ctx.bezierCurveTo(                                                     
-        curve.cp1.x, curve.cp1.y + wobble * 0.5,                             
-        curve.cp2.x, curve.cp2.y + wobble,                                   
-        curve.cp2.x, curve.cp2.y + wobble                                    
-      );                                                                     
-      ctx.bezierCurveTo(                                                     
-        curve.cp3.x, curve.cp3.y + wobble * 0.5,                             
-        curve.end.x, curve.end.y,                                            
-        curve.end.x, curve.end.y                                             
-      );                                                                     
-                                                                             
-      ctx.stroke();                                                          
-      ctx.restore();                                                         
-    }                                                                        
-                                                                             
-    function drawNode(x, y, radius, color, alpha, label, isStart = false,    
-isOutcome = false) {                                                         
-      ctx.save();                                                            
-      ctx.globalAlpha = alpha;                                               
-                                                                             
-      // Glow effect for highlighted nodes                                   
-      if (isOutcome && outcomeRevealed && pathCurves[actualOutcome].label    
-=== label) {                                                                 
-        const glow = ctx.createRadialGradient(x, y, radius * 0.5, x, y,      
-radius * 2.5);                                                               
-        glow.addColorStop(0, color + '60');                                  
-        glow.addColorStop(1, color + '00');                                  
-        ctx.fillStyle = glow;                                                
-        ctx.beginPath();                                                     
-        ctx.arc(x, y, radius * 2.5, 0, Math.PI * 2);                         
-        ctx.fill();                                                          
-      }                                                                      
-                                                                             
-      ctx.fillStyle = color;                                                 
-      ctx.beginPath();                                                       
-      ctx.arc(x, y, radius, 0, Math.PI * 2);                                 
-      ctx.fill();                                                            
-                                                                             
-      // Label                                                               
-      ctx.fillStyle = getColor('--fx-paper');                                
-      ctx.font = `${isStart ? 11 : 12}px IBM Plex Mono`;                     
-      ctx.textAlign = 'center';                                              
-      ctx.textBaseline = 'middle';                                           
-      ctx.fillText(label, x, y);                                             
-                                                                             
-      ctx.restore();                                                         
-    }                                                                        
-                                                                             
-    function draw() {                                                        
-      const paper = getColor('--fx-paper');                                  
-      const base200 = getColor('--fx-base-200');                             
-      const base500 = getColor('--fx-base-500');                             
-      const base700 = getColor('--fx-base-700');                             
-      const purple = getColor('--fx-purple');                                
-                                                                             
-      ctx.fillStyle = paper;                                                 
-      ctx.fillRect(0, 0, width, height);                                     
-                                                                             
-      // Animate reveal progress                                             
-      const targetProgress = outcomeRevealed ? 1 : 0;                        
-      revealProgress += (targetProgress - revealProgress) * 0.04;            
-                                                                             
-      // Timeline axis                                                       
-      ctx.strokeStyle = base200;                                             
-      ctx.lineWidth = 1;                                                     
-      ctx.setLineDash([4, 4]);                                               
-      ctx.beginPath();                                                       
-      ctx.moveTo(60, height / 2);                                            
-      ctx.lineTo(width - 60, height / 2);                                    
-      ctx.stroke();                                                          
-      ctx.setLineDash([]);                                                   
-                                                                             
-      // Time labels                                                         
-      ctx.fillStyle = base700;                                               
-      ctx.font = '10px IBM Plex Mono';                                       
-      ctx.textAlign = 'center';                                              
-      ctx.fillText('PAST', 80, height / 2 + 25);                             
-      ctx.fillText('EVENT', width * 0.25, height / 2 + 25);                  
-      ctx.fillText('PRESENT', width - 80, height / 2 + 25);                  
-                                                                             
-      // Draw paths                                                          
-      pathCurves.forEach((curve, i) => {                                     
-        const isActual = i === actualOutcome;                                
-                                                                             
-        let alpha, lineWidth, color, distort;                                
-                                                                             
-        if (revealProgress < 0.1) {                                          
-          // All paths equal                                                 
-          alpha = 0.7;                                                       
-          lineWidth = 2;                                                     
-          color = base500;                                                   
-          distort = 0;                                                       
-        } else {                                                             
-          if (isActual) {                                                    
-            // Actual path becomes prominent                                 
-            alpha = 0.4 + revealProgress * 0.6;                              
-            lineWidth = 2 + revealProgress * 3;                              
-            color = purple;                                                  
-            distort = 0;                                                     
-          } else {                                                           
-            // Alternative paths fade and distort                            
-            alpha = 0.7 - revealProgress * 0.5;                              
-            lineWidth = 2 - revealProgress;                                  
-            color = base200;                                                 
-            distort = revealProgress;                                        
-          }                                                                  
-        }                                                                    
-                                                                             
-        drawPath(curve, alpha, lineWidth, color, Date.now() / 50, distort);  
-      });                                                                    
-                                                                             
-      // Draw outcome nodes                                                  
-      pathCurves.forEach((curve, i) => {                                     
-        const isActual = i === actualOutcome;                                
-        let nodeAlpha, nodeColor, nodeRadius;                                
-                                                                             
-        if (revealProgress < 0.1) {                                          
-          nodeAlpha = 0.8;                                                   
-          nodeColor = base500;                                               
-          nodeRadius = 22;                                                   
-        } else {                                                             
-          if (isActual) {                                                    
-            nodeAlpha = 0.6 + revealProgress * 0.4;                          
-            nodeColor = purple;                                              
-            nodeRadius = 22 + revealProgress * 8;                            
-          } else {                                                           
-            nodeAlpha = 0.8 - revealProgress * 0.5;                          
-            nodeColor = base200;                                             
-            nodeRadius = 22 - revealProgress * 6;                            
-          }                                                                  
-        }                                                                    
-                                                                             
-        drawNode(curve.end.x, curve.end.y, nodeRadius, nodeColor, nodeAlpha, 
- curve.label, false, true);                                                  
-      });                                                                    
-                                                                             
-      // Draw starting event node                                            
-      const startColor = revealProgress > 0.1 ? purple : base700;            
-      drawNode(80, height / 2, 30, startColor, 1, 'Event', true);            
-                                                                             
-      // Draw branching point indicator                                      
-      const branchX = width * 0.25;                                          
-      ctx.fillStyle = revealProgress > 0.1 ? purple : base500;               
-      ctx.globalAlpha = 0.8;                                                 
-      ctx.beginPath();                                                       
-      ctx.arc(branchX, height / 2, 8, 0, Math.PI * 2);                       
-      ctx.fill();                                                            
-      ctx.globalAlpha = 1;                                                   
-                                                                             
-      // "Inevitable" label on actual path when revealed                     
-      if (revealProgress > 0.5) {                                            
-        const actualCurve = pathCurves[actualOutcome];                       
-        ctx.save();                                                          
-        ctx.globalAlpha = (revealProgress - 0.5) * 2;                        
-        ctx.fillStyle = purple;                                              
-        ctx.font = 'italic 11px IBM Plex Mono';                              
-        ctx.textAlign = 'center';                                            
-                                                                             
-        // Position along the path                                           
-        const labelX = width * 0.55;                                         
-        const labelY = actualCurve.cp2.y + (actualCurve.end.y -              
-actualCurve.cp2.y) * 0.3 - 15;                                               
-        ctx.fillText('"obvious in retrospect"', labelX, labelY);             
-        ctx.restore();                                                       
-      }                                                                      
-                                                                             
-      // "What if?" labels on faded paths                                    
-      if (revealProgress > 0.7) {                                            
-        ctx.save();                                                          
-        ctx.globalAlpha = (revealProgress - 0.7) * 2 * 0.4;                  
-        ctx.fillStyle = base500;                                             
-        ctx.font = 'italic 9px IBM Plex Mono';                               
-        ctx.textAlign = 'center';                                            
-                                                                             
-        pathCurves.forEach((curve, i) => {                                   
-          if (i !== actualOutcome) {                                         
-            const labelX = width * 0.6;                                      
-            const labelY = curve.cp3.y;                                      
-            ctx.fillText('forgotten path', labelX, labelY);                  
-          }                                                                  
-        });                                                                  
-        ctx.restore();                                                       
-      }                                                                      
-                                                                             
-      requestAnimationFrame(draw);                                           
-    }                                                                        
-                                                                             
-    function updateUI() {                                                    
-      const btn = document.getElementById('revealOutcome');                  
-      const quote = document.getElementById('quote');                        
-                                                                             
-      if (outcomeRevealed) {                                                 
-        btn.classList.add('revealed');                                       
-        btn.textContent = 'Outcome Revealed';                                
-        quote.classList.add('visible');                                      
-                                                                             
-        // Update outcome cards                                              
-        paths.forEach((p, i) => {                                            
-          const card =                                                       
-document.getElementById(`outcome-${p.label.toLowerCase()}`);                 
-          const prob =                                                       
-document.getElementById(`prob-${p.label.toLowerCase()}`);                    
-                                                                             
-          if (i === actualOutcome) {                                         
-            card.classList.add('actual');                                    
-            card.classList.remove('faded');                                  
-            prob.textContent = '"Obviously 100%"';                           
-          } else {                                                           
-            card.classList.add('faded');                                     
-            card.classList.remove('actual');                                 
-            prob.textContent = '"Never likely"';                             
-          }                                                                  
-        });                                                                  
-      } else {                                                               
-        btn.classList.remove('revealed');                                    
-        btn.textContent = 'Reveal Outcome';                                  
-        quote.classList.remove('visible');                                   
-                                                                             
-        paths.forEach((p, i) => {                                            
-          const card =                                                       
-document.getElementById(`outcome-${p.label.toLowerCase()}`);                 
-          const prob =                                                       
-document.getElementById(`prob-${p.label.toLowerCase()}`);                    
-          card.classList.remove('actual', 'faded');                          
-          prob.textContent = '25% likely';                                   
-        });                                                                  
-      }                                                                      
-    }                                                                        
-                                                                             
-    document.getElementById('revealOutcome').addEventListener('click', () => 
- {                                                                           
-      if (!outcomeRevealed) {                                                
-        outcomeRevealed = true;                                              
-        updateUI();                                                          
-      }                                                                      
-    });                                                                      
-                                                                             
-    document.getElementById('resetView').addEventListener('click', () => {   
-      outcomeRevealed = false;                                               
-      updateUI();                                                            
-    });                                                                      
-                                                                             
-    resize();                                                                
-    window.addEventListener('resize', resize);                               
-    updateUI();                                                              
-    draw();                                                                  
-  </script>                                                                  
-</body>                                                                      
-</html>                                                                      
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hindsight Bias - Cognitive Bias Visualization</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0; --fx-base-900: #2D2B28; --fx-base-700: #6F6E69;
+      --fx-base-500: #9F9D94; --fx-base-200: #DAD8CE; --fx-base-50: #F2F0E5;
+      --fx-orange: #BC5215; --fx-blue: #205EA6; --fx-cyan: #24837B;
+      --fx-red: #AF3029; --fx-purple: #5E409D; --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F; --fx-base-900: #CECDC3; --fx-base-700: #878580;
+        --fx-base-500: #6F6E69; --fx-base-200: #403E3C; --fx-base-50: #1C1B1A;
+        --fx-orange: #DA702C; --fx-blue: #4385BE; --fx-cyan: #3AA99F;
+        --fx-red: #D14D41; --fx-purple: #8B7EC8; --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'IBM Plex Mono', monospace; background: var(--fx-paper);
+      color: var(--fx-base-900); padding: 20px; min-height: 100vh;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 {
+      font-size: 1.5em; font-weight: 300; color: var(--fx-purple);
+      margin-bottom: 10px; border-bottom: 1px solid var(--fx-base-200); padding-bottom: 8px;
+    }
+    .description {
+      font-size: 0.85em; color: var(--fx-base-700); margin-bottom: 20px; line-height: 1.5;
+    }
+    .canvas-container {
+      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);
+      border-radius: 4px; margin-bottom: 20px; overflow: hidden; position: relative;
+    }
+    canvas { display: block; width: 100%; height: 500px; }
+    .controls {
+      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);
+      border-radius: 4px; padding: 15px;
+    }
+    .instruction { font-size: 0.8em; color: var(--fx-blue); margin-bottom: 12px; }
+    button {
+      font-family: 'IBM Plex Mono', monospace; background: var(--fx-blue);
+      color: var(--fx-paper); border: none; padding: 8px 16px;
+      font-size: 0.85em; cursor: pointer; border-radius: 3px; margin: 5px 5px 0 0;
+    }
+    button:hover { background: var(--fx-cyan); }
+    button.active { background: var(--fx-purple); }
+    button.reset { background: var(--fx-base-500); }
+    button.reset:hover { background: var(--fx-base-700); }
+    .insight-box {
+      margin-top: 15px; padding: 12px; background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200); border-radius: 3px;
+      font-size: 0.85em; line-height: 1.5; display: none;
+    }
+    .insight-box.visible { display: block; }
+    .insight-box .label {
+      color: var(--fx-purple); font-weight: 500; margin-bottom: 8px;
+      border-bottom: 1px solid var(--fx-base-200); padding-bottom: 4px;
+    }
+    .insight-box .text { color: var(--fx-base-700); }
+    .insight-box .quote {
+      color: var(--fx-base-900); font-style: italic; margin-top: 8px;
+      padding-left: 10px; border-left: 2px solid var(--fx-purple);
+    }
+    .stat-row {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px; margin-top: 15px;
+    }
+    .stat-box {
+      background: var(--fx-paper); padding: 10px; border-radius: 3px;
+      border: 1px solid var(--fx-base-200); text-align: center;
+    }
+    .stat-label { font-size: 0.7em; color: var(--fx-base-700); margin-bottom: 4px; text-transform: uppercase; }
+    .stat-value { font-size: 1.1em; font-weight: 500; color: var(--fx-base-900); }
+    .stat-value.purple { color: var(--fx-purple); }
+    .stat-value.faded { color: var(--fx-base-500); }
+    @media (max-width: 768px) {
+      canvas { height: 400px; }
+      h1 { font-size: 1.2em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Hindsight Bias</h1>
+    <p class="description">
+      "I knew it all along." After learning an outcome, we reconstruct our memory to believe we predicted it.
+      The past appears more predictable than it was. Multiple paths that once seemed equally likely now fade,
+      while the actual path glows with false inevitability. Watch the timeline transform—what was uncertain
+      becomes "obvious" only after we know the ending.
+    </p>
+
+    <div class="canvas-container">
+      <canvas id="biasCanvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <p class="instruction">First, observe the decision tree with all possible paths. Then reveal the outcome to see how hindsight distorts our perception of the past.</p>
+      <button id="revealBtn">Reveal Outcome</button>
+      <button id="resetBtn" class="reset">Reset Timeline</button>
+
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="stat-label">Possible Paths</div>
+          <div class="stat-value" id="pathCount">8 equally likely</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Perceived Probability (Before)</div>
+          <div class="stat-value" id="beforeProb">12.5%</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Perceived Probability (After)</div>
+          <div class="stat-value purple" id="afterProb">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Hindsight Distortion</div>
+          <div class="stat-value faded" id="distortion">—</div>
+        </div>
+      </div>
+
+      <div class="insight-box" id="insightBox">
+        <div class="label">The Hindsight Illusion</div>
+        <div class="text">
+          Once you know the outcome, your brain rewrites history. The path that was taken
+          now seems <strong>inevitable</strong>—the warning signs "obvious," the decision "clearly correct."
+          But those other faded paths? They were just as vivid before you knew the ending.
+        </div>
+        <div class="quote">
+          "Hindsight is 20/20, but foresight was always wearing a blindfold."
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('biasCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+
+    let outcomeRevealed = false;
+    let revealProgress = 0;
+    let animationTime = 0;
+
+    // Decision tree structure: 3 decision points, leading to 8 possible outcomes
+    const decisionPoints = [
+      { x: 0.15, y: 0.5, label: 'START' },
+      { x: 0.35, y: 0.5, label: 'Decision 1' },
+      { x: 0.55, y: 0.5, label: 'Decision 2' },
+      { x: 0.75, y: 0.5, label: 'Decision 3' },
+      { x: 0.92, y: 0.5, label: 'OUTCOME' }
+    ];
+
+    // Path definitions: each path is an array of y-offsets at each decision point
+    // The "chosen" path is index 2 (one of 8 paths)
+    const paths = [
+      { offsets: [0, -0.25, -0.35, -0.4], outcome: 'A', chosen: false },
+      { offsets: [0, -0.25, -0.35, -0.3], outcome: 'B', chosen: false },
+      { offsets: [0, -0.25, -0.15, -0.15], outcome: 'C', chosen: false },
+      { offsets: [0, -0.25, -0.15, -0.05], outcome: 'D', chosen: false },
+      { offsets: [0, 0.25, 0.15, 0.05], outcome: 'E', chosen: true }, // THE CHOSEN PATH
+      { offsets: [0, 0.25, 0.15, 0.15], outcome: 'F', chosen: false },
+      { offsets: [0, 0.25, 0.35, 0.3], outcome: 'G', chosen: false },
+      { offsets: [0, 0.25, 0.35, 0.4], outcome: 'H', chosen: false },
+    ];
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function getColor(varName) {
+      return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function drawPath(path, index) {
+      const points = [];
+      const yCenter = height * 0.5;
+      const yRange = height * 0.4;
+
+      for (let i = 0; i < decisionPoints.length; i++) {
+        const dp = decisionPoints[i];
+        const offset = i === 0 ? 0 : (i < path.offsets.length + 1 ? path.offsets[i - 1] : path.offsets[path.offsets.length - 1]);
+        points.push({
+          x: dp.x * width,
+          y: yCenter + offset * yRange
+        });
+      }
+
+      // Determine path appearance based on reveal state
+      let lineWidth, alpha, color;
+
+      if (!outcomeRevealed || revealProgress < 0.01) {
+        // Before reveal: all paths equal
+        lineWidth = 2;
+        alpha = 0.6;
+        color = getColor('--fx-base-500');
+      } else {
+        if (path.chosen) {
+          // Chosen path: grows prominent
+          lineWidth = lerp(2, 5, revealProgress);
+          alpha = lerp(0.6, 1, revealProgress);
+          color = getColor('--fx-purple');
+        } else {
+          // Unchosen paths: fade away
+          lineWidth = lerp(2, 1, revealProgress);
+          alpha = lerp(0.6, 0.15, revealProgress);
+          color = getColor('--fx-base-200');
+        }
+      }
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lineWidth;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // Draw curved path
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+
+      for (let i = 1; i < points.length; i++) {
+        const prev = points[i - 1];
+        const curr = points[i];
+        const cpX = (prev.x + curr.x) / 2;
+        ctx.quadraticCurveTo(prev.x + (curr.x - prev.x) * 0.5, prev.y, cpX, (prev.y + curr.y) / 2);
+        ctx.quadraticCurveTo(cpX, curr.y, curr.x, curr.y);
+      }
+      ctx.stroke();
+
+      // Draw glow for chosen path when revealed
+      if (path.chosen && outcomeRevealed && revealProgress > 0.3) {
+        ctx.globalAlpha = (revealProgress - 0.3) * 0.3;
+        ctx.strokeStyle = getColor('--fx-purple');
+        ctx.lineWidth = 12;
+        ctx.filter = 'blur(8px)';
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+          const prev = points[i - 1];
+          const curr = points[i];
+          const cpX = (prev.x + curr.x) / 2;
+          ctx.quadraticCurveTo(prev.x + (curr.x - prev.x) * 0.5, prev.y, cpX, (prev.y + curr.y) / 2);
+          ctx.quadraticCurveTo(cpX, curr.y, curr.x, curr.y);
+        }
+        ctx.stroke();
+        ctx.filter = 'none';
+      }
+
+      ctx.restore();
+
+      // Draw outcome label
+      const lastPoint = points[points.length - 1];
+      ctx.save();
+      ctx.globalAlpha = path.chosen && outcomeRevealed ? lerp(0.5, 1, revealProgress) : lerp(0.5, 0.2, revealProgress);
+      ctx.font = `${path.chosen && outcomeRevealed ? 'bold ' : ''}11px IBM Plex Mono`;
+      ctx.fillStyle = path.chosen && outcomeRevealed ? getColor('--fx-purple') : getColor('--fx-base-500');
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+
+      const labelOffset = path.offsets[path.offsets.length - 1] > 0 ? 8 : -8;
+      ctx.fillText(path.outcome, lastPoint.x + 15, lastPoint.y + labelOffset);
+      ctx.restore();
+    }
+
+    function drawDecisionNodes() {
+      const yCenter = height * 0.5;
+
+      decisionPoints.forEach((dp, i) => {
+        const x = dp.x * width;
+        const y = yCenter;
+
+        // Draw connecting line on timeline
+        if (i < decisionPoints.length - 1) {
+          const nextX = decisionPoints[i + 1].x * width;
+          ctx.strokeStyle = getColor('--fx-base-200');
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(nextX, y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        // Draw node
+        const isEndpoint = i === 0 || i === decisionPoints.length - 1;
+        const nodeSize = isEndpoint ? 20 : 12;
+
+        let nodeColor;
+        if (i === decisionPoints.length - 1 && outcomeRevealed) {
+          nodeColor = getColor('--fx-purple');
+        } else if (isEndpoint) {
+          nodeColor = getColor('--fx-blue');
+        } else {
+          nodeColor = getColor('--fx-base-500');
+        }
+
+        ctx.fillStyle = nodeColor;
+        ctx.beginPath();
+        ctx.arc(x, y, nodeSize, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw label
+        ctx.fillStyle = getColor('--fx-base-900');
+        ctx.font = isEndpoint ? 'bold 12px IBM Plex Mono' : '10px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(dp.label, x, y + nodeSize + 8);
+
+        // Draw question mark for uncertain decisions (before reveal)
+        if (!isEndpoint && (!outcomeRevealed || revealProgress < 0.5)) {
+          ctx.fillStyle = getColor('--fx-paper');
+          ctx.font = 'bold 10px IBM Plex Mono';
+          ctx.textBaseline = 'middle';
+          ctx.globalAlpha = 1 - revealProgress;
+          ctx.fillText('?', x, y);
+          ctx.globalAlpha = 1;
+        }
+      });
+    }
+
+    function drawTimeline() {
+      const margin = 40;
+      const y = height - margin;
+
+      // Draw timeline arrow
+      ctx.strokeStyle = getColor('--fx-base-200');
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(margin, y);
+      ctx.lineTo(width - margin, y);
+      ctx.stroke();
+
+      // Arrow head
+      ctx.fillStyle = getColor('--fx-base-200');
+      ctx.beginPath();
+      ctx.moveTo(width - margin, y);
+      ctx.lineTo(width - margin - 10, y - 5);
+      ctx.lineTo(width - margin - 10, y + 5);
+      ctx.closePath();
+      ctx.fill();
+
+      // Labels
+      ctx.fillStyle = getColor('--fx-base-700');
+      ctx.font = '10px IBM Plex Mono';
+      ctx.textAlign = 'left';
+      ctx.fillText('PAST', margin, y + 15);
+      ctx.textAlign = 'right';
+      ctx.fillText('PRESENT', width - margin, y + 15);
+
+      // Hindsight arrow (appears after reveal)
+      if (outcomeRevealed && revealProgress > 0.5) {
+        const arrowAlpha = (revealProgress - 0.5) * 2;
+        ctx.save();
+        ctx.globalAlpha = arrowAlpha;
+        ctx.strokeStyle = getColor('--fx-purple');
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        ctx.moveTo(width - margin - 30, y - 20);
+        ctx.lineTo(margin + 30, y - 20);
+        ctx.stroke();
+
+        // Reverse arrow head
+        ctx.fillStyle = getColor('--fx-purple');
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(margin + 30, y - 20);
+        ctx.lineTo(margin + 40, y - 25);
+        ctx.lineTo(margin + 40, y - 15);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.font = '10px IBM Plex Mono';
+        ctx.fillStyle = getColor('--fx-purple');
+        ctx.textAlign = 'center';
+        ctx.fillText('HINDSIGHT: "It was obvious!"', width / 2, y - 32);
+        ctx.restore();
+      }
+    }
+
+    function drawLegend() {
+      const x = 20;
+      const y = 20;
+
+      ctx.fillStyle = getColor('--fx-base-700');
+      ctx.font = '10px IBM Plex Mono';
+      ctx.textAlign = 'left';
+
+      if (!outcomeRevealed || revealProgress < 0.3) {
+        ctx.fillText('All paths appear equally probable', x, y);
+      } else {
+        ctx.fillStyle = getColor('--fx-purple');
+        ctx.fillText('The "inevitable" path (in hindsight)', x, y);
+
+        ctx.fillStyle = getColor('--fx-base-500');
+        ctx.globalAlpha = 0.5;
+        ctx.fillText('Forgotten alternatives', x, y + 15);
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = getColor('--fx-paper');
+      ctx.fillRect(0, 0, width, height);
+
+      // Animate reveal progress
+      const targetProgress = outcomeRevealed ? 1.0 : 0.0;
+      revealProgress += (targetProgress - revealProgress) * 0.03;
+
+      animationTime += 0.02;
+
+      // Draw paths (unchosen first, then chosen on top)
+      paths.filter(p => !p.chosen).forEach((path, i) => drawPath(path, i));
+      paths.filter(p => p.chosen).forEach((path, i) => drawPath(path, i));
+
+      drawDecisionNodes();
+      drawTimeline();
+      drawLegend();
+
+      requestAnimationFrame(draw);
+    }
+
+    function updateStats() {
+      const pathCountEl = document.getElementById('pathCount');
+      const beforeProbEl = document.getElementById('beforeProb');
+      const afterProbEl = document.getElementById('afterProb');
+      const distortionEl = document.getElementById('distortion');
+      const insightBox = document.getElementById('insightBox');
+
+      if (outcomeRevealed) {
+        pathCountEl.textContent = '1 "obvious" winner';
+        afterProbEl.textContent = '"Nearly certain"';
+        afterProbEl.className = 'stat-value purple';
+        distortionEl.textContent = '+87.5%';
+        distortionEl.className = 'stat-value purple';
+        insightBox.classList.add('visible');
+      } else {
+        pathCountEl.textContent = '8 equally likely';
+        afterProbEl.textContent = '—';
+        afterProbEl.className = 'stat-value faded';
+        distortionEl.textContent = '—';
+        distortionEl.className = 'stat-value faded';
+        insightBox.classList.remove('visible');
+      }
+    }
+
+    document.getElementById('revealBtn').addEventListener('click', () => {
+      outcomeRevealed = true;
+      document.getElementById('revealBtn').classList.add('active');
+      document.getElementById('revealBtn').textContent = 'Outcome Revealed';
+      updateStats();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      outcomeRevealed = false;
+      revealProgress = 0;
+      document.getElementById('revealBtn').classList.remove('active');
+      document.getElementById('revealBtn').textContent = 'Reveal Outcome';
+      updateStats();
+    });
+
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+  </script>
+</body>
+</html>
