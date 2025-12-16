@@ -12,7 +12,7 @@ title: Bookshelf
 </script>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,200;0,300;0,400;0,500;1,200;1,300&display=swap');
 
   :root {
     --fx-paper: #FFFCF0;
@@ -77,35 +77,39 @@ title: Bookshelf
   body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 200;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
 
   h1, h2, h3, h4 {
-    font-family: 'Crimson Pro', Georgia, serif;
-    font-weight: 500;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 300;
     line-height: 1.3;
   }
 
   .bookshelf-header {
     text-align: center;
-    padding: 60px 20px 40px;
+    padding: 50px 20px 35px;
   }
 
   .bookshelf-header h1 {
-    font-size: 3rem;
-    font-weight: 400;
-    margin-bottom: 12px;
-    letter-spacing: -0.02em;
+    font-size: 1.4rem;
+    font-weight: 300;
+    margin-bottom: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fx-base-700);
   }
 
   .bookshelf-header p {
     color: var(--text-muted);
-    font-size: 1.1rem;
-    max-width: 500px;
+    font-size: 0.85rem;
+    max-width: 400px;
     margin: 0 auto;
+    font-weight: 200;
   }
 
   .controls-bar {
@@ -485,9 +489,9 @@ title: Bookshelf
   }
 
   .fallback-title {
-    font-family: 'Crimson Pro', Georgia, serif;
-    font-size: 1.1rem;
-    font-weight: 500;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 400;
     color: white;
     line-height: 1.3;
     text-shadow: 0 2px 4px rgba(0,0,0,0.4);
@@ -632,10 +636,11 @@ title: Bookshelf
   }
 
   .modal-info h2 {
-    font-size: 1.75rem;
-    font-weight: 500;
+    font-size: 1.3rem;
+    font-weight: 300;
     margin-bottom: 8px;
     line-height: 1.25;
+    letter-spacing: 0.02em;
   }
 
   .modal-author {
@@ -680,17 +685,18 @@ title: Bookshelf
     position: absolute;
     top: 12px;
     left: 20px;
-    font-family: 'Crimson Pro', Georgia, serif;
-    font-size: 4rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 3rem;
     color: var(--fx-cyan);
     opacity: 0.2;
     line-height: 1;
   }
 
   .modal-quote p {
-    font-family: 'Crimson Pro', Georgia, serif;
-    font-size: 1.2rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.95rem;
     font-style: italic;
+    font-weight: 200;
     color: var(--text-primary);
     line-height: 1.7;
     margin-bottom: 12px;

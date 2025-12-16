@@ -344,7 +344,7 @@ I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu
 
 Non-academically, I write on my [bear blog](https://xiaolongy.bearblog.dev) occasionally.
 
-I also keep my favorite [quotes](quotes.md) and [bookshelf](bookshelf.md) here.
+I also keep my favorite [quotes](quotes.md) and [bookshelf](bookshelf.md) here. I maintain a collection of interactive [cognitive bias](cognitive-biases.html) visualizations.
 
 <div style="clear: both;"></div>
 
