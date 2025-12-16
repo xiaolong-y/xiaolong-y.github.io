@@ -192,11 +192,22 @@
     font-size: 0.9em;
   }
 
-  /* Hide Jekyll default header */
+  /* Hide Jekyll default header completely */
   header.page-header,
+  section.page-header,
+  .page-header,
   .project-name,
-  .page-header {
+  .project-tagline,
+  header[role="banner"],
+  .site-header,
+  .main-content > h1:first-child,
+  .markdown-body > h1:first-child {
     display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
   }
 
   /* Floating title animation - subtle */
