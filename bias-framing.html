@@ -3,236 +3,169 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Framing Effect - Cognitive Bias Visualization</title>
+  <title>Framing Effect</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
 
     :root {
-      --fx-paper: #FFFCF0; --fx-base-900: #2D2B28; --fx-base-700: #6F6E69;
-      --fx-base-500: #9F9D94; --fx-base-200: #DAD8CE; --fx-base-50: #F2F0E5;
-      --fx-orange: #BC5215; --fx-blue: #205EA6; --fx-cyan: #24837B;
-      --fx-red: #AF3029; --fx-purple: #5E409D; --fx-green: #66800B;
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
       --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --fx-paper: #100F0F; --fx-base-900: #CECDC3; --fx-base-700: #878580;
-        --fx-base-500: #6F6E69; --fx-base-200: #403E3C; --fx-base-50: #1C1B1A;
-        --fx-orange: #DA702C; --fx-blue: #4385BE; --fx-cyan: #3AA99F;
-        --fx-red: #D14D41; --fx-purple: #8B7EC8; --fx-green: #879A39;
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
         --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
       }
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: 'IBM Plex Mono', monospace; background: var(--fx-paper);
-      color: var(--fx-base-900); padding: 20px; min-height: 100vh;
-    }
-    .container { max-width: 1200px; margin: 0 auto; }
-    h1 {
-      font-size: 1.5em; font-weight: 300; color: var(--fx-purple);
-      margin-bottom: 10px; border-bottom: 1px solid var(--fx-base-200); padding-bottom: 8px;
-    }
-    .description {
-      font-size: 0.85em; color: var(--fx-base-700); margin-bottom: 20px; line-height: 1.5;
-    }
-    .canvas-container {
-      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);
-      border-radius: 4px; margin-bottom: 20px; overflow: hidden; position: relative;
-    }
-    canvas { display: block; width: 100%; height: 500px; }
-    .controls {
-      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);
-      border-radius: 4px; padding: 15px;
-    }
-    .instruction { font-size: 0.8em; color: var(--fx-blue); margin-bottom: 12px; }
-    .scenario-box {
-      background: var(--fx-paper); border: 2px solid var(--fx-base-200);
-      border-radius: 4px; padding: 20px; margin-bottom: 15px;
-      text-align: center;
-    }
-    .scenario-title {
-      font-size: 0.75em; color: var(--fx-base-500); margin-bottom: 10px;
-      text-transform: uppercase; letter-spacing: 1px;
-    }
-    .frame-label {
-      font-size: 1.1em; font-weight: 500; margin-bottom: 15px;
-      padding: 8px 15px; border-radius: 3px; display: inline-block;
-    }
-    .frame-positive { background: var(--fx-green); color: var(--fx-paper); }
-    .frame-negative { background: var(--fx-red); color: var(--fx-paper); }
-    .treatment-options {
-      display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
-      margin-top: 15px;
-    }
-    .treatment-btn {
       font-family: 'IBM Plex Mono', monospace;
-      background: var(--fx-base-50); color: var(--fx-base-900);
-      border: 2px solid var(--fx-base-200); padding: 15px 25px;
-      font-size: 0.9em; cursor: pointer; border-radius: 4px;
-      transition: all 0.2s ease; min-width: 200px;
-    }
-    .treatment-btn:hover {
-      border-color: var(--fx-blue);
       background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
     }
-    .treatment-btn.selected {
-      border-color: var(--fx-blue);
-      background: var(--fx-blue);
-      color: var(--fx-paper);
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
     }
-    .treatment-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-purple);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
     }
-    .treatment-name { font-weight: 500; margin-bottom: 5px; }
-    .treatment-stat { font-size: 1.2em; font-weight: 500; }
-    .treatment-stat.positive { color: var(--fx-green); }
-    .treatment-stat.negative { color: var(--fx-red); }
-    .treatment-btn.selected .treatment-stat { color: var(--fx-paper); }
-    .phase-controls {
-      display: flex; gap: 10px; justify-content: center; margin-top: 15px;
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
     }
-    .phase-btn {
-      font-family: 'IBM Plex Mono', monospace; background: var(--fx-purple);
-      color: var(--fx-paper); border: none; padding: 10px 20px;
-      font-size: 0.85em; cursor: pointer; border-radius: 3px;
+
+    .canvas-container {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
     }
-    .phase-btn:hover { filter: brightness(1.1); }
-    .phase-btn:disabled {
-      background: var(--fx-base-500);
-      cursor: not-allowed;
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 420px;
     }
-    .results {
-      margin-top: 20px; padding: 20px;
-      background: var(--fx-paper); border: 2px solid var(--fx-purple);
-      border-radius: 4px; display: none;
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
     }
-    .results.visible { display: block; }
-    .results-title {
-      font-size: 1em; font-weight: 500; color: var(--fx-purple);
-      margin-bottom: 15px; text-align: center;
+
+    .instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
     }
-    .comparison {
-      display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
-      margin-bottom: 15px;
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-purple);
     }
-    .comparison-item {
-      padding: 15px; background: var(--fx-base-50);
-      border-radius: 4px; text-align: center; min-width: 180px;
-    }
-    .comparison-label {
-      font-size: 0.7em; color: var(--fx-base-500);
-      text-transform: uppercase; margin-bottom: 5px;
-    }
-    .comparison-choice { font-size: 1em; font-weight: 500; }
-    .verdict {
-      text-align: center; padding: 15px;
-      border-radius: 4px; font-size: 0.9em;
-    }
-    .verdict.changed {
-      background: var(--fx-red); color: var(--fx-paper);
-    }
-    .verdict.consistent {
-      background: var(--fx-green); color: var(--fx-paper);
-    }
-    .verdict h3 { font-weight: 500; margin-bottom: 8px; }
-    .verdict p { font-size: 0.85em; opacity: 0.9; }
-    #resetBtn {
-      font-family: 'IBM Plex Mono', monospace; background: var(--fx-base-500);
-      color: var(--fx-paper); border: none; padding: 8px 16px;
-      font-size: 0.8em; cursor: pointer; border-radius: 3px;
-      margin-top: 15px;
-    }
-    #resetBtn:hover { background: var(--fx-base-700); }
-    @media (max-width: 768px) {
-      canvas { height: 350px; }
+
+    @media (max-width: 600px) {
+      canvas { height: 500px; }
       h1 { font-size: 1.2em; }
-      .treatment-btn { min-width: 150px; padding: 12px 15px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <a href="cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
     <h1>Framing Effect</h1>
     <p class="description">
-      Would you choose a treatment with a "90% survival rate" or one with a "10% mortality rate"? They're identical—but our brains don't process them that way. How information is presented (framed) dramatically affects our decisions, even when the underlying facts remain unchanged.
+      Identical information presented differently leads to different decisions. "90% survival rate" feels hopeful; "10% mortality rate" feels ominous—yet they're mathematically identical. Hover over each frame to see the emotional response, then watch the math reveal the truth.
     </p>
 
     <div class="canvas-container">
-      <canvas id="biasCanvas"></canvas>
+      <canvas id="canvas"></canvas>
     </div>
 
     <div class="controls">
-      <p class="instruction">Choose a medical treatment. Then see the same options framed differently.</p>
-
-      <div class="scenario-box">
-        <div class="scenario-title">Medical Decision Scenario</div>
-        <p style="font-size: 0.85em; color: var(--fx-base-700); margin-bottom: 10px;">
-          You have been diagnosed with a serious illness. Two treatments are available.
-        </p>
-        <div class="frame-label" id="frameLabel">Frame A: Positive (Survival)</div>
-
-        <div class="treatment-options" id="treatmentOptions">
-          <button class="treatment-btn" data-treatment="A" id="treatmentA">
-            <div class="treatment-name">Treatment A</div>
-            <div class="treatment-stat positive" id="statA">90% survival rate</div>
-          </button>
-          <button class="treatment-btn" data-treatment="B" id="treatmentB">
-            <div class="treatment-name">Treatment B</div>
-            <div class="treatment-stat positive" id="statB">70% survival rate</div>
-          </button>
-        </div>
-
-        <div class="phase-controls">
-          <button class="phase-btn" id="confirmBtn" disabled>Confirm Choice</button>
-          <button class="phase-btn" id="switchFrameBtn" style="display: none;">See Different Frame</button>
-        </div>
-      </div>
-
-      <div class="results" id="results">
-        <div class="results-title">Same Data, Different Decisions?</div>
-        <div class="comparison">
-          <div class="comparison-item">
-            <div class="comparison-label">Positive Frame Choice</div>
-            <div class="comparison-choice" id="choice1">-</div>
-          </div>
-          <div class="comparison-item">
-            <div class="comparison-label">Negative Frame Choice</div>
-            <div class="comparison-choice" id="choice2">-</div>
-          </div>
-        </div>
-        <div class="verdict" id="verdict">
-          <h3>Verdict</h3>
-          <p id="verdictText"></p>
-        </div>
-        <center><button id="resetBtn">Try Again</button></center>
-      </div>
+      <p class="instruction">Move your mouse between the two frames. Notice your visceral reaction to each, then see they're mathematically equivalent.</p>
+      <p class="insight" id="insight">Hover over a frame to experience how presentation shapes perception.</p>
     </div>
   </div>
 
   <script>
-    const canvas = document.getElementById('biasCanvas');
+    const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let width, height, dpr;
+    let mouseX = 0, mouseY = 0;
+    let hoverSide = null; // 'left', 'right', or null
 
-    // State
-    let currentFrame = 'positive'; // 'positive' or 'negative'
-    let phase = 1; // 1 = first choice, 2 = second choice, 3 = reveal
-    let choice1 = null;
-    let choice2 = null;
-    let selectedTreatment = null;
-    let animationProgress = 0;
-    let transitionProgress = 0;
-    let isTransitioning = false;
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
 
-    // Treatment data (identical outcomes, different framing)
-    const treatments = {
-      A: { survival: 90, mortality: 10 },
-      B: { survival: 70, mortality: 30 }
-    };
+    // Animation state
+    let leftPulse = 0;
+    let rightPulse = 0;
+    let showEquivalence = false;
+    let equivalenceTimer = 0;
 
     function resize() {
       dpr = window.devicePixelRatio || 1;
@@ -243,335 +176,222 @@
       ctx.scale(dpr, dpr);
     }
 
-    function getColor(varName) {
-      return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-    }
+    function drawPeople(x, y, total, highlighted, isPositive, frameAlpha) {
+      const cols = 10;
+      const rows = Math.ceil(total / cols);
+      const spacing = 16;
+      const startX = x - (cols * spacing) / 2;
+      const startY = y - (rows * spacing) / 2;
 
-    function selectTreatment(treatment) {
-      if (phase === 3) return;
+      for (let i = 0; i < total; i++) {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const px = startX + col * spacing + spacing / 2;
+        const py = startY + row * spacing + spacing / 2;
 
-      selectedTreatment = treatment;
+        const isHighlighted = isPositive ? (i < highlighted) : (i >= total - highlighted);
 
-      // Update button states
-      document.querySelectorAll('.treatment-btn').forEach(btn => {
-        btn.classList.remove('selected');
-      });
-      document.querySelector(`[data-treatment="${treatment}"]`).classList.add('selected');
+        ctx.globalAlpha = frameAlpha;
 
-      // Enable confirm button
-      document.getElementById('confirmBtn').disabled = false;
-    }
+        if (isHighlighted) {
+          ctx.fillStyle = isPositive ? getColor('green') : getColor('red');
+        } else {
+          ctx.fillStyle = getColor('base-200');
+        }
 
-    function confirmChoice() {
-      if (!selectedTreatment) return;
-
-      if (phase === 1) {
-        choice1 = selectedTreatment;
-        phase = 2;
-
-        // Show switch frame button
-        document.getElementById('confirmBtn').style.display = 'none';
-        document.getElementById('switchFrameBtn').style.display = 'inline-block';
-
-        // Clear selection
-        selectedTreatment = null;
-        document.querySelectorAll('.treatment-btn').forEach(btn => {
-          btn.classList.remove('selected');
-        });
-
-      } else if (phase === 2) {
-        choice2 = selectedTreatment;
-        phase = 3;
-
-        // Show results
-        showResults();
+        // Draw person icon (simple circle for head)
+        ctx.beginPath();
+        ctx.arc(px, py, 5, 0, Math.PI * 2);
+        ctx.fill();
       }
+      ctx.globalAlpha = 1;
     }
 
-    function switchFrame() {
-      isTransitioning = true;
-      currentFrame = 'negative';
+    function drawFrame(x, y, w, h, color, label, stat, pulse, alpha) {
+      ctx.save();
+      ctx.globalAlpha = alpha;
 
-      // Update frame label
-      const frameLabel = document.getElementById('frameLabel');
-      frameLabel.textContent = 'Frame B: Negative (Mortality)';
-      frameLabel.className = 'frame-label frame-negative';
-
-      // Update stats
-      document.getElementById('statA').textContent = '10% mortality rate';
-      document.getElementById('statA').className = 'treatment-stat negative';
-      document.getElementById('statB').textContent = '30% mortality rate';
-      document.getElementById('statB').className = 'treatment-stat negative';
-
-      // Update buttons
-      document.getElementById('switchFrameBtn').style.display = 'none';
-      document.getElementById('confirmBtn').style.display = 'inline-block';
-      document.getElementById('confirmBtn').disabled = true;
-      document.getElementById('confirmBtn').textContent = 'Confirm Second Choice';
-
-      // Clear any previous selection visuals
-      document.querySelectorAll('.treatment-btn').forEach(btn => {
-        btn.classList.remove('selected');
-      });
-
-      setTimeout(() => { isTransitioning = false; }, 500);
-    }
-
-    function showResults() {
-      document.getElementById('choice1').textContent = `Treatment ${choice1}`;
-      document.getElementById('choice2').textContent = `Treatment ${choice2}`;
-
-      const verdict = document.getElementById('verdict');
-      const verdictText = document.getElementById('verdictText');
-
-      if (choice1 !== choice2) {
-        verdict.className = 'verdict changed';
-        verdictText.innerHTML = `<strong>Your choice changed!</strong><br><br>The same statistics framed differently led you to a different decision. Treatment A has 90% survival = 10% mortality. Treatment B has 70% survival = 30% mortality. The numbers are identical—only the framing changed. This is the Framing Effect in action.`;
-      } else {
-        verdict.className = 'verdict consistent';
-        verdictText.innerHTML = `<strong>Your choice remained consistent.</strong><br><br>You saw through the framing! Both frames presented identical information: Treatment A (90% survival = 10% mortality) vs Treatment B (70% survival = 30% mortality). Most people's choices change based on how options are framed.`;
+      // Frame glow when hovered
+      if (pulse > 0.1) {
+        const glowSize = 10 + pulse * 15;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = glowSize;
       }
 
-      document.getElementById('results').classList.add('visible');
-      document.querySelector('.scenario-box').style.display = 'none';
-    }
-
-    function reset() {
-      currentFrame = 'positive';
-      phase = 1;
-      choice1 = null;
-      choice2 = null;
-      selectedTreatment = null;
-
-      // Reset frame label
-      const frameLabel = document.getElementById('frameLabel');
-      frameLabel.textContent = 'Frame A: Positive (Survival)';
-      frameLabel.className = 'frame-label frame-positive';
-
-      // Reset stats
-      document.getElementById('statA').textContent = '90% survival rate';
-      document.getElementById('statA').className = 'treatment-stat positive';
-      document.getElementById('statB').textContent = '70% survival rate';
-      document.getElementById('statB').className = 'treatment-stat positive';
-
-      // Reset buttons
-      document.getElementById('confirmBtn').style.display = 'inline-block';
-      document.getElementById('confirmBtn').disabled = true;
-      document.getElementById('confirmBtn').textContent = 'Confirm Choice';
-      document.getElementById('switchFrameBtn').style.display = 'none';
-
-      document.querySelectorAll('.treatment-btn').forEach(btn => {
-        btn.classList.remove('selected');
-      });
-
-      // Hide results, show scenario
-      document.getElementById('results').classList.remove('visible');
-      document.querySelector('.scenario-box').style.display = 'block';
-    }
-
-    function drawBarChart(x, y, w, h, value, maxValue, color, label, isPositive) {
-      const barHeight = (value / maxValue) * h;
-      const barY = y + h - barHeight;
-
-      // Bar background
-      ctx.fillStyle = getColor('--fx-base-200');
-      ctx.fillRect(x, y, w, h);
-
-      // Filled bar
-      ctx.fillStyle = color;
-      ctx.fillRect(x, barY, w, barHeight);
-
-      // Value label
-      ctx.fillStyle = getColor('--fx-base-900');
-      ctx.font = '14px IBM Plex Mono';
-      ctx.textAlign = 'center';
-      ctx.fillText(`${value}%`, x + w / 2, barY - 10);
-
-      // Treatment label
-      ctx.fillStyle = getColor('--fx-base-700');
-      ctx.font = '11px IBM Plex Mono';
-      ctx.fillText(label, x + w / 2, y + h + 20);
-    }
-
-    function drawGlassFrame(x, y, w, h, tint, label) {
       // Frame border
-      ctx.strokeStyle = tint;
-      ctx.lineWidth = 3;
-      ctx.strokeRect(x, y, w, h);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2 + pulse * 2;
+      ctx.strokeRect(x - w/2, y - h/2, w, h);
 
-      // Corner accents
-      const cornerSize = 15;
-      ctx.fillStyle = tint;
+      ctx.shadowBlur = 0;
 
-      // Top-left
-      ctx.fillRect(x, y, cornerSize, 3);
-      ctx.fillRect(x, y, 3, cornerSize);
-
-      // Top-right
-      ctx.fillRect(x + w - cornerSize, y, cornerSize, 3);
-      ctx.fillRect(x + w - 3, y, 3, cornerSize);
-
-      // Bottom-left
-      ctx.fillRect(x, y + h - 3, cornerSize, 3);
-      ctx.fillRect(x, y + h - cornerSize, 3, cornerSize);
-
-      // Bottom-right
-      ctx.fillRect(x + w - cornerSize, y + h - 3, cornerSize, 3);
-      ctx.fillRect(x + w - 3, y + h - cornerSize, 3, cornerSize);
-
-      // Label
-      ctx.fillStyle = tint;
+      // Frame label at top
+      ctx.fillStyle = color;
       ctx.font = '12px IBM Plex Mono';
       ctx.textAlign = 'center';
-      ctx.fillText(label, x + w / 2, y - 10);
+      ctx.fillText(label, x, y - h/2 - 12);
+
+      // Main stat
+      ctx.font = `bold ${18 + pulse * 4}px IBM Plex Mono`;
+      ctx.fillText(stat, x, y + h/2 + 25);
+
+      ctx.restore();
     }
 
     function draw() {
-      ctx.fillStyle = getColor('--fx-paper');
+      ctx.fillStyle = getColor('paper');
       ctx.fillRect(0, 0, width, height);
 
-      animationProgress += 0.02;
-      if (isTransitioning) {
-        transitionProgress = Math.min(1, transitionProgress + 0.05);
-      }
-
-      const centerX = width / 2;
       const centerY = height / 2;
+      const frameWidth = Math.min(180, width * 0.35);
+      const frameHeight = 200;
+      const gap = 60;
 
-      // Draw conceptual visualization
-      const frameWidth = Math.min(350, width * 0.4);
-      const frameHeight = 250;
-      const frameSpacing = 50;
+      // Determine hover state
+      const leftX = width / 2 - gap - frameWidth / 2;
+      const rightX = width / 2 + gap + frameWidth / 2;
 
-      // Positive frame (left)
-      const positiveX = centerX - frameWidth - frameSpacing / 2;
-      const positiveY = centerY - frameHeight / 2;
-      const positiveAlpha = currentFrame === 'positive' ? 1 : 0.4;
-
-      ctx.globalAlpha = positiveAlpha;
-      drawGlassFrame(
-        positiveX, positiveY, frameWidth, frameHeight,
-        getColor('--fx-green'),
-        'Positive Frame'
-      );
-
-      // Positive frame content - people icons
-      const iconSize = 10;
-      const gridCols = 10;
-      const gridRows = 10;
-      const gridStartX = positiveX + 30;
-      const gridStartY = positiveY + 40;
-      const gridSpacing = (frameWidth - 60) / gridCols;
-
-      for (let row = 0; row < gridRows; row++) {
-        for (let col = 0; col < gridCols; col++) {
-          const index = row * gridCols + col;
-          const ix = gridStartX + col * gridSpacing;
-          const iy = gridStartY + row * (frameHeight - 80) / gridRows;
-
-          // Treatment A visualization (90 green, 10 would be red)
-          const isAlive = index < 90;
-          ctx.fillStyle = isAlive ? getColor('--fx-green') : getColor('--fx-red');
-
-          // Draw small person icon
-          ctx.beginPath();
-          ctx.arc(ix, iy, iconSize / 2, 0, Math.PI * 2);
-          ctx.fill();
-        }
+      if (mouseX < width / 2 && mouseY > 50 && mouseY < height - 80) {
+        hoverSide = 'left';
+      } else if (mouseX > width / 2 && mouseY > 50 && mouseY < height - 80) {
+        hoverSide = 'right';
+      } else {
+        hoverSide = null;
       }
 
-      // Positive label
-      ctx.fillStyle = getColor('--fx-green');
-      ctx.font = '11px IBM Plex Mono';
-      ctx.textAlign = 'center';
-      ctx.fillText('90 of 100 survive', positiveX + frameWidth / 2, positiveY + frameHeight - 15);
+      // Animate pulses
+      const leftTarget = hoverSide === 'left' ? 1 : 0;
+      const rightTarget = hoverSide === 'right' ? 1 : 0;
+      leftPulse += (leftTarget - leftPulse) * 0.1;
+      rightPulse += (rightTarget - rightPulse) * 0.1;
 
-      ctx.globalAlpha = 1;
-
-      // Negative frame (right)
-      const negativeX = centerX + frameSpacing / 2;
-      const negativeY = centerY - frameHeight / 2;
-      const negativeAlpha = currentFrame === 'negative' ? 1 : 0.4;
-
-      ctx.globalAlpha = negativeAlpha;
-      drawGlassFrame(
-        negativeX, negativeY, frameWidth, frameHeight,
-        getColor('--fx-red'),
-        'Negative Frame'
-      );
-
-      // Negative frame content - same data, different emphasis
-      for (let row = 0; row < gridRows; row++) {
-        for (let col = 0; col < gridCols; col++) {
-          const index = row * gridCols + col;
-          const ix = negativeX + 30 + col * gridSpacing;
-          const iy = negativeY + 40 + row * (frameHeight - 80) / gridRows;
-
-          // Same data: 90 survive, 10 die - but emphasize the deaths
-          const isDead = index >= 90;
-          ctx.fillStyle = isDead ? getColor('--fx-red') : getColor('--fx-base-300');
-
-          ctx.beginPath();
-          ctx.arc(ix, iy, iconSize / 2, 0, Math.PI * 2);
-          ctx.fill();
-
-          // X marks for deaths in negative frame
-          if (isDead && currentFrame === 'negative') {
-            ctx.strokeStyle = getColor('--fx-paper');
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(ix - 3, iy - 3);
-            ctx.lineTo(ix + 3, iy + 3);
-            ctx.moveTo(ix + 3, iy - 3);
-            ctx.lineTo(ix - 3, iy + 3);
-            ctx.stroke();
-          }
-        }
+      // Draw equivalence indicator when both have been hovered
+      if (hoverSide === null && (leftPulse > 0.1 || rightPulse > 0.1)) {
+        equivalenceTimer += 0.02;
+        if (equivalenceTimer > 1) showEquivalence = true;
+      } else {
+        equivalenceTimer = 0;
+        if (hoverSide !== null) showEquivalence = false;
       }
-
-      // Negative label
-      ctx.fillStyle = getColor('--fx-red');
-      ctx.font = '11px IBM Plex Mono';
-      ctx.textAlign = 'center';
-      ctx.fillText('10 of 100 die', negativeX + frameWidth / 2, negativeY + frameHeight - 15);
-
-      ctx.globalAlpha = 1;
-
-      // Center equals sign
-      ctx.fillStyle = getColor('--fx-base-500');
-      ctx.font = '24px IBM Plex Mono';
-      ctx.textAlign = 'center';
-      ctx.fillText('=', centerX, centerY);
 
       // Title
-      ctx.fillStyle = getColor('--fx-base-700');
+      ctx.fillStyle = getColor('base-700');
       ctx.font = '11px IBM Plex Mono';
       ctx.textAlign = 'center';
-      ctx.fillText('Same outcome. Different perception.', centerX, 30);
+      ctx.fillText('Same treatment. Different presentation. Different feeling.', width / 2, 30);
 
-      // Phase indicator
-      const phaseText = phase === 1 ? 'Phase 1: Choose with positive framing' :
-                        phase === 2 ? 'Phase 2: Choose with negative framing' :
-                        'Results revealed';
-      ctx.fillStyle = getColor('--fx-purple');
-      ctx.font = '10px IBM Plex Mono';
-      ctx.fillText(phaseText, centerX, height - 20);
+      // Left frame - Positive framing (green, expanding)
+      const leftAlpha = 0.5 + leftPulse * 0.5;
+      const leftScale = 1 + leftPulse * 0.05;
+
+      ctx.save();
+      ctx.translate(leftX, centerY);
+      ctx.scale(leftScale, leftScale);
+      ctx.translate(-leftX, -centerY);
+
+      drawFrame(leftX, centerY, frameWidth, frameHeight, getColor('green'),
+                'GAIN FRAME', '90% will SURVIVE', leftPulse, leftAlpha);
+
+      // Draw people - 90 green (survivors)
+      drawPeople(leftX, centerY, 100, 90, true, leftAlpha);
+
+      ctx.restore();
+
+      // Right frame - Negative framing (red, contracting)
+      const rightAlpha = 0.5 + rightPulse * 0.5;
+      const rightScale = 1 - rightPulse * 0.03;
+
+      ctx.save();
+      ctx.translate(rightX, centerY);
+      ctx.scale(rightScale, rightScale);
+      ctx.translate(-rightX, -centerY);
+
+      drawFrame(rightX, centerY, frameWidth, frameHeight, getColor('red'),
+                'LOSS FRAME', '10% will DIE', rightPulse, rightAlpha);
+
+      // Draw people - 10 red (deaths)
+      drawPeople(rightX, centerY, 100, 10, false, rightAlpha);
+
+      ctx.restore();
+
+      // Center equivalence
+      if (showEquivalence || (leftPulse < 0.1 && rightPulse < 0.1)) {
+        ctx.fillStyle = getColor('purple');
+        ctx.font = 'bold 20px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('=', width / 2, centerY);
+
+        ctx.font = '10px IBM Plex Mono';
+        ctx.fillStyle = getColor('base-700');
+        ctx.fillText('IDENTICAL', width / 2, centerY + 20);
+        ctx.fillText('OUTCOME', width / 2, centerY + 32);
+      }
+
+      // Emotional response indicators
+      if (leftPulse > 0.3) {
+        ctx.fillStyle = getColor('green');
+        ctx.font = '10px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        const emotions = ['Hope', 'Optimism', 'Choose this!'];
+        emotions.forEach((e, i) => {
+          ctx.globalAlpha = leftPulse * (0.7 - i * 0.2);
+          ctx.fillText(e, leftX, centerY + frameHeight/2 + 45 + i * 14);
+        });
+        ctx.globalAlpha = 1;
+      }
+
+      if (rightPulse > 0.3) {
+        ctx.fillStyle = getColor('red');
+        ctx.font = '10px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        const emotions = ['Fear', 'Dread', 'Avoid this!'];
+        emotions.forEach((e, i) => {
+          ctx.globalAlpha = rightPulse * (0.7 - i * 0.2);
+          ctx.fillText(e, rightX, centerY + frameHeight/2 + 45 + i * 14);
+        });
+        ctx.globalAlpha = 1;
+      }
+
+      // Update insight
+      const insight = document.getElementById('insight');
+      if (hoverSide === 'left') {
+        insight.textContent = '"90% survive" triggers hope and optimism. You want to choose this option. It feels safe.';
+        insight.style.borderLeftColor = getColor('green');
+      } else if (hoverSide === 'right') {
+        insight.textContent = '"10% die" triggers fear and loss aversion. You want to avoid this. It feels dangerous.';
+        insight.style.borderLeftColor = getColor('red');
+      } else {
+        insight.textContent = 'Both frames describe exactly 90 survivors and 10 deaths. The math is identical—only your emotional response differs.';
+        insight.style.borderLeftColor = getColor('purple');
+      }
 
       requestAnimationFrame(draw);
     }
 
-    // Event listeners
-    document.querySelectorAll('.treatment-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        selectTreatment(btn.dataset.treatment);
-      });
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
     });
 
-    document.getElementById('confirmBtn').addEventListener('click', confirmChoice);
-    document.getElementById('switchFrameBtn').addEventListener('click', switchFrame);
-    document.getElementById('resetBtn').addEventListener('click', reset);
+    canvas.addEventListener('mouseleave', () => {
+      mouseX = width / 2;
+      mouseY = height + 100;
+    });
 
-    // Initialize
+    // Touch support
+    canvas.addEventListener('touchmove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.touches[0].clientX - rect.left;
+      mouseY = e.touches[0].clientY - rect.top;
+      e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', () => {
+      mouseX = width / 2;
+      mouseY = height + 100;
+    });
+
     resize();
     window.addEventListener('resize', resize);
     draw();

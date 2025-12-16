@@ -3,209 +3,267 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spotlight Effect - Cognitive Bias Visualization</title>
+  <title>Spotlight Effect</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
 
     :root {
-      --fx-paper: #FFFCF0; --fx-base-900: #2D2B28; --fx-base-700: #6F6E69;
-      --fx-base-500: #9F9D94; --fx-base-200: #DAD8CE; --fx-base-50: #F2F0E5;
-      --fx-orange: #BC5215; --fx-blue: #205EA6; --fx-cyan: #24837B;
-      --fx-red: #AF3029; --fx-purple: #5E409D; --fx-green: #66800B;
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
       --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --fx-paper: #100F0F; --fx-base-900: #CECDC3; --fx-base-700: #878580;
-        --fx-base-500: #6F6E69; --fx-base-200: #403E3C; --fx-base-50: #1C1B1A;
-        --fx-orange: #DA702C; --fx-blue: #4385BE; --fx-cyan: #3AA99F;
-        --fx-red: #D14D41; --fx-purple: #8B7EC8; --fx-green: #879A39;
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
         --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
       }
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: 'IBM Plex Mono', monospace; background: var(--fx-paper);
-      color: var(--fx-base-900); padding: 20px; min-height: 100vh;
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
     }
-    .container { max-width: 1200px; margin: 0 auto; }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
     h1 {
-      font-size: 1.5em; font-weight: 300; color: var(--fx-yellow);
-      margin-bottom: 10px; border-bottom: 1px solid var(--fx-base-200); padding-bottom: 8px;
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-yellow);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
     }
+
     .description {
-      font-size: 0.85em; color: var(--fx-base-700); margin-bottom: 20px; line-height: 1.5;
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
     }
+
     .canvas-container {
-      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);
-      border-radius: 4px; margin-bottom: 20px; overflow: hidden; position: relative;
-    }
-    canvas { display: block; width: 100%; height: 500px; }
-    .controls {
-      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);
-      border-radius: 4px; padding: 15px;
-    }
-    .instruction { font-size: 0.8em; color: var(--fx-yellow); margin-bottom: 12px; }
-    button {
-      font-family: 'IBM Plex Mono', monospace; background: var(--fx-yellow);
-      color: var(--fx-base-900); border: none; padding: 8px 16px;
-      font-size: 0.85em; cursor: pointer; border-radius: 3px; margin: 5px 5px 0 0;
-    }
-    button:hover { background: var(--fx-orange); color: var(--fx-paper); }
-    button.active { background: var(--fx-green); color: var(--fx-paper); }
-    .slider-container {
-      margin: 15px 0; padding: 10px; background: var(--fx-paper);
-      border: 1px solid var(--fx-base-200); border-radius: 4px;
-    }
-    .slider-label {
-      font-size: 0.8em; color: var(--fx-base-700); margin-bottom: 8px;
-      display: flex; justify-content: space-between;
-    }
-    .slider-value { color: var(--fx-yellow); font-weight: 500; }
-    input[type="range"] {
-      width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
-      background: var(--fx-base-200); border-radius: 3px; outline: none;
-    }
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
-      background: var(--fx-yellow); border-radius: 50%; cursor: pointer;
-    }
-    input[type="range"]::-moz-range-thumb {
-      width: 18px; height: 18px; background: var(--fx-yellow);
-      border-radius: 50%; cursor: pointer; border: none;
-    }
-    .status-panel {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 8px; margin-top: 15px; font-size: 0.75em;
-    }
-    .status-item {
-      padding: 8px; background: var(--fx-paper); border-radius: 3px;
+      background: var(--fx-base-50);
       border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
     }
-    .status-label { color: var(--fx-base-700); margin-bottom: 3px; }
-    .status-value { font-weight: 500; color: var(--fx-base-900); }
-    .status-value.highlight { color: var(--fx-yellow); }
-    .status-value.reality { color: var(--fx-green); }
-    .insight-box {
-      margin-top: 15px; padding: 12px; background: var(--fx-paper);
-      border-left: 3px solid var(--fx-yellow); font-size: 0.8em;
-      color: var(--fx-base-700); line-height: 1.5;
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 420px;
+      cursor: pointer;
     }
-    .insight-box.revealed { border-left-color: var(--fx-green); }
-    @media (max-width: 768px) {
-      canvas { height: 400px; }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+    }
+
+    .toggle-container {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .toggle-btn {
+      flex: 1;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85em;
+      padding: 12px 16px;
+      background: var(--fx-paper);
+      border: 2px solid var(--fx-base-200);
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--fx-base-900);
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+
+    .toggle-btn:hover {
+      border-color: var(--fx-base-700);
+    }
+
+    .toggle-btn.active.perception {
+      background: var(--fx-yellow);
+      border-color: var(--fx-yellow);
+      color: var(--fx-paper);
+    }
+
+    .toggle-btn.active.reality {
+      background: var(--fx-green);
+      border-color: var(--fx-green);
+      color: var(--fx-paper);
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-yellow);
+    }
+
+    .insight.reality-mode {
+      border-left-color: var(--fx-green);
+    }
+
+    @media (max-width: 600px) {
+      canvas { height: 350px; }
       h1 { font-size: 1.2em; }
+      .toggle-container { flex-direction: column; }
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <a href="cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
     <h1>Spotlight Effect</h1>
     <p class="description">
-      We vastly overestimate how much others notice us. That stain on your shirt, that stumble on stage, that awkward comment—you feel everyone saw it. They didn't. Watch as observers in the crowd look everywhere but at you. The spotlight exists only in your mind.
+      We drastically overestimate how much others notice our appearance, behavior, and mistakes. That stain on your shirt, that stumble, that awkward comment—you feel everyone saw it. They didn't. Toggle between how you feel and what's actually happening.
     </p>
 
     <div class="canvas-container">
-      <canvas id="biasCanvas"></canvas>
+      <canvas id="canvas"></canvas>
     </div>
 
     <div class="controls">
-      <p class="instruction">Adjust the slider to see how much attention you THINK you're getting. Then click "Reveal Reality" to see where people are actually looking.</p>
-
-      <div class="slider-container">
-        <div class="slider-label">
-          <span>Perceived Attention Level</span>
-          <span class="slider-value" id="attentionValue">75%</span>
-        </div>
-        <input type="range" id="attentionSlider" min="0" max="100" value="75">
+      <p class="instruction">Click to toggle views. In your mind, everyone's staring. In reality, everyone's busy with themselves.</p>
+      <div class="toggle-container">
+        <button class="toggle-btn perception active" id="perceptionBtn">Your Perception</button>
+        <button class="toggle-btn reality" id="realityBtn">Reality</button>
       </div>
-
-      <button id="revealBtn">Reveal Reality</button>
-      <button id="resetBtn">Reset</button>
-
-      <div class="status-panel">
-        <div class="status-item">
-          <div class="status-label">You Think Are Watching</div>
-          <div class="status-value highlight" id="perceivedCount">18 of 24</div>
-        </div>
-        <div class="status-item">
-          <div class="status-label">Actually Watching</div>
-          <div class="status-value reality" id="actualCount">???</div>
-        </div>
-        <div class="status-item">
-          <div class="status-label">Spotlight Intensity</div>
-          <div class="status-value" id="intensityStatus">Blinding</div>
-        </div>
-        <div class="status-item">
-          <div class="status-label">Reality Gap</div>
-          <div class="status-value" id="gapStatus">Hidden</div>
-        </div>
-      </div>
-
-      <div class="insight-box" id="insightBox">
-        In studies, people predicted 50% of observers would notice a potentially embarrassing T-shirt they wore. In reality, less than 25% noticed. We are not the center of everyone's attention.
-      </div>
+      <p class="insight" id="insight">In your mind: All eyes on you. Every observer notices your every move, every flaw.</p>
     </div>
   </div>
 
   <script>
-    const canvas = document.getElementById('biasCanvas');
+    const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let width, height, dpr;
 
-    let perceivedAttention = 0.75;
-    let realityRevealed = false;
-    let revealTransition = 0;
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
 
-    const user = { x: 0, y: 0, radius: 25 };
+    // State
+    let showReality = false;
+    let transition = 0; // 0 = perception, 1 = reality
+    let time = 0;
 
+    // You (center)
+    const user = { x: 0, y: 0, radius: 28 };
+
+    // Observers
     const observers = [];
-    const observerCount = 24;
+    const numObservers = 16;
 
     function initObservers() {
       observers.length = 0;
-      const centerX = width / 2;
-      const centerY = height / 2;
+      const cx = width / 2;
+      const cy = height / 2;
 
-      for (let i = 0; i < observerCount; i++) {
-        // Position observers in a rough circle around the user
-        const ring = Math.floor(i / 8);
-        const angleOffset = (i % 8) / 8 * Math.PI * 2 + ring * 0.3;
-        const distance = 100 + ring * 70 + Math.random() * 30;
+      for (let i = 0; i < numObservers; i++) {
+        const ring = i < 8 ? 0 : 1;
+        const idx = ring === 0 ? i : i - 8;
+        const count = ring === 0 ? 8 : 8;
+        const angle = (idx / count) * Math.PI * 2 + ring * 0.4;
+        const dist = 100 + ring * 80;
 
-        const x = centerX + Math.cos(angleOffset) * distance;
-        const y = centerY + Math.sin(angleOffset) * distance;
+        const x = cx + Math.cos(angle) * dist;
+        const y = cy + Math.sin(angle) * dist;
 
-        // Real gaze direction - mostly NOT at the user
-        const realGazeChance = Math.random();
-        let realGazeX, realGazeY;
+        // Reality: most people look elsewhere
+        const lookAtUser = Math.random() < 0.1; // Only ~10% actually look
+        let realLookX, realLookY;
 
-        if (realGazeChance < 0.12) {
-          // ~12% actually look at user (reality)
-          realGazeX = centerX + (Math.random() - 0.5) * 30;
-          realGazeY = centerY + (Math.random() - 0.5) * 30;
+        if (lookAtUser) {
+          realLookX = cx + (Math.random() - 0.5) * 20;
+          realLookY = cy + (Math.random() - 0.5) * 20;
         } else {
-          // 88% look elsewhere
-          const randomAngle = Math.random() * Math.PI * 2;
-          const randomDist = 50 + Math.random() * 200;
-          realGazeX = x + Math.cos(randomAngle) * randomDist;
-          realGazeY = y + Math.sin(randomAngle) * randomDist;
-
-          // Keep gaze within bounds
-          realGazeX = Math.max(50, Math.min(width - 50, realGazeX));
-          realGazeY = Math.max(50, Math.min(height - 50, realGazeY));
+          // Look at phone, other person, random direction
+          const lookType = Math.random();
+          if (lookType < 0.5) {
+            // Look at phone (down)
+            realLookX = x;
+            realLookY = y + 60;
+          } else if (lookType < 0.8) {
+            // Look at nearby observer
+            const nearbyAngle = angle + (Math.random() - 0.5) * 1.5;
+            const nearbyDist = dist + (Math.random() - 0.5) * 40;
+            realLookX = cx + Math.cos(nearbyAngle) * nearbyDist;
+            realLookY = cy + Math.sin(nearbyAngle) * nearbyDist;
+          } else {
+            // Look somewhere random
+            realLookX = Math.random() * width;
+            realLookY = Math.random() * height;
+          }
         }
 
         observers.push({
           x, y,
-          realGazeX, realGazeY,
-          perceivedGazeX: centerX,
-          perceivedGazeY: centerY,
-          radius: 12 + Math.random() * 6,
+          realLookX, realLookY,
+          lookAtUser,
           phase: Math.random() * Math.PI * 2,
-          isActuallyLooking: realGazeChance < 0.12
+          size: 14 + Math.random() * 4
         });
       }
     }
@@ -222,252 +280,191 @@
       user.y = height / 2;
 
       initObservers();
-      updateStatusPanel();
     }
 
-    function updateStatusPanel() {
-      const perceivedWatching = Math.round(observerCount * perceivedAttention);
-      const actualWatching = observers.filter(o => o.isActuallyLooking).length;
-
-      document.getElementById('perceivedCount').textContent = `${perceivedWatching} of ${observerCount}`;
-      document.getElementById('actualCount').textContent = realityRevealed ?
-        `${actualWatching} of ${observerCount}` : '???';
-
-      let intensity = 'Minimal';
-      if (perceivedAttention > 0.75) intensity = 'Blinding';
-      else if (perceivedAttention > 0.5) intensity = 'Intense';
-      else if (perceivedAttention > 0.25) intensity = 'Moderate';
-
-      document.getElementById('intensityStatus').textContent = intensity;
-
-      if (realityRevealed) {
-        const gap = Math.round((perceivedAttention - actualWatching / observerCount) * 100);
-        document.getElementById('gapStatus').textContent = `${gap}% overestimate`;
-        document.getElementById('gapStatus').className = 'status-value reality';
-      } else {
-        document.getElementById('gapStatus').textContent = 'Hidden';
-        document.getElementById('gapStatus').className = 'status-value';
-      }
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
     }
 
     function draw() {
-      const paper = getComputedStyle(document.documentElement).getPropertyValue('--fx-paper').trim();
-      const base50 = getComputedStyle(document.documentElement).getPropertyValue('--fx-base-50').trim();
-      const base200 = getComputedStyle(document.documentElement).getPropertyValue('--fx-base-200').trim();
-      const base700 = getComputedStyle(document.documentElement).getPropertyValue('--fx-base-700').trim();
-      const base900 = getComputedStyle(document.documentElement).getPropertyValue('--fx-base-900').trim();
-      const yellow = getComputedStyle(document.documentElement).getPropertyValue('--fx-yellow').trim();
-      const green = getComputedStyle(document.documentElement).getPropertyValue('--fx-green').trim();
-      const cyan = getComputedStyle(document.documentElement).getPropertyValue('--fx-cyan').trim();
+      time += 0.016;
 
-      ctx.fillStyle = paper;
+      // Animate transition
+      const targetT = showReality ? 1 : 0;
+      transition += (targetT - transition) * 0.06;
+
+      ctx.fillStyle = getColor('paper');
       ctx.fillRect(0, 0, width, height);
 
-      // Transition for reveal
-      if (realityRevealed && revealTransition < 1) {
-        revealTransition += 0.02;
-      } else if (!realityRevealed && revealTransition > 0) {
-        revealTransition -= 0.02;
-      }
-      revealTransition = Math.max(0, Math.min(1, revealTransition));
-
-      // Draw spotlight (perceived attention)
-      const spotlightIntensity = perceivedAttention * (1 - revealTransition * 0.7);
-      if (spotlightIntensity > 0.05) {
-        const spotlightRadius = 80 + spotlightIntensity * 120;
-        const gradient = ctx.createRadialGradient(
-          user.x, user.y, 0,
-          user.x, user.y, spotlightRadius
-        );
-        gradient.addColorStop(0, yellow + Math.floor(spotlightIntensity * 60).toString(16).padStart(2, '0'));
-        gradient.addColorStop(0.3, yellow + Math.floor(spotlightIntensity * 40).toString(16).padStart(2, '0'));
-        gradient.addColorStop(0.7, yellow + Math.floor(spotlightIntensity * 20).toString(16).padStart(2, '0'));
-        gradient.addColorStop(1, yellow + '00');
-
+      // Draw spotlight (fades with reality)
+      const spotlightAlpha = 1 - transition;
+      if (spotlightAlpha > 0.01) {
+        const gradient = ctx.createRadialGradient(user.x, user.y, 0, user.x, user.y, 200);
+        gradient.addColorStop(0, getColor('yellow') + Math.floor(spotlightAlpha * 50).toString(16).padStart(2, '0'));
+        gradient.addColorStop(0.4, getColor('yellow') + Math.floor(spotlightAlpha * 25).toString(16).padStart(2, '0'));
+        gradient.addColorStop(1, getColor('yellow') + '00');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, width, height);
 
-        // Spotlight cone effect
+        // Cone from above
         ctx.save();
-        ctx.globalAlpha = spotlightIntensity * 0.15;
-        ctx.fillStyle = yellow;
+        ctx.globalAlpha = spotlightAlpha * 0.1;
+        ctx.fillStyle = getColor('yellow');
         ctx.beginPath();
-        ctx.moveTo(user.x, 0);
-        ctx.lineTo(user.x - 100 - spotlightIntensity * 50, 0);
-        ctx.lineTo(user.x - 30, user.y - 30);
-        ctx.lineTo(user.x + 30, user.y - 30);
-        ctx.lineTo(user.x + 100 + spotlightIntensity * 50, 0);
+        ctx.moveTo(user.x - 150, 0);
+        ctx.lineTo(user.x + 150, 0);
+        ctx.lineTo(user.x + 40, user.y - 40);
+        ctx.lineTo(user.x - 40, user.y - 40);
         ctx.closePath();
         ctx.fill();
         ctx.restore();
       }
 
-      // Draw gaze lines from observers
-      const time = Date.now() / 1000;
+      // Draw gaze lines
+      observers.forEach(obs => {
+        const lookX = lerp(user.x, obs.realLookX, transition);
+        const lookY = lerp(user.y, obs.realLookY, transition);
 
-      observers.forEach((obs, i) => {
-        // Calculate current gaze position (blend between perceived and real)
-        const gazeX = obs.perceivedGazeX + (obs.realGazeX - obs.perceivedGazeX) * revealTransition;
-        const gazeY = obs.perceivedGazeY + (obs.realGazeY - obs.perceivedGazeY) * revealTransition;
+        // Line visibility
+        const lineAlpha = showReality ?
+          (obs.lookAtUser ? 0.5 * transition : 0.1 * transition) :
+          0.3 * (1 - transition);
 
-        // Determine if this observer "appears" to be looking (based on perceived attention)
-        const perceivedIndex = i / observerCount;
-        const appearsToLook = perceivedIndex < perceivedAttention;
-
-        // Draw gaze line
-        if (appearsToLook || revealTransition > 0.5) {
-          const lineAlpha = appearsToLook ?
-            (1 - revealTransition) * 0.4 + (obs.isActuallyLooking ? revealTransition * 0.6 : 0) :
-            (obs.isActuallyLooking ? revealTransition * 0.6 : 0);
-
-          if (lineAlpha > 0.05) {
-            const lineColor = revealTransition > 0.5 ?
-              (obs.isActuallyLooking ? green : base200) :
-              yellow;
-
-            ctx.strokeStyle = lineColor;
-            ctx.lineWidth = obs.isActuallyLooking && revealTransition > 0.5 ? 2 : 1;
-            ctx.globalAlpha = lineAlpha;
-            ctx.beginPath();
-            ctx.moveTo(obs.x, obs.y);
-            ctx.lineTo(gazeX, gazeY);
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-          }
+        if (lineAlpha > 0.02) {
+          ctx.strokeStyle = showReality && obs.lookAtUser ? getColor('green') : getColor('base-200');
+          ctx.lineWidth = 1;
+          ctx.globalAlpha = lineAlpha;
+          ctx.beginPath();
+          ctx.moveTo(obs.x, obs.y);
+          ctx.lineTo(lookX, lookY);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
         }
       });
 
       // Draw observers
-      observers.forEach((obs, i) => {
-        const perceivedIndex = i / observerCount;
-        const appearsToLook = perceivedIndex < perceivedAttention;
+      observers.forEach(obs => {
+        const bob = Math.sin(time * 1.5 + obs.phase) * 2;
+        const lookX = lerp(user.x, obs.realLookX, transition);
+        const lookY = lerp(user.y, obs.realLookY, transition);
+        const lookAngle = Math.atan2(lookY - obs.y, lookX - obs.x);
 
-        // Observer body (simple circle)
-        const bobY = Math.sin(time * 1.5 + obs.phase) * 2;
-        const color = revealTransition > 0.5 ?
-          (obs.isActuallyLooking ? green : base700) :
-          (appearsToLook ? yellow : base700);
+        // Body color
+        let bodyColor;
+        if (showReality) {
+          bodyColor = obs.lookAtUser ? getColor('green') : getColor('base-700');
+        } else {
+          bodyColor = getColor('yellow');
+        }
 
-        ctx.fillStyle = color;
+        // Interpolate color would be complex, just fade
+        ctx.fillStyle = bodyColor;
         ctx.beginPath();
-        ctx.arc(obs.x, obs.y + bobY, obs.radius, 0, Math.PI * 2);
+        ctx.arc(obs.x, obs.y + bob, obs.size, 0, Math.PI * 2);
         ctx.fill();
 
-        // Eyes (direction indicator)
-        const gazeX = obs.perceivedGazeX + (obs.realGazeX - obs.perceivedGazeX) * revealTransition;
-        const gazeY = obs.perceivedGazeY + (obs.realGazeY - obs.perceivedGazeY) * revealTransition;
-        const gazeAngle = Math.atan2(gazeY - obs.y, gazeX - obs.x);
-
-        const eyeOffset = 4;
-        const eyeRadius = 2;
-        const pupilOffset = 1.5;
+        // Eyes
+        const eyeY = obs.y + bob - 2;
+        const eyeSpacing = 4;
 
         [-1, 1].forEach(side => {
-          const eyeX = obs.x + Math.cos(gazeAngle - Math.PI / 2) * eyeOffset * side * 0.5 +
-                       Math.cos(gazeAngle) * 3;
-          const eyeY = obs.y + bobY + Math.sin(gazeAngle - Math.PI / 2) * eyeOffset * side * 0.5 +
-                       Math.sin(gazeAngle) * 3;
+          const ex = obs.x + side * eyeSpacing;
 
           // Eye white
-          ctx.fillStyle = paper;
+          ctx.fillStyle = getColor('paper');
           ctx.beginPath();
-          ctx.arc(eyeX, eyeY, eyeRadius, 0, Math.PI * 2);
+          ctx.arc(ex, eyeY, 3, 0, Math.PI * 2);
           ctx.fill();
 
-          // Pupil
-          ctx.fillStyle = base900;
+          // Pupil (follows gaze)
+          ctx.fillStyle = getColor('base-900');
           ctx.beginPath();
-          ctx.arc(
-            eyeX + Math.cos(gazeAngle) * pupilOffset,
-            eyeY + Math.sin(gazeAngle) * pupilOffset,
-            eyeRadius * 0.5, 0, Math.PI * 2
-          );
+          ctx.arc(ex + Math.cos(lookAngle) * 1.5, eyeY + Math.sin(lookAngle) * 1.5, 1.5, 0, Math.PI * 2);
           ctx.fill();
         });
+
+        // Phone indicator (in reality mode for those not looking)
+        if (showReality && !obs.lookAtUser && obs.realLookY > obs.y + 30) {
+          ctx.save();
+          ctx.globalAlpha = transition * 0.8;
+          ctx.fillStyle = getColor('base-200');
+          ctx.fillRect(obs.x - 4, obs.y + obs.size + 3, 8, 12);
+          ctx.fillStyle = getColor('cyan');
+          ctx.fillRect(obs.x - 3, obs.y + obs.size + 4, 6, 10);
+          ctx.restore();
+        }
       });
 
-      // Draw user (center)
-      const userPulse = 1 + Math.sin(time * 2) * 0.05;
+      // Draw you (center)
+      const pulse = 1 + Math.sin(time * 2) * 0.03;
 
-      // User glow
-      const userGlow = ctx.createRadialGradient(
-        user.x, user.y, user.radius * 0.5,
-        user.x, user.y, user.radius * 2
-      );
-      userGlow.addColorStop(0, cyan + '40');
-      userGlow.addColorStop(1, cyan + '00');
+      // Glow
+      const userGlow = ctx.createRadialGradient(user.x, user.y, 0, user.x, user.y, user.radius * 2);
+      userGlow.addColorStop(0, getColor('cyan') + '40');
+      userGlow.addColorStop(1, getColor('cyan') + '00');
       ctx.fillStyle = userGlow;
       ctx.beginPath();
-      ctx.arc(user.x, user.y, user.radius * 2 * userPulse, 0, Math.PI * 2);
+      ctx.arc(user.x, user.y, user.radius * 2 * pulse, 0, Math.PI * 2);
       ctx.fill();
 
-      // User body
-      ctx.fillStyle = cyan;
+      // Body
+      ctx.fillStyle = getColor('cyan');
       ctx.beginPath();
-      ctx.arc(user.x, user.y, user.radius * userPulse, 0, Math.PI * 2);
+      ctx.arc(user.x, user.y, user.radius * pulse, 0, Math.PI * 2);
       ctx.fill();
 
-      // User label
-      ctx.fillStyle = paper;
+      // Label
+      ctx.fillStyle = getColor('paper');
       ctx.font = '11px IBM Plex Mono';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('YOU', user.x, user.y);
 
-      // Reality revealed indicator
-      if (revealTransition > 0.5) {
-        ctx.fillStyle = green;
-        ctx.font = '12px IBM Plex Mono';
-        ctx.textAlign = 'center';
-        ctx.globalAlpha = (revealTransition - 0.5) * 2;
-        ctx.fillText('REALITY', width / 2, 30);
-        ctx.globalAlpha = 1;
+      // Mode indicator
+      ctx.font = '12px IBM Plex Mono';
+      ctx.fillStyle = showReality ? getColor('green') : getColor('yellow');
+      ctx.textAlign = 'center';
+      const modeText = showReality ? 'REALITY' : 'YOUR PERCEPTION';
+      ctx.fillText(modeText, width / 2, 25);
+
+      // Stats
+      if (showReality && transition > 0.5) {
+        const actualLooking = observers.filter(o => o.lookAtUser).length;
+        ctx.font = '10px IBM Plex Mono';
+        ctx.fillStyle = getColor('base-700');
+        ctx.fillText(`Actually looking at you: ${actualLooking} of ${observers.length}`, width / 2, height - 20);
+      } else if (!showReality && transition < 0.5) {
+        ctx.font = '10px IBM Plex Mono';
+        ctx.fillStyle = getColor('base-700');
+        ctx.fillText(`You feel: Everyone is watching`, width / 2, height - 20);
       }
 
       requestAnimationFrame(draw);
     }
 
-    document.getElementById('attentionSlider').addEventListener('input', (e) => {
-      perceivedAttention = e.target.value / 100;
-      document.getElementById('attentionValue').textContent = `${e.target.value}%`;
-      updateStatusPanel();
-    });
+    function setMode(reality) {
+      showReality = reality;
+      document.getElementById('perceptionBtn').classList.toggle('active', !reality);
+      document.getElementById('realityBtn').classList.toggle('active', reality);
 
-    document.getElementById('revealBtn').addEventListener('click', () => {
-      realityRevealed = !realityRevealed;
-      const btn = document.getElementById('revealBtn');
-      btn.textContent = realityRevealed ? 'Hide Reality' : 'Reveal Reality';
-      btn.classList.toggle('active', realityRevealed);
-
-      const insightBox = document.getElementById('insightBox');
-      if (realityRevealed) {
-        const actual = observers.filter(o => o.isActuallyLooking).length;
-        insightBox.textContent = `Reality check: Only ${actual} out of ${observerCount} people (${Math.round(actual/observerCount*100)}%) were actually looking at you. You estimated ${Math.round(perceivedAttention * 100)}% were watching. This is the spotlight effect in action.`;
-        insightBox.className = 'insight-box revealed';
+      const insight = document.getElementById('insight');
+      if (reality) {
+        const actual = observers.filter(o => o.lookAtUser).length;
+        insight.textContent = `Reality: Only ${actual} out of ${observers.length} people noticed you. Most are on their phones, chatting, or lost in thought. You're not the center of their world.`;
+        insight.classList.add('reality-mode');
       } else {
-        insightBox.textContent = 'In studies, people predicted 50% of observers would notice a potentially embarrassing T-shirt they wore. In reality, less than 25% noticed. We are not the center of everyone\'s attention.';
-        insightBox.className = 'insight-box';
+        insight.textContent = `In your mind: All eyes on you. Every observer notices your every move, every flaw.`;
+        insight.classList.remove('reality-mode');
       }
-      updateStatusPanel();
+    }
+
+    // Click on canvas toggles
+    canvas.addEventListener('click', () => {
+      setMode(!showReality);
     });
 
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      realityRevealed = false;
-      revealTransition = 0;
-      perceivedAttention = 0.75;
-
-      document.getElementById('attentionSlider').value = 75;
-      document.getElementById('attentionValue').textContent = '75%';
-      document.getElementById('revealBtn').textContent = 'Reveal Reality';
-      document.getElementById('revealBtn').classList.remove('active');
-
-      const insightBox = document.getElementById('insightBox');
-      insightBox.textContent = 'In studies, people predicted 50% of observers would notice a potentially embarrassing T-shirt they wore. In reality, less than 25% noticed. We are not the center of everyone\'s attention.';
-      insightBox.className = 'insight-box';
-
-      initObservers();
-      updateStatusPanel();
-    });
+    document.getElementById('perceptionBtn').addEventListener('click', () => setMode(false));
+    document.getElementById('realityBtn').addEventListener('click', () => setMode(true));
 
     resize();
     window.addEventListener('resize', resize);
