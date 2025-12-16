@@ -3,360 +3,572 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Survivorship Bias - Cognitive Bias Visualization</title>
+  <title>Survivorship Bias</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
 
     :root {
-      --fx-paper: #FFFCF0; --fx-base-900: #2D2B28; --fx-base-700: #6F6E69;
-      --fx-base-500: #9F9D94; --fx-base-200: #DAD8CE; --fx-base-50: #F2F0E5;
-      --fx-orange: #BC5215; --fx-blue: #205EA6; --fx-cyan: #24837B;
-      --fx-red: #AF3029; --fx-purple: #5E409D; --fx-green: #66800B;
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --fx-paper: #100F0F; --fx-base-900: #CECDC3; --fx-base-700: #878580;
-        --fx-base-500: #6F6E69; --fx-base-200: #403E3C; --fx-base-50: #1C1B1A;
-        --fx-orange: #DA702C; --fx-blue: #4385BE; --fx-cyan: #3AA99F;
-        --fx-red: #D14D41; --fx-purple: #8B7EC8; --fx-green: #879A39;
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
       }
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: 'IBM Plex Mono', monospace; background: var(--fx-paper);
-      color: var(--fx-base-900); padding: 20px; min-height: 100vh;
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
     }
-    .container { max-width: 1400px; margin: 0 auto; }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
     h1 {
-      font-size: 1.6em; font-weight: 300; color: var(--fx-red);
-      margin-bottom: 10px; border-bottom: 2px solid var(--fx-base-200); padding-bottom: 10px;
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-red);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
     }
-    .subtitle {
-      font-size: 0.9em; color: var(--fx-orange); margin-bottom: 15px; font-style: italic;
-    }
+
     .description {
-      font-size: 0.85em; color: var(--fx-base-700); margin-bottom: 25px; line-height: 1.6;
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
     }
-    .viz-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;
-    }
-    .viz-section {
-      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);
-      border-radius: 4px; padding: 15px;
-    }
-    .viz-title {
-      font-size: 1em; font-weight: 500; color: var(--fx-orange);
-      margin-bottom: 10px; border-bottom: 1px solid var(--fx-base-200); padding-bottom: 5px;
-    }
-    canvas { display: block; width: 100%; background: var(--fx-paper); border-radius: 3px; }
-    .controls {
-      background: var(--fx-base-50); border: 1px solid var(--fx-base-200);
-      border-radius: 4px; padding: 15px; margin-bottom: 20px;
-    }
-    .instruction { font-size: 0.8em; color: var(--fx-blue); margin-bottom: 12px; }
-    button {
-      font-family: 'IBM Plex Mono', monospace; background: var(--fx-blue);
-      color: var(--fx-paper); border: none; padding: 10px 20px;
-      font-size: 0.85em; cursor: pointer; border-radius: 3px; margin: 5px 5px 0 0;
-      font-weight: 500;
-    }
-    button:hover { background: var(--fx-cyan); }
-    button.danger { background: var(--fx-red); }
-    button.danger:hover { background: var(--fx-orange); }
-    .stat-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px; margin-top: 15px;
-    }
-    .stat-box {
-      background: var(--fx-paper); padding: 12px; border-radius: 3px;
+
+    .canvas-container {
+      background: var(--fx-base-50);
       border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
     }
-    .stat-label { font-size: 0.7em; color: var(--fx-base-700); margin-bottom: 5px; text-transform: uppercase; }
-    .stat-value { font-size: 1.4em; font-weight: 500; }
-    .survivor { color: var(--fx-green); }
-    .casualty { color: var(--fx-red); }
-    .warning-box {
-      background: var(--fx-red); color: var(--fx-paper); padding: 15px;
-      border-radius: 4px; margin-top: 15px; font-size: 0.85em; line-height: 1.5;
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 450px;
+      cursor: pointer;
     }
-    .warning-box strong { display: block; margin-bottom: 5px; font-size: 1.1em; }
-    @media (max-width: 900px) {
-      .viz-grid { grid-template-columns: 1fr; }
-      h1 { font-size: 1.3em; }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+    }
+
+    .reveal-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.9em;
+      padding: 12px 24px;
+      background: var(--fx-red);
+      border: none;
+      border-radius: 3px;
+      color: var(--fx-paper);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 16px;
+    }
+    .reveal-btn:hover { filter: brightness(1.1); }
+    .reveal-btn.revealed {
+      background: var(--fx-green);
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-red);
+    }
+
+    @media (max-width: 600px) {
+      canvas { height: 400px; }
+      h1 { font-size: 1.2em; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Survivorship Bias ✈️</h1>
-    <p class="subtitle">The most dangerous statistical illusion</p>
+    <a href="cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Survivorship Bias</h1>
     <p class="description">
-      During WWII, analysts studied returning bombers to determine where to add armor. Planes came back riddled with holes in wings and fuselage. The obvious solution? Reinforce those areas. But statistician Abraham Wald saw what others missed: <strong>the holes showed where planes could be hit and still survive</strong>. The missing planes—shot in engines and cockpits—never made it home. We only see the survivors. The failures are invisible.
+      We see only the survivors—successful companies, famous artists, planes that returned. The failures are invisible, yet they hold the real lessons. Click to reveal the fallen planes and understand where to actually add armor.
     </p>
 
-    <div class="viz-grid">
-      <div class="viz-section">
-        <h3 class="viz-title">Survivor Diagram: Where We See Damage</h3>
-        <canvas id="planeCanvas" width="600" height="350"></canvas>
-      </div>
-
-      <div class="viz-section">
-        <h3 class="viz-title">The Graveyard: What We Don't See</h3>
-        <canvas id="graveyardCanvas" width="600" height="350"></canvas>
-      </div>
+    <div class="canvas-container">
+      <canvas id="canvas"></canvas>
     </div>
 
     <div class="controls">
-      <p class="instruction">
-        The survivor plane shows where damage is SAFE. Click "Reveal Failures" to see where the real vulnerabilities are. Click "Show All Attempts" for the full picture.
-      </p>
-      <button id="revealBtn">Reveal Failure Points</button>
-      <button id="showAllBtn" class="danger">Show All Attempts</button>
-      <button id="resetBtn">Reset View</button>
-
-      <div class="stat-grid">
-        <div class="stat-box">
-          <div class="stat-label">Survivors Analyzed</div>
-          <div class="stat-value survivor" id="survivorCount">1</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Failures Ignored</div>
-          <div class="stat-value casualty" id="failureCount">—</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Apparent Success Rate</div>
-          <div class="stat-value" id="apparentRate">100%</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">True Success Rate</div>
-          <div class="stat-value casualty" id="trueRate">—</div>
-        </div>
-      </div>
-
-      <div class="warning-box" id="warningBox" style="display: none;">
-        <strong>⚠️ CRITICAL INSIGHT</strong>
-        Only reinforcing where survivors were hit would have doomed the fleet. The pattern in survivors reveals safe areas, not vulnerabilities. Armor the engines and cockpits—where there are NO holes in returning planes.
-      </div>
+      <p class="instruction">The bullet holes show where planes were hit and SURVIVED. Click to reveal what the analysts missed.</p>
+      <button class="reveal-btn" id="revealBtn">Reveal the Fallen</button>
+      <p class="insight" id="insight">Analysts wanted to armor where returning planes were hit. But these planes survived—the holes mark SAFE areas.</p>
     </div>
   </div>
 
   <script>
-    const planeCanvas = document.getElementById('planeCanvas');
-    const planeCtx = planeCanvas.getContext('2d');
-    const graveyardCanvas = document.getElementById('graveyardCanvas');
-    const graveyardCtx = graveyardCanvas.getContext('2d');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
 
-    let failuresRevealed = false;
-    let allAttemptsShown = false;
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
+
+    // State
+    let revealed = false;
     let revealProgress = 0;
+    let ghostOpacity = 0;
 
+    // Survivor damage points (wings outer sections, tail - non-critical)
+    // New plane: fuselage x=-14 to 14, wings x=-100 to 100
+    // Hit coords: (x-0.5)*200, (y-0.5)*200 maps to plane local coords
     const survivorHits = [
-      {x: 150, y: 100}, {x: 170, y: 120}, {x: 140, y: 140}, // Left wing
-      {x: 450, y: 100}, {x: 470, y: 120}, {x: 460, y: 140}, // Right wing
-      {x: 280, y: 200}, {x: 320, y: 220}, {x: 300, y: 240}, // Fuselage
-      {x: 240, y: 260}, {x: 360, y: 270}, {x: 290, y: 280}, // Tail
+      // Outer left wing (beyond engines)
+      { x: 0.12, y: 0.55 }, { x: 0.15, y: 0.58 }, { x: 0.10, y: 0.52 },
+      // Outer right wing (beyond engines)
+      { x: 0.88, y: 0.55 }, { x: 0.85, y: 0.58 }, { x: 0.90, y: 0.52 },
+      // Rear fuselage / tail area (non-critical)
+      { x: 0.48, y: 0.72 }, { x: 0.52, y: 0.75 }, { x: 0.50, y: 0.80 },
+      // Horizontal stabilizer
+      { x: 0.35, y: 0.92 }, { x: 0.65, y: 0.92 },
     ];
 
-    const failureHits = [
-      {x: 300, y: 100, label: 'Cockpit'}, // Cockpit
-      {x: 280, y: 130, label: 'Cockpit'},
-      {x: 200, y: 150, label: 'Left Engine'}, // Left engine
-      {x: 180, y: 160, label: 'Left Engine'},
-      {x: 400, y: 150, label: 'Right Engine'}, // Right engine
-      {x: 420, y: 160, label: 'Right Engine'},
+    // Fatal damage points (engines, cockpit, fuel tanks near wing roots)
+    const fatalHits = [
+      // Cockpit (y around -35, so (y-0.5)*200=-35 → y=0.325)
+      { x: 0.50, y: 0.32, label: 'Cockpit' },
+      { x: 0.48, y: 0.35, label: 'Cockpit' },
+      // Inner left engine at (-35, 15) → x=0.325, y=0.575
+      { x: 0.325, y: 0.56, label: 'Engine' },
+      // Outer left engine at (-65, 22) → x=0.175, y=0.61
+      { x: 0.175, y: 0.59, label: 'Engine' },
+      // Inner right engine at (35, 15) → x=0.675, y=0.575
+      { x: 0.675, y: 0.56, label: 'Engine' },
+      // Outer right engine at (65, 22) → x=0.825, y=0.61
+      { x: 0.825, y: 0.59, label: 'Engine' },
+      // Fuel tanks (wing roots, near fuselage)
+      { x: 0.42, y: 0.52, label: 'Fuel Tank' },
+      { x: 0.58, y: 0.52, label: 'Fuel Tank' },
     ];
 
-    function drawPlane(ctx, showFailures = false) {
-      const w = planeCanvas.width;
-      const h = planeCanvas.height;
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
 
-      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-paper');
-      ctx.fillRect(0, 0, w, h);
+    function drawPlane(x, y, scale, opacity, isGhost) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.globalAlpha = opacity;
 
-      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-base-500');
-      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-base-200');
+      const planeColor = isGhost ? getColor('red') : getColor('base-700');
+      const planeFill = isGhost ? getColor('red') + '15' : getColor('base-50');
+      const accentFill = isGhost ? getColor('red') + '30' : getColor('base-200');
+
+      ctx.strokeStyle = planeColor;
+      ctx.lineWidth = 1.5;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // === FUSELAGE (streamlined bomber body) ===
+      ctx.fillStyle = planeFill;
+      ctx.beginPath();
+      // Nose
+      ctx.moveTo(0, -55);
+      ctx.bezierCurveTo(-8, -50, -12, -35, -14, -15);
+      // Left side
+      ctx.lineTo(-14, 65);
+      // Tail taper
+      ctx.bezierCurveTo(-12, 80, -6, 90, 0, 95);
+      ctx.bezierCurveTo(6, 90, 12, 80, 14, 65);
+      // Right side
+      ctx.lineTo(14, -15);
+      ctx.bezierCurveTo(12, -35, 8, -50, 0, -55);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // === WINGS (swept, tapered) ===
+      ctx.fillStyle = planeFill;
+
+      // Left wing
+      ctx.beginPath();
+      ctx.moveTo(-14, -5);
+      ctx.lineTo(-95, 20);
+      ctx.bezierCurveTo(-100, 22, -100, 28, -95, 30);
+      ctx.lineTo(-14, 25);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Right wing
+      ctx.beginPath();
+      ctx.moveTo(14, -5);
+      ctx.lineTo(95, 20);
+      ctx.bezierCurveTo(100, 22, 100, 28, 95, 30);
+      ctx.lineTo(14, 25);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // === HORIZONTAL STABILIZER (tail wings) ===
+      // Left
+      ctx.beginPath();
+      ctx.moveTo(-6, 75);
+      ctx.lineTo(-38, 88);
+      ctx.bezierCurveTo(-42, 90, -42, 94, -38, 96);
+      ctx.lineTo(-6, 85);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Right
+      ctx.beginPath();
+      ctx.moveTo(6, 75);
+      ctx.lineTo(38, 88);
+      ctx.bezierCurveTo(42, 90, 42, 94, 38, 96);
+      ctx.lineTo(6, 85);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // === VERTICAL STABILIZER (tail fin) ===
+      ctx.beginPath();
+      ctx.moveTo(0, 70);
+      ctx.lineTo(0, 95);
+      ctx.stroke();
+
+      // === COCKPIT (glass canopy) ===
+      ctx.fillStyle = accentFill;
+      ctx.beginPath();
+      ctx.moveTo(0, -48);
+      ctx.bezierCurveTo(-7, -45, -8, -30, -6, -20);
+      ctx.lineTo(6, -20);
+      ctx.bezierCurveTo(8, -30, 7, -45, 0, -48);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Cockpit frame lines
+      ctx.beginPath();
+      ctx.moveTo(0, -48);
+      ctx.lineTo(0, -20);
+      ctx.stroke();
+
+      // === ENGINES (4-engine bomber style) ===
+      ctx.fillStyle = accentFill;
+
+      // Inner left engine
+      ctx.beginPath();
+      ctx.ellipse(-35, 15, 6, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      // Propeller arc
+      ctx.beginPath();
+      ctx.arc(-35, 3, 8, 0, Math.PI, true);
+      ctx.stroke();
+
+      // Outer left engine
+      ctx.beginPath();
+      ctx.ellipse(-65, 22, 6, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(-65, 10, 8, 0, Math.PI, true);
+      ctx.stroke();
+
+      // Inner right engine
+      ctx.beginPath();
+      ctx.ellipse(35, 15, 6, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(35, 3, 8, 0, Math.PI, true);
+      ctx.stroke();
+
+      // Outer right engine
+      ctx.beginPath();
+      ctx.ellipse(65, 22, 6, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(65, 10, 8, 0, Math.PI, true);
+      ctx.stroke();
+
+      // === WING STRUCTURE LINES ===
+      ctx.strokeStyle = isGhost ? getColor('red') + '40' : getColor('base-200');
+      ctx.lineWidth = 0.75;
+
+      // Left wing spars
+      ctx.beginPath();
+      ctx.moveTo(-20, 5);
+      ctx.lineTo(-85, 24);
+      ctx.stroke();
+
+      // Right wing spars
+      ctx.beginPath();
+      ctx.moveTo(20, 5);
+      ctx.lineTo(85, 24);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawBulletHole(x, y, isFatal, pulse) {
+      const size = isFatal ? 8 + pulse * 3 : 5;
+      const color = isFatal ? getColor('red') : getColor('orange');
+
+      // Outer ring
+      ctx.strokeStyle = color;
       ctx.lineWidth = 2;
-
       ctx.beginPath();
-      ctx.ellipse(300, 150, 120, 40, 0, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.arc(x, y, size + 3, 0, Math.PI * 2);
       ctx.stroke();
 
+      // Inner fill
+      ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.moveTo(200, 150);
-      ctx.lineTo(100, 120);
-      ctx.lineTo(120, 140);
-      ctx.lineTo(180, 160);
-      ctx.closePath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
       ctx.fill();
-      ctx.stroke();
 
+      // Highlight
+      ctx.fillStyle = getColor('paper');
       ctx.beginPath();
-      ctx.moveTo(400, 150);
-      ctx.lineTo(500, 120);
-      ctx.lineTo(480, 140);
-      ctx.lineTo(420, 160);
-      ctx.closePath();
+      ctx.arc(x - size * 0.3, y - size * 0.3, size * 0.3, 0, Math.PI * 2);
       ctx.fill();
-      ctx.stroke();
+    }
 
-      ctx.beginPath();
-      ctx.moveTo(300, 190);
-      ctx.lineTo(280, 280);
-      ctx.lineTo(320, 280);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
+    function draw() {
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(0, 0, width, height);
 
+      // Animate reveal
+      if (revealed) {
+        revealProgress = Math.min(1, revealProgress + 0.02);
+        ghostOpacity = Math.min(0.7, ghostOpacity + 0.015);
+      } else {
+        revealProgress = Math.max(0, revealProgress - 0.03);
+        ghostOpacity = Math.max(0, ghostOpacity - 0.02);
+      }
+
+      const planeX = width / 2;
+      const planeY = height / 2 - 20;
+      const planeScale = Math.min(1.3, width / 500);
+
+      const pulse = Math.sin(Date.now() * 0.005) * 0.5 + 0.5;
+
+      // Draw ghost planes (the fallen) if revealed
+      if (ghostOpacity > 0.01) {
+        // Ghost plane 1 - left
+        ctx.globalAlpha = ghostOpacity * 0.5;
+        drawPlane(planeX - 180 * planeScale, planeY + 40, planeScale * 0.6, ghostOpacity * 0.4, true);
+
+        // Ghost plane 2 - right
+        drawPlane(planeX + 180 * planeScale, planeY + 40, planeScale * 0.6, ghostOpacity * 0.4, true);
+
+        ctx.globalAlpha = 1;
+
+        // Fatal hit indicators on ghosts
+        if (revealProgress > 0.3) {
+          ctx.fillStyle = getColor('red');
+          ctx.font = '9px IBM Plex Mono';
+          ctx.textAlign = 'center';
+
+          // Left ghost labels
+          ctx.globalAlpha = revealProgress;
+          ctx.fillText('ENGINE HIT', planeX - 180 * planeScale, planeY + 80);
+          ctx.fillText('(fatal)', planeX - 180 * planeScale, planeY + 92);
+
+          // Right ghost labels
+          ctx.fillText('COCKPIT HIT', planeX + 180 * planeScale, planeY + 80);
+          ctx.fillText('(fatal)', planeX + 180 * planeScale, planeY + 92);
+
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      // Draw main (survivor) plane
+      drawPlane(planeX, planeY, planeScale, 1, false);
+
+      // Draw survivor bullet holes (orange - these are SAFE areas)
       survivorHits.forEach(hit => {
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-orange');
-        ctx.beginPath();
-        ctx.arc(hit.x, hit.y, 4, 0, Math.PI * 2);
-        ctx.fill();
+        const hx = planeX + (hit.x - 0.5) * 200 * planeScale;
+        const hy = planeY + (hit.y - 0.5) * 200 * planeScale;
+        drawBulletHole(hx, hy, false, 0);
       });
 
-      if (showFailures && revealProgress > 0) {
-        const alpha = Math.min(revealProgress, 1);
-        failureHits.forEach(hit => {
-          ctx.save();
-          ctx.globalAlpha = alpha;
-          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-red');
-          ctx.beginPath();
-          ctx.arc(hit.x, hit.y, 6, 0, Math.PI * 2);
-          ctx.fill();
+      // Draw fatal areas when revealed
+      if (revealProgress > 0.2) {
+        fatalHits.forEach(hit => {
+          const hx = planeX + (hit.x - 0.5) * 200 * planeScale;
+          const hy = planeY + (hit.y - 0.5) * 200 * planeScale;
 
-          ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-red');
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(hit.x - 10, hit.y - 10);
-          ctx.lineTo(hit.x + 10, hit.y + 10);
-          ctx.moveTo(hit.x + 10, hit.y - 10);
-          ctx.lineTo(hit.x - 10, hit.y + 10);
-          ctx.stroke();
-
-          ctx.font = '10px IBM Plex Mono';
-          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-red');
-          ctx.fillText(hit.label, hit.x + 15, hit.y);
-          ctx.restore();
+          ctx.globalAlpha = revealProgress;
+          drawBulletHole(hx, hy, true, pulse);
+          ctx.globalAlpha = 1;
         });
+
+        // Critical area labels
+        ctx.globalAlpha = revealProgress;
+        ctx.fillStyle = getColor('red');
+        ctx.font = 'bold 10px IBM Plex Mono';
+        ctx.textAlign = 'center';
+
+        // Cockpit label (above nose)
+        ctx.fillText('COCKPIT', planeX, planeY - 70 * planeScale);
+        ctx.font = '8px IBM Plex Mono';
+        ctx.fillText('(fatal zone)', planeX, planeY - 58 * planeScale);
+
+        // Engine labels (all 4 engines)
+        ctx.font = 'bold 9px IBM Plex Mono';
+        ctx.fillText('ENGINES', planeX - 50 * planeScale, planeY + 40 * planeScale);
+        ctx.fillText('ENGINES', planeX + 50 * planeScale, planeY + 40 * planeScale);
+
+        // Fuel tank labels
+        ctx.fillStyle = getColor('orange');
+        ctx.font = '8px IBM Plex Mono';
+        ctx.fillText('fuel', planeX - 18 * planeScale, planeY + 8 * planeScale);
+        ctx.fillText('fuel', planeX + 18 * planeScale, planeY + 8 * planeScale);
+
+        ctx.globalAlpha = 1;
       }
-    }
 
-    function drawGraveyard() {
-      const w = graveyardCanvas.width;
-      const h = graveyardCanvas.height;
+      // Labels
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '11px IBM Plex Mono';
+      ctx.textAlign = 'center';
 
-      graveyardCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-paper');
-      graveyardCtx.fillRect(0, 0, w, h);
-
-      graveyardCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-base-500');
-      graveyardCtx.lineWidth = 1;
-      graveyardCtx.beginPath();
-      graveyardCtx.moveTo(0, h/2);
-      graveyardCtx.lineTo(w, h/2);
-      graveyardCtx.stroke();
-
-      graveyardCtx.font = '11px IBM Plex Mono';
-      graveyardCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-base-700');
-      graveyardCtx.fillText('Ground Level', 10, h/2 - 5);
-
-      const survivorY = h/2 - 60;
-      graveyardCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-green');
-      graveyardCtx.font = '30px IBM Plex Mono';
-      graveyardCtx.fillText('✈', w/2 - 30, survivorY);
-      graveyardCtx.fillText('✈', w/2, survivorY);
-      graveyardCtx.fillText('✈', w/2 + 30, survivorY);
-
-      graveyardCtx.font = '10px IBM Plex Mono';
-      graveyardCtx.fillText('Visible Successes (3)', w/2 - 40, survivorY + 25);
-
-      if (allAttemptsShown && revealProgress > 0) {
-        const alpha = Math.min(revealProgress, 0.6);
-        const ghostCount = 97;
-
-        for (let i = 0; i < ghostCount; i++) {
-          const row = Math.floor(i / 15);
-          const col = i % 15;
-          const x = 20 + col * 38;
-          const y = h/2 + 20 + row * 35;
-
-          graveyardCtx.save();
-          graveyardCtx.globalAlpha = alpha;
-          graveyardCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-red');
-          graveyardCtx.font = '20px IBM Plex Mono';
-          graveyardCtx.fillText('✈', x, y);
-          graveyardCtx.restore();
-        }
-
-        graveyardCtx.save();
-        graveyardCtx.globalAlpha = Math.min(revealProgress, 1);
-        graveyardCtx.font = '11px IBM Plex Mono';
-        graveyardCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fx-red');
-        graveyardCtx.fillText('Hidden Failures (97)', w/2 - 40, h/2 + 15);
-        graveyardCtx.restore();
-      }
-    }
-
-    function animate() {
-      if (failuresRevealed || allAttemptsShown) {
-        revealProgress = Math.min(revealProgress + 0.02, 1);
+      if (!revealed) {
+        ctx.fillText('RETURNING BOMBER - Damage Pattern', planeX, 30);
+        ctx.font = '9px IBM Plex Mono';
+        ctx.fillText('Orange dots = where this plane was hit and survived', planeX, 48);
       } else {
-        revealProgress = Math.max(revealProgress - 0.05, 0);
+        ctx.fillStyle = getColor('red');
+        ctx.fillText('THE INSIGHT: Armor where there are NO holes', planeX, 30);
+        ctx.font = '9px IBM Plex Mono';
+        ctx.fillStyle = getColor('base-700');
+        ctx.fillText('Planes hit in critical areas never returned to be counted', planeX, 48);
       }
 
-      drawPlane(planeCtx, failuresRevealed || allAttemptsShown);
-      drawGraveyard();
+      // Legend
+      ctx.textAlign = 'left';
+      ctx.font = '9px IBM Plex Mono';
 
-      requestAnimationFrame(animate);
+      ctx.fillStyle = getColor('orange');
+      ctx.beginPath();
+      ctx.arc(20, height - 50, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = getColor('base-700');
+      ctx.fillText('Damage on survivors (SAFE - plane survived)', 35, height - 47);
+
+      if (revealed) {
+        ctx.fillStyle = getColor('red');
+        ctx.beginPath();
+        ctx.arc(20, height - 30, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = getColor('base-700');
+        ctx.fillText('Fatal areas (ARMOR HERE - not visible on survivors)', 35, height - 27);
+      }
+
+      // Update insight
+      const insight = document.getElementById('insight');
+      if (revealed) {
+        insight.textContent = 'Abraham Wald realized: the holes show where planes can be hit and SURVIVE. The missing data—planes that never returned—reveals where armor is truly needed.';
+        insight.style.borderLeftColor = getColor('green');
+      } else {
+        insight.textContent = 'Analysts wanted to armor where returning planes were hit. But these planes survived—the holes mark SAFE areas.';
+        insight.style.borderLeftColor = getColor('red');
+      }
+
+      requestAnimationFrame(draw);
     }
 
     document.getElementById('revealBtn').addEventListener('click', () => {
-      failuresRevealed = !failuresRevealed;
-      document.getElementById('revealBtn').textContent = failuresRevealed ? 'Hide Failure Points' : 'Reveal Failure Points';
-
-      if (failuresRevealed) {
-        document.getElementById('failureCount').textContent = '6+ critical hits';
-        document.getElementById('warningBox').style.display = 'block';
-      } else {
-        document.getElementById('failureCount').textContent = '—';
-        document.getElementById('warningBox').style.display = 'none';
-      }
+      revealed = !revealed;
+      const btn = document.getElementById('revealBtn');
+      btn.textContent = revealed ? 'Hide the Fallen' : 'Reveal the Fallen';
+      btn.classList.toggle('revealed', revealed);
     });
 
-    document.getElementById('showAllBtn').addEventListener('click', () => {
-      allAttemptsShown = !allAttemptsShown;
-      document.getElementById('showAllBtn').textContent = allAttemptsShown ? 'Hide All Attempts' : 'Show All Attempts';
-
-      if (allAttemptsShown) {
-        document.getElementById('survivorCount').textContent = '3';
-        document.getElementById('failureCount').textContent = '97';
-        document.getElementById('apparentRate').textContent = '100%';
-        document.getElementById('trueRate').textContent = '3%';
-        document.getElementById('warningBox').style.display = 'block';
-      } else {
-        document.getElementById('survivorCount').textContent = '1';
-        document.getElementById('failureCount').textContent = '—';
-        document.getElementById('apparentRate').textContent = '100%';
-        document.getElementById('trueRate').textContent = '—';
-      }
+    canvas.addEventListener('click', () => {
+      revealed = !revealed;
+      const btn = document.getElementById('revealBtn');
+      btn.textContent = revealed ? 'Hide the Fallen' : 'Reveal the Fallen';
+      btn.classList.toggle('revealed', revealed);
     });
 
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      failuresRevealed = false;
-      allAttemptsShown = false;
-      revealProgress = 0;
-      document.getElementById('revealBtn').textContent = 'Reveal Failure Points';
-      document.getElementById('showAllBtn').textContent = 'Show All Attempts';
-      document.getElementById('survivorCount').textContent = '1';
-      document.getElementById('failureCount').textContent = '—';
-      document.getElementById('apparentRate').textContent = '100%';
-      document.getElementById('trueRate').textContent = '—';
-      document.getElementById('warningBox').style.display = 'none';
-    });
-
-    animate();
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
   </script>
 </body>
 </html>
