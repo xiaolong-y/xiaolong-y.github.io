@@ -344,7 +344,7 @@
 <!-- Art Option 2: Kismet -->
 <div class="art-option" id="art-kismet">
   <div class="neural-container">
-    <img src="kismet.png" alt="Kismet, an expressive anthropomorphic robot with large eyes and mechanical features designed for social interaction">
+    <img src="assets/images/kismet.png" alt="Kismet, an expressive anthropomorphic robot with large eyes and mechanical features designed for social interaction">
     <p class="neural-caption">
       <em><a href="http://www.ai.mit.edu/projects/humanoid-robotics-group/kismet/kismet.html">Kismet</a></em> is an expressive anthropomorphic robot developed by <a href="https://www.media.mit.edu/people/cynthiab/overview/">Cynthia Breazeal</a>, designed to engage people in natural face-to-face interaction through facial expressions, gaze, and vocal babbles—embodying how social and computer systems can meaningfully interact.
     </p>
