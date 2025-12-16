@@ -192,23 +192,30 @@
     font-size: 0.9em;
   }
 
-  /* Floating title animation */
+  /* Hide Jekyll default header */
+  header.page-header,
+  .project-name,
+  .page-header {
+    display: none !important;
+  }
+
+  /* Floating title animation - subtle */
   @keyframes float {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+    50% { transform: translateY(-3px); }
   }
 
   .site-title {
     font-family: 'IBM Plex Mono', monospace;
-    font-weight: 300;
-    font-size: 2.2em;
-    letter-spacing: 0.12em;
+    font-weight: 200;
+    font-size: 1.8em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     display: inline-block;
-    animation: float 6s ease-in-out infinite;
-    text-shadow: 0 6px 16px rgba(0,0,0,0.04);
+    animation: float 8s ease-in-out infinite;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.03);
     border-bottom: none;
-    margin-bottom: 1.5em;
+    margin-bottom: 1.2em;
   }
 
   /* Headings with Flexoki styling */
@@ -224,9 +231,23 @@
     padding-bottom: 0;
   }
 
-  h2, h3 {
-    color: var(--fx-base-800);
+  h2 {
+    color: var(--fx-base-700);
+    font-weight: 300;
+    font-size: 1.1em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 2em;
+    margin-bottom: 0.8em;
+  }
+
+  h3 {
+    color: var(--fx-base-600);
+    font-weight: 300;
+    font-size: 0.95em;
+    letter-spacing: 0.05em;
     margin-top: 1.5em;
+    margin-bottom: 0.5em;
   }
 
   /* Flexoki Dark mode support */
@@ -257,8 +278,12 @@
       border-bottom-color: var(--fx-base-800);
     }
 
-    h2, h3 {
-      color: var(--fx-base-300);
+    h2 {
+      color: var(--fx-base-400);
+    }
+
+    h3 {
+      color: var(--fx-base-500);
     }
 
     .site-title {
