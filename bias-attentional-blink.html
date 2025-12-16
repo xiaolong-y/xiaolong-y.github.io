@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attentional Blink</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-purple);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .canvas-container {
+      background: var(--fx-base-900);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 350px;
+    }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+    }
+
+    .response-area {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .response-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .response-label {
+      font-size: 0.75em;
+      color: var(--fx-base-700);
+    }
+
+    .response-input {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.5em;
+      width: 60px;
+      height: 50px;
+      text-align: center;
+      text-transform: uppercase;
+      border: 2px solid var(--fx-base-200);
+      border-radius: 4px;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+    }
+
+    .response-input:focus {
+      outline: none;
+      border-color: var(--fx-purple);
+    }
+
+    .response-input.correct {
+      border-color: var(--fx-green);
+      background: var(--fx-green);
+      color: var(--fx-paper);
+    }
+
+    .response-input.incorrect {
+      border-color: var(--fx-red);
+      background: var(--fx-red);
+      color: var(--fx-paper);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      justify-content: center;
+    }
+
+    button {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8em;
+      padding: 10px 16px;
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--fx-base-900);
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+
+    button:hover {
+      border-color: var(--fx-blue);
+      color: var(--fx-blue);
+    }
+
+    button.primary {
+      background: var(--fx-purple);
+      border-color: var(--fx-purple);
+      color: var(--fx-paper);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.3em;
+      font-weight: 300;
+      color: var(--fx-purple);
+    }
+
+    .stat-label {
+      font-size: 0.7em;
+      color: var(--fx-base-700);
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-purple);
+    }
+
+    @media (max-width: 600px) {
+      canvas { height: 300px; }
+      h1 { font-size: 1.2em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Attentional Blink</h1>
+    <p class="description">
+      After spotting something important, your brain has a brief "blind spot" of 200-500ms where it misses the next thing. Watch for TWO red letters in the stream. You'll likely catch the first but miss the second—your attention literally blinks.
+    </p>
+
+    <div class="canvas-container">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <p class="instruction">Watch for two RED letters in the stream of black letters. Enter what you saw:</p>
+
+      <div class="response-area">
+        <div class="response-group">
+          <span class="response-label">First Target</span>
+          <input type="text" class="response-input" id="target1Input" maxlength="1" disabled>
+        </div>
+        <div class="response-group">
+          <span class="response-label">Second Target</span>
+          <input type="text" class="response-input" id="target2Input" maxlength="1" disabled>
+        </div>
+        <button onclick="checkAnswers()" id="checkBtn" disabled>Check</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-value" id="trialsStat">0</div>
+          <div class="stat-label">Trials</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="t1Stat">-</div>
+          <div class="stat-label">Target 1 Accuracy</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="t2Stat">-</div>
+          <div class="stat-label">Target 2 Accuracy</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="lagStat">-</div>
+          <div class="stat-label">Current Lag</div>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button class="primary" onclick="startTrial()" id="startBtn">Start Trial</button>
+        <button onclick="showResults()">Show Blink Pattern</button>
+      </div>
+
+      <p class="insight" id="insight">The attentional blink typically peaks at 200-300ms (2-3 items) after the first target. Your brain is processing T1 and literally cannot see T2.</p>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
+
+    // State
+    let running = false;
+    let currentIndex = 0;
+    let letters = [];
+    let target1Pos = -1;
+    let target2Pos = -1;
+    let target1Letter = '';
+    let target2Letter = '';
+    let lag = 3; // Items between targets (2-8, varying)
+    let currentLetter = '';
+    let showLetter = false;
+
+    // Performance tracking
+    let results = {
+      total: 0,
+      t1Correct: 0,
+      t2Correct: 0,
+      byLag: {} // lag -> { total, t1Correct, t2Correct }
+    };
+
+    const allLetters = 'ABCDEFGHJKLMNPQRSTUVWXYZ'.split('');
+    const itemDuration = 100; // ms per item
+    const streamLength = 20;
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function generateStream() {
+      letters = [];
+      const usedLetters = [];
+
+      for (let i = 0; i < streamLength; i++) {
+        let letter;
+        do {
+          letter = allLetters[Math.floor(Math.random() * allLetters.length)];
+        } while (usedLetters.includes(letter));
+        usedLetters.push(letter);
+        if (usedLetters.length > 5) usedLetters.shift();
+        letters.push(letter);
+      }
+
+      // Place target 1 between positions 5-10
+      target1Pos = 5 + Math.floor(Math.random() * 5);
+      target1Letter = letters[target1Pos];
+
+      // Vary the lag (2-8 items)
+      lag = 2 + Math.floor(Math.random() * 7);
+      target2Pos = target1Pos + lag;
+
+      if (target2Pos >= streamLength) {
+        target2Pos = streamLength - 2;
+        lag = target2Pos - target1Pos;
+      }
+
+      target2Letter = letters[target2Pos];
+
+      document.getElementById('lagStat').textContent = `${lag} items`;
+    }
+
+    function startTrial() {
+      generateStream();
+      currentIndex = 0;
+      running = true;
+      showLetter = false;
+
+      // Reset inputs
+      document.getElementById('target1Input').value = '';
+      document.getElementById('target2Input').value = '';
+      document.getElementById('target1Input').className = 'response-input';
+      document.getElementById('target2Input').className = 'response-input';
+      document.getElementById('target1Input').disabled = true;
+      document.getElementById('target2Input').disabled = true;
+      document.getElementById('checkBtn').disabled = true;
+      document.getElementById('startBtn').disabled = true;
+
+      runStream();
+    }
+
+    function runStream() {
+      if (!running) return;
+
+      if (currentIndex >= letters.length) {
+        // Stream complete
+        running = false;
+        showLetter = false;
+        document.getElementById('target1Input').disabled = false;
+        document.getElementById('target2Input').disabled = false;
+        document.getElementById('checkBtn').disabled = false;
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('target1Input').focus();
+        updateInsight('respond');
+        return;
+      }
+
+      currentLetter = letters[currentIndex];
+      showLetter = true;
+
+      setTimeout(() => {
+        showLetter = false;
+        currentIndex++;
+        setTimeout(runStream, 20); // Brief blank between items
+      }, itemDuration);
+    }
+
+    function checkAnswers() {
+      const input1 = document.getElementById('target1Input').value.toUpperCase();
+      const input2 = document.getElementById('target2Input').value.toUpperCase();
+
+      const t1Correct = input1 === target1Letter;
+      const t2Correct = input2 === target2Letter;
+
+      document.getElementById('target1Input').className = 'response-input ' + (t1Correct ? 'correct' : 'incorrect');
+      document.getElementById('target2Input').className = 'response-input ' + (t2Correct ? 'correct' : 'incorrect');
+
+      // Update results
+      results.total++;
+      if (t1Correct) results.t1Correct++;
+      if (t2Correct) results.t2Correct++;
+
+      if (!results.byLag[lag]) {
+        results.byLag[lag] = { total: 0, t1Correct: 0, t2Correct: 0 };
+      }
+      results.byLag[lag].total++;
+      if (t1Correct) results.byLag[lag].t1Correct++;
+      if (t2Correct) results.byLag[lag].t2Correct++;
+
+      updateStats();
+      updateInsight('checked', t1Correct, t2Correct);
+    }
+
+    function updateStats() {
+      document.getElementById('trialsStat').textContent = results.total;
+
+      if (results.total > 0) {
+        document.getElementById('t1Stat').textContent = Math.round(results.t1Correct / results.total * 100) + '%';
+        document.getElementById('t2Stat').textContent = Math.round(results.t2Correct / results.total * 100) + '%';
+      }
+    }
+
+    function updateInsight(type, t1Correct, t2Correct) {
+      const insight = document.getElementById('insight');
+
+      if (type === 'respond') {
+        insight.textContent = `Stream complete! There were ${lag} items between the targets (~${lag * itemDuration}ms). Enter the two RED letters you saw.`;
+      } else if (type === 'checked') {
+        if (t1Correct && !t2Correct) {
+          insight.textContent = `Classic attentional blink! You caught T1 (${target1Letter}) but missed T2 (${target2Letter}). Your brain was still processing T1 when T2 appeared ${lag * itemDuration}ms later.`;
+        } else if (t1Correct && t2Correct) {
+          insight.textContent = `Both correct! The ${lag * itemDuration}ms lag may have been outside the blink window, or you focused well. Try more trials to see the pattern.`;
+        } else if (!t1Correct && !t2Correct) {
+          insight.textContent = `Both missed. The stream is fast! T1 was "${target1Letter}" and T2 was "${target2Letter}". Keep practicing.`;
+        } else {
+          insight.textContent = `Interesting—you missed T1 (${target1Letter}) but caught T2 (${target2Letter}). This sometimes happens if T1 wasn't fully processed.`;
+        }
+      } else {
+        insight.textContent = 'The attentional blink typically peaks at 200-300ms (2-3 items) after the first target. Your brain is processing T1 and literally cannot see T2.';
+      }
+    }
+
+    function showResults() {
+      // This will be shown in the draw function
+    }
+
+    function draw() {
+      // Dark background for better contrast
+      ctx.fillStyle = getColor('base-900');
+      ctx.fillRect(0, 0, width, height);
+
+      if (running || showLetter) {
+        // Show current letter
+        ctx.font = 'bold 120px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        if (showLetter) {
+          // Check if target
+          const isTarget = currentIndex === target1Pos || currentIndex === target2Pos;
+          ctx.fillStyle = isTarget ? getColor('red') : getColor('paper');
+          ctx.fillText(currentLetter, width / 2, height / 2);
+        }
+
+        // Progress indicator
+        ctx.fillStyle = getColor('base-700');
+        ctx.fillRect(50, height - 30, (width - 100) * (currentIndex / streamLength), 4);
+      } else {
+        // Idle state - show instructions or results
+        ctx.fillStyle = getColor('paper');
+        ctx.font = '14px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('Press "Start Trial" to begin', width / 2, height / 2 - 30);
+
+        ctx.font = '11px IBM Plex Mono';
+        ctx.fillStyle = getColor('base-700');
+        ctx.fillText('Watch for TWO', width / 2, height / 2 + 10);
+        ctx.fillStyle = getColor('red');
+        ctx.fillText('RED', width / 2, height / 2 + 28);
+        ctx.fillStyle = getColor('base-700');
+        ctx.fillText('letters in the stream', width / 2, height / 2 + 46);
+
+        // Show blink pattern if we have data
+        if (results.total >= 3) {
+          const chartY = height - 80;
+          ctx.fillStyle = getColor('paper');
+          ctx.font = '9px IBM Plex Mono';
+          ctx.fillText('Your Attentional Blink Pattern:', width / 2, chartY - 40);
+
+          const lags = Object.keys(results.byLag).sort((a, b) => a - b);
+          const barWidth = 30;
+          const chartWidth = lags.length * barWidth * 2;
+          const startX = width / 2 - chartWidth / 2;
+
+          lags.forEach((lagVal, i) => {
+            const data = results.byLag[lagVal];
+            const t2Rate = data.total > 0 ? data.t2Correct / data.total : 0;
+            const barH = t2Rate * 40;
+            const x = startX + i * barWidth * 2;
+
+            // Bar
+            ctx.fillStyle = getColor('purple') + '80';
+            ctx.fillRect(x, chartY - barH, barWidth, barH);
+
+            // Label
+            ctx.fillStyle = getColor('base-700');
+            ctx.font = '8px IBM Plex Mono';
+            ctx.fillText(`L${lagVal}`, x + barWidth / 2, chartY + 12);
+
+            // Percentage
+            ctx.fillText(Math.round(t2Rate * 100) + '%', x + barWidth / 2, chartY - barH - 5);
+          });
+        }
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+  </script>
+</body>
+</html>

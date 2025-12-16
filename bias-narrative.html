@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Narrative Fallacy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-orange);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .canvas-container {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 420px;
+      cursor: crosshair;
+    }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    button {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8em;
+      padding: 10px 16px;
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--fx-base-900);
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+
+    button:hover {
+      border-color: var(--fx-blue);
+      color: var(--fx-blue);
+    }
+
+    button.active {
+      background: var(--fx-orange);
+      border-color: var(--fx-orange);
+      color: var(--fx-paper);
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-orange);
+    }
+
+    @media (max-width: 600px) {
+      canvas { height: 380px; }
+      h1 { font-size: 1.2em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Narrative Fallacy</h1>
+    <p class="description">
+      We create coherent stories to explain random events. Our minds cannot accept randomness—they weave cause-and-effect tales from noise. Watch events unfold. Notice how you instinctively connect them into a story.
+    </p>
+
+    <div class="canvas-container">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <p class="instruction">Click and drag between events to draw the "story" you see. Then reveal the truth.</p>
+      <div class="button-row">
+        <button onclick="generateNewSequence()">New Random Events</button>
+        <button onclick="clearConnections()">Clear Lines</button>
+        <button id="revealBtn" onclick="revealTruth()">Reveal Truth</button>
+      </div>
+      <p class="insight" id="insight">As you watch, your mind will automatically construct a narrative explaining why each event led to the next.</p>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
+
+    // Random events pool
+    const eventPool = [
+      { icon: '📈', label: 'Stock rises' },
+      { icon: '📉', label: 'Stock falls' },
+      { icon: '🗞️', label: 'News article' },
+      { icon: '💼', label: 'CEO hired' },
+      { icon: '🏢', label: 'Merger announced' },
+      { icon: '🔬', label: 'New product' },
+      { icon: '⚖️', label: 'Lawsuit filed' },
+      { icon: '🌍', label: 'Global event' },
+      { icon: '💰', label: 'Funding round' },
+      { icon: '📊', label: 'Report released' },
+      { icon: '🎯', label: 'Target missed' },
+      { icon: '✅', label: 'Target met' },
+      { icon: '👤', label: 'Key hire' },
+      { icon: '🔥', label: 'Viral moment' },
+      { icon: '❄️', label: 'Market freeze' },
+    ];
+
+    // State
+    let events = [];
+    let connections = [];
+    let dragging = false;
+    let dragStart = null;
+    let revealed = false;
+    let animationProgress = 0;
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function generateNewSequence() {
+      events = [];
+      connections = [];
+      revealed = false;
+      animationProgress = 0;
+
+      const numEvents = 6;
+      const shuffled = [...eventPool].sort(() => Math.random() - 0.5);
+
+      for (let i = 0; i < numEvents; i++) {
+        events.push({
+          ...shuffled[i],
+          x: 80 + (width - 160) * (i / (numEvents - 1)),
+          y: 150 + (Math.random() - 0.5) * 100,
+          delay: i * 0.15,
+          randomSeed: Math.random() // Proves randomness
+        });
+      }
+
+      document.getElementById('revealBtn').textContent = 'Reveal Truth';
+      updateInsight();
+    }
+
+    function getEventAt(x, y) {
+      for (const event of events) {
+        const dx = x - event.x;
+        const dy = y - event.y;
+        if (dx * dx + dy * dy < 900) { // 30px radius
+          return event;
+        }
+      }
+      return null;
+    }
+
+    function clearConnections() {
+      connections = [];
+    }
+
+    function revealTruth() {
+      revealed = !revealed;
+      document.getElementById('revealBtn').textContent = revealed ? 'Hide Truth' : 'Reveal Truth';
+      updateInsight();
+    }
+
+    function updateInsight() {
+      const insight = document.getElementById('insight');
+
+      if (revealed) {
+        insight.textContent = 'Each event was randomly selected. The sequence has no causal chain—yet your mind instantly created one. This is the narrative fallacy.';
+      } else if (connections.length > 0) {
+        insight.textContent = `You've drawn ${connections.length} connection(s). Each line represents a causal story your mind constructed. Click "Reveal Truth" to see reality.`;
+      } else {
+        insight.textContent = 'As you watch, your mind will automatically construct a narrative explaining why each event led to the next.';
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(0, 0, width, height);
+
+      animationProgress = Math.min(1, animationProgress + 0.02);
+
+      // Draw timeline
+      ctx.strokeStyle = getColor('base-200');
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(50, height / 2 + 50);
+      ctx.lineTo(width - 50, height / 2 + 50);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Timeline labels
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '9px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('TIME →', width - 50, height / 2 + 70);
+
+      // Draw user connections
+      ctx.strokeStyle = getColor('orange') + '80';
+      ctx.lineWidth = 2;
+      connections.forEach(conn => {
+        ctx.beginPath();
+        ctx.moveTo(conn.from.x, conn.from.y);
+        ctx.lineTo(conn.to.x, conn.to.y);
+        ctx.stroke();
+
+        // Arrow head
+        const angle = Math.atan2(conn.to.y - conn.from.y, conn.to.x - conn.from.x);
+        ctx.save();
+        ctx.translate(conn.to.x - 25 * Math.cos(angle), conn.to.y - 25 * Math.sin(angle));
+        ctx.rotate(angle);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-8, -4);
+        ctx.lineTo(-8, 4);
+        ctx.closePath();
+        ctx.fillStyle = getColor('orange') + '80';
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // Draw current drag line
+      if (dragging && dragStart) {
+        ctx.strokeStyle = getColor('orange') + '40';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(dragStart.x, dragStart.y);
+        ctx.lineTo(dragStart.currentX, dragStart.currentY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Draw events
+      events.forEach((event, i) => {
+        const progress = Math.max(0, Math.min(1, (animationProgress - event.delay) * 3));
+        if (progress <= 0) return;
+
+        const scale = progress;
+        const alpha = progress;
+
+        ctx.save();
+        ctx.translate(event.x, event.y);
+        ctx.scale(scale, scale);
+        ctx.globalAlpha = alpha;
+
+        // Event circle
+        ctx.fillStyle = getColor('base-50');
+        ctx.strokeStyle = getColor('base-200');
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, 28, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Icon
+        ctx.font = '20px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(event.icon, 0, -2);
+
+        // Label
+        ctx.fillStyle = getColor('base-700');
+        ctx.font = '8px IBM Plex Mono';
+        ctx.fillText(event.label, 0, 42);
+
+        // Event number
+        ctx.fillStyle = getColor('base-900');
+        ctx.font = 'bold 9px IBM Plex Mono';
+        ctx.fillText(`${i + 1}`, 0, 18);
+
+        ctx.restore();
+      });
+
+      // Revealed overlay showing randomness
+      if (revealed) {
+        // Show random seeds
+        ctx.fillStyle = getColor('red') + '20';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.fillStyle = getColor('red');
+        ctx.font = 'bold 12px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('RANDOM GENERATION DATA', width / 2, 30);
+
+        events.forEach((event, i) => {
+          ctx.fillStyle = getColor('red');
+          ctx.font = '8px IBM Plex Mono';
+          ctx.fillText(`Seed: ${event.randomSeed.toFixed(4)}`, event.x, event.y + 60);
+        });
+
+        // Cross out connections
+        ctx.strokeStyle = getColor('red');
+        ctx.lineWidth = 2;
+        connections.forEach(conn => {
+          const midX = (conn.from.x + conn.to.x) / 2;
+          const midY = (conn.from.y + conn.to.y) / 2;
+
+          ctx.beginPath();
+          ctx.moveTo(midX - 15, midY - 15);
+          ctx.lineTo(midX + 15, midY + 15);
+          ctx.moveTo(midX + 15, midY - 15);
+          ctx.lineTo(midX - 15, midY + 15);
+          ctx.stroke();
+        });
+
+        // Message
+        ctx.fillStyle = getColor('base-900');
+        ctx.font = '11px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('Each event was selected by Math.random(). No causation exists.', width / 2, height - 50);
+        ctx.fillText('Your story was fiction—a narrative imposed on noise.', width / 2, height - 30);
+      }
+
+      // Instructions
+      if (!revealed && events.length > 0) {
+        ctx.fillStyle = getColor('base-700');
+        ctx.font = '10px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('Drag between events to draw the story you see', width / 2, height - 25);
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    // Mouse handling
+    canvas.addEventListener('mousedown', (e) => {
+      if (revealed) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const event = getEventAt(x, y);
+      if (event) {
+        dragging = true;
+        dragStart = { ...event, currentX: x, currentY: y };
+      }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!dragging || !dragStart) return;
+      const rect = canvas.getBoundingClientRect();
+      dragStart.currentX = e.clientX - rect.left;
+      dragStart.currentY = e.clientY - rect.top;
+    });
+
+    canvas.addEventListener('mouseup', (e) => {
+      if (!dragging || !dragStart) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const targetEvent = getEventAt(x, y);
+      if (targetEvent && targetEvent !== events.find(ev => ev.x === dragStart.x && ev.y === dragStart.y)) {
+        connections.push({
+          from: { x: dragStart.x, y: dragStart.y },
+          to: { x: targetEvent.x, y: targetEvent.y }
+        });
+        updateInsight();
+      }
+
+      dragging = false;
+      dragStart = null;
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      dragging = false;
+      dragStart = null;
+    });
+
+    // Touch support
+    canvas.addEventListener('touchstart', (e) => {
+      if (revealed) return;
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const x = e.touches[0].clientX - rect.left;
+      const y = e.touches[0].clientY - rect.top;
+
+      const event = getEventAt(x, y);
+      if (event) {
+        dragging = true;
+        dragStart = { ...event, currentX: x, currentY: y };
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      if (!dragging || !dragStart) return;
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      dragStart.currentX = e.touches[0].clientX - rect.left;
+      dragStart.currentY = e.touches[0].clientY - rect.top;
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', (e) => {
+      if (!dragging || !dragStart) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = dragStart.currentX;
+      const y = dragStart.currentY;
+
+      const targetEvent = getEventAt(x, y);
+      if (targetEvent && targetEvent !== events.find(ev => ev.x === dragStart.x && ev.y === dragStart.y)) {
+        connections.push({
+          from: { x: dragStart.x, y: dragStart.y },
+          to: { x: targetEvent.x, y: targetEvent.y }
+        });
+        updateInsight();
+      }
+
+      dragging = false;
+      dragStart = null;
+    });
+
+    resize();
+    window.addEventListener('resize', resize);
+    generateNewSequence();
+    draw();
+  </script>
+</body>
+</html>

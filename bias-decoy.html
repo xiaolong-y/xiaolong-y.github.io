@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decoy Effect</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-purple);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .experiment-area {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .scenario-header {
+      font-size: 0.9em;
+      color: var(--fx-base-700);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .options-container {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .option-card {
+      background: var(--fx-paper);
+      border: 2px solid var(--fx-base-200);
+      border-radius: 6px;
+      padding: 20px;
+      width: 200px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .option-card:hover {
+      border-color: var(--fx-blue);
+      transform: translateY(-4px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .option-card.selected {
+      border-color: var(--fx-green);
+      background: var(--fx-green);
+      color: var(--fx-paper);
+    }
+
+    .option-card.selected .option-price,
+    .option-card.selected .option-features {
+      color: var(--fx-paper);
+    }
+
+    .option-card.decoy {
+      opacity: 0;
+      transform: scale(0.8);
+      pointer-events: none;
+      width: 0;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+      border: none;
+    }
+
+    .option-card.decoy.visible {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+      width: 200px;
+      padding: 20px;
+      border: 2px solid var(--fx-base-200);
+    }
+
+    .option-card.decoy.visible::after {
+      content: 'DECOY';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: var(--fx-orange);
+      color: var(--fx-paper);
+      font-size: 0.6em;
+      padding: 2px 6px;
+      border-radius: 3px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .show-decoy-label .option-card.decoy.visible::after {
+      opacity: 1;
+    }
+
+    .option-name {
+      font-size: 1em;
+      font-weight: 500;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .option-price {
+      font-size: 1.8em;
+      font-weight: 300;
+      color: var(--fx-blue);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .option-features {
+      font-size: 0.75em;
+      color: var(--fx-base-700);
+      line-height: 1.5;
+    }
+
+    .option-features li {
+      margin-bottom: 4px;
+      list-style: none;
+    }
+
+    .option-features li::before {
+      content: '✓ ';
+      color: var(--fx-green);
+    }
+
+    .option-features li.missing::before {
+      content: '✗ ';
+      color: var(--fx-red);
+    }
+
+    .stats-display {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 20px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2em;
+      font-weight: 300;
+      color: var(--fx-blue);
+    }
+
+    .stat-label {
+      font-size: 0.7em;
+      color: var(--fx-base-700);
+      text-transform: uppercase;
+    }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    button {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8em;
+      padding: 10px 16px;
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--fx-base-900);
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+
+    button:hover {
+      border-color: var(--fx-blue);
+      color: var(--fx-blue);
+    }
+
+    button.active {
+      background: var(--fx-purple);
+      border-color: var(--fx-purple);
+      color: var(--fx-paper);
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-purple);
+    }
+
+    .chart-container {
+      margin-top: 20px;
+      padding: 16px;
+      background: var(--fx-paper);
+      border-radius: 4px;
+    }
+
+    .chart-title {
+      font-size: 0.75em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .bar-chart {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 30px;
+      height: 120px;
+    }
+
+    .bar-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .bar {
+      width: 50px;
+      background: var(--fx-blue);
+      border-radius: 3px 3px 0 0;
+      transition: height 0.5s ease;
+      position: relative;
+    }
+
+    .bar.premium {
+      background: var(--fx-green);
+    }
+
+    .bar-value {
+      position: absolute;
+      top: -20px;
+      width: 100%;
+      text-align: center;
+      font-size: 0.75em;
+      font-weight: 500;
+    }
+
+    .bar-label {
+      font-size: 0.7em;
+      color: var(--fx-base-700);
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.2em; }
+      .option-card { width: 100%; max-width: 250px; }
+      .stats-display { gap: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Decoy Effect</h1>
+    <p class="description">
+      Adding an inferior third option changes preferences between the original two. The "decoy" is designed to be clearly worse than one option, making that option look like a bargain. Watch how your preference shifts when the decoy appears.
+    </p>
+
+    <div class="experiment-area" id="experimentArea">
+      <p class="scenario-header">Choose a magazine subscription:</p>
+
+      <div class="options-container" id="optionsContainer">
+        <div class="option-card" data-option="basic" onclick="selectOption('basic')">
+          <div class="option-name">Basic</div>
+          <div class="option-price">$59</div>
+          <ul class="option-features">
+            <li>Online access</li>
+            <li class="missing">Print edition</li>
+            <li>Mobile app</li>
+          </ul>
+        </div>
+
+        <div class="option-card decoy" data-option="decoy" onclick="selectOption('decoy')">
+          <div class="option-name">Print Only</div>
+          <div class="option-price">$125</div>
+          <ul class="option-features">
+            <li class="missing">Online access</li>
+            <li>Print edition</li>
+            <li class="missing">Mobile app</li>
+          </ul>
+        </div>
+
+        <div class="option-card" data-option="premium" onclick="selectOption('premium')">
+          <div class="option-name">Premium</div>
+          <div class="option-price">$125</div>
+          <ul class="option-features">
+            <li>Online access</li>
+            <li>Print edition</li>
+            <li>Mobile app</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stats-display">
+        <div class="stat-item">
+          <div class="stat-value" id="basicPct">0%</div>
+          <div class="stat-label">Choose Basic</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="premiumPct">0%</div>
+          <div class="stat-label">Choose Premium</div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-title">Preference Distribution</div>
+        <div class="bar-chart">
+          <div class="bar-group">
+            <div class="bar" id="barBasicWithout" style="height: 0px;">
+              <span class="bar-value" id="barBasicWithoutVal">0%</span>
+            </div>
+            <div class="bar-label">Basic<br>(no decoy)</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar premium" id="barPremiumWithout" style="height: 0px;">
+              <span class="bar-value" id="barPremiumWithoutVal">0%</span>
+            </div>
+            <div class="bar-label">Premium<br>(no decoy)</div>
+          </div>
+          <div class="bar-group" style="margin-left: 20px; border-left: 1px dashed var(--fx-base-200); padding-left: 30px;">
+            <div class="bar" id="barBasicWith" style="height: 0px;">
+              <span class="bar-value" id="barBasicWithVal">0%</span>
+            </div>
+            <div class="bar-label">Basic<br>(with decoy)</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar premium" id="barPremiumWith" style="height: 0px;">
+              <span class="bar-value" id="barPremiumWithVal">0%</span>
+            </div>
+            <div class="bar-label">Premium<br>(with decoy)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <p class="instruction">Toggle the decoy option to see how it shifts preferences. The decoy (Print Only at $125) makes Premium look like a great deal—same price but with online access!</p>
+      <div class="button-row">
+        <button id="toggleDecoy" onclick="toggleDecoy()">Show Decoy</button>
+        <button id="showLabel" onclick="toggleLabel()">Reveal Decoy Label</button>
+        <button onclick="resetExperiment()">Reset Experiment</button>
+      </div>
+      <p class="insight" id="insight">Without a decoy, the choice is harder—Basic is cheap but limited, Premium is expensive but complete. Neither dominates.</p>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let decoyVisible = false;
+    let labelVisible = false;
+    let currentSelection = null;
+
+    // Simulated aggregate data (based on real behavioral economics studies)
+    const stats = {
+      withoutDecoy: { basic: 68, premium: 32 },
+      withDecoy: { basic: 16, premium: 84, decoy: 0 }
+    };
+
+    // User's personal choices tracking
+    let userChoices = {
+      withoutDecoy: null,
+      withDecoy: null
+    };
+
+    function selectOption(option) {
+      // Remove previous selection
+      document.querySelectorAll('.option-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+
+      // Select new option
+      const card = document.querySelector(`[data-option="${option}"]`);
+      card.classList.add('selected');
+      currentSelection = option;
+
+      // Track user's choice
+      if (decoyVisible) {
+        userChoices.withDecoy = option;
+      } else {
+        userChoices.withoutDecoy = option;
+      }
+
+      updateDisplay();
+    }
+
+    function toggleDecoy() {
+      decoyVisible = !decoyVisible;
+      const decoyCard = document.querySelector('.option-card.decoy');
+      const btn = document.getElementById('toggleDecoy');
+
+      if (decoyVisible) {
+        decoyCard.classList.add('visible');
+        btn.textContent = 'Hide Decoy';
+        btn.classList.add('active');
+      } else {
+        decoyCard.classList.remove('visible');
+        btn.textContent = 'Show Decoy';
+        btn.classList.remove('active');
+      }
+
+      updateDisplay();
+    }
+
+    function toggleLabel() {
+      labelVisible = !labelVisible;
+      const area = document.getElementById('experimentArea');
+      const btn = document.getElementById('showLabel');
+
+      if (labelVisible) {
+        area.classList.add('show-decoy-label');
+        btn.textContent = 'Hide Decoy Label';
+        btn.classList.add('active');
+      } else {
+        area.classList.remove('show-decoy-label');
+        btn.textContent = 'Reveal Decoy Label';
+        btn.classList.remove('active');
+      }
+    }
+
+    function updateDisplay() {
+      const currentStats = decoyVisible ? stats.withDecoy : stats.withoutDecoy;
+
+      // Update percentage displays
+      document.getElementById('basicPct').textContent = currentStats.basic + '%';
+      document.getElementById('premiumPct').textContent = currentStats.premium + '%';
+
+      // Update bars
+      const maxHeight = 100;
+
+      document.getElementById('barBasicWithout').style.height = (stats.withoutDecoy.basic / 100 * maxHeight) + 'px';
+      document.getElementById('barPremiumWithout').style.height = (stats.withoutDecoy.premium / 100 * maxHeight) + 'px';
+      document.getElementById('barBasicWith').style.height = (stats.withDecoy.basic / 100 * maxHeight) + 'px';
+      document.getElementById('barPremiumWith').style.height = (stats.withDecoy.premium / 100 * maxHeight) + 'px';
+
+      document.getElementById('barBasicWithoutVal').textContent = stats.withoutDecoy.basic + '%';
+      document.getElementById('barPremiumWithoutVal').textContent = stats.withoutDecoy.premium + '%';
+      document.getElementById('barBasicWithVal').textContent = stats.withDecoy.basic + '%';
+      document.getElementById('barPremiumWithVal').textContent = stats.withDecoy.premium + '%';
+
+      // Update insight
+      const insight = document.getElementById('insight');
+      if (decoyVisible) {
+        if (currentSelection === 'premium') {
+          insight.textContent = 'You chose Premium. With the decoy present, 84% of people make this choice (vs 32% without). The decoy made Premium feel like obvious value.';
+        } else if (currentSelection === 'basic') {
+          insight.textContent = 'Interesting! You chose Basic even with the decoy. Only 16% resist the Premium pull (vs 68% without decoy).';
+        } else if (currentSelection === 'decoy') {
+          insight.textContent = 'You chose the decoy itself! Almost no one does this—it exists only to make Premium look better.';
+        } else {
+          insight.textContent = 'With the decoy present, the Print Only option makes Premium look like a bargain—same price but online access included! 84% now choose Premium.';
+        }
+      } else {
+        if (currentSelection === 'basic') {
+          insight.textContent = 'You chose Basic. Without a decoy, 68% prefer the cheaper option—the value comparison is straightforward.';
+        } else if (currentSelection === 'premium') {
+          insight.textContent = 'You chose Premium. Only 32% choose Premium without the decoy—it\'s harder to justify the higher price.';
+        } else {
+          insight.textContent = 'Without a decoy, the choice is harder—Basic is cheap but limited, Premium is expensive but complete. Neither dominates.';
+        }
+      }
+    }
+
+    function resetExperiment() {
+      // Clear selection
+      document.querySelectorAll('.option-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      currentSelection = null;
+
+      // Hide decoy
+      decoyVisible = false;
+      document.querySelector('.option-card.decoy').classList.remove('visible');
+      document.getElementById('toggleDecoy').textContent = 'Show Decoy';
+      document.getElementById('toggleDecoy').classList.remove('active');
+
+      // Hide label
+      labelVisible = false;
+      document.getElementById('experimentArea').classList.remove('show-decoy-label');
+      document.getElementById('showLabel').textContent = 'Reveal Decoy Label';
+      document.getElementById('showLabel').classList.remove('active');
+
+      userChoices = { withoutDecoy: null, withDecoy: null };
+
+      updateDisplay();
+    }
+
+    // Initialize
+    updateDisplay();
+  </script>
+</body>
+</html>

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Black Swan Blindness</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-base-900);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .canvas-container {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 400px;
+    }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5em;
+      font-weight: 300;
+    }
+
+    .stat-value.positive { color: var(--fx-green); }
+    .stat-value.negative { color: var(--fx-red); }
+    .stat-value.neutral { color: var(--fx-blue); }
+
+    .stat-label {
+      font-size: 0.7em;
+      color: var(--fx-base-700);
+      text-transform: uppercase;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      justify-content: center;
+    }
+
+    button {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8em;
+      padding: 10px 16px;
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--fx-base-900);
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+
+    button:hover {
+      border-color: var(--fx-blue);
+      color: var(--fx-blue);
+    }
+
+    button.danger {
+      border-color: var(--fx-red);
+      color: var(--fx-red);
+    }
+
+    button.danger:hover {
+      background: var(--fx-red);
+      color: var(--fx-paper);
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-base-900);
+    }
+
+    @media (max-width: 600px) {
+      canvas { height: 350px; }
+      h1 { font-size: 1.2em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Black Swan Blindness</h1>
+    <p class="description">
+      We systematically underestimate rare, catastrophic events because our experience is dominated by normalcy. The calm before the storm feels like evidence there will be no storm. Watch your portfolio grow steadily—until it doesn't.
+    </p>
+
+    <div class="canvas-container">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-value neutral" id="daysStat">0</div>
+          <div class="stat-label">Days Elapsed</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value positive" id="portfolioStat">$10,000</div>
+          <div class="stat-label">Portfolio Value</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value neutral" id="returnStat">0%</div>
+          <div class="stat-label">Total Return</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value neutral" id="swansStat">0</div>
+          <div class="stat-label">Black Swans</div>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button onclick="toggleSimulation()" id="toggleBtn">Start Simulation</button>
+        <button onclick="speedUp()">2x Speed</button>
+        <button class="danger" onclick="triggerBlackSwan()">Trigger Black Swan</button>
+        <button onclick="resetSimulation()">Reset</button>
+      </div>
+
+      <p class="insight" id="insight">Before the 2008 crash, sophisticated models showed housing prices "never" fell nationally. 10,000 days of data—all normal.</p>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
+
+    // State
+    let running = false;
+    let speed = 1;
+    let day = 0;
+    let portfolio = 10000;
+    let history = [{ day: 0, value: 10000 }];
+    let blackSwanCount = 0;
+    let blackSwanDays = [];
+    let lastBlackSwan = -1000;
+
+    // Parameters
+    const dailyReturn = 0.0003; // ~8% annual
+    const dailyVolatility = 0.012;
+    const blackSwanProb = 0.001; // 0.1% per day
+    const blackSwanImpact = -0.35; // -35% crash
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function simulateDay() {
+      day++;
+
+      // Normal daily return with some volatility
+      let dailyChange = dailyReturn + (Math.random() - 0.5) * 2 * dailyVolatility;
+
+      // Check for black swan (rare but catastrophic)
+      let isBlackSwan = false;
+      if (Math.random() < blackSwanProb && day - lastBlackSwan > 100) {
+        dailyChange = blackSwanImpact;
+        isBlackSwan = true;
+        blackSwanCount++;
+        blackSwanDays.push(day);
+        lastBlackSwan = day;
+      }
+
+      portfolio *= (1 + dailyChange);
+      history.push({ day, value: portfolio, blackSwan: isBlackSwan });
+
+      // Keep history manageable
+      if (history.length > 2000) {
+        history = history.slice(-1500);
+      }
+
+      updateStats();
+
+      if (isBlackSwan) {
+        updateInsight('black-swan');
+      }
+    }
+
+    function triggerBlackSwan() {
+      if (!running) {
+        toggleSimulation();
+      }
+
+      // Force a black swan
+      day++;
+      portfolio *= (1 + blackSwanImpact);
+      blackSwanCount++;
+      blackSwanDays.push(day);
+      lastBlackSwan = day;
+      history.push({ day, value: portfolio, blackSwan: true });
+
+      updateStats();
+      updateInsight('triggered');
+    }
+
+    function updateStats() {
+      document.getElementById('daysStat').textContent = day;
+
+      const portfolioEl = document.getElementById('portfolioStat');
+      portfolioEl.textContent = '$' + Math.round(portfolio).toLocaleString();
+      portfolioEl.className = 'stat-value ' + (portfolio >= 10000 ? 'positive' : 'negative');
+
+      const returnPct = ((portfolio / 10000) - 1) * 100;
+      const returnEl = document.getElementById('returnStat');
+      returnEl.textContent = (returnPct >= 0 ? '+' : '') + returnPct.toFixed(1) + '%';
+      returnEl.className = 'stat-value ' + (returnPct >= 0 ? 'positive' : 'negative');
+
+      document.getElementById('swansStat').textContent = blackSwanCount;
+    }
+
+    function updateInsight(type) {
+      const insight = document.getElementById('insight');
+
+      if (type === 'black-swan' || type === 'triggered') {
+        insight.textContent = `BLACK SWAN EVENT! Your portfolio dropped ${Math.abs(blackSwanImpact * 100)}% in a single day. ${day - (blackSwanDays[blackSwanDays.length - 2] || 0)} days of steady gains—wiped out.`;
+        insight.style.borderLeftColor = getColor('red');
+      } else if (day > 500 && blackSwanCount === 0) {
+        insight.textContent = `${day} days without a crash. It feels safe. But the turkey feels safe for 1000 days—until Thanksgiving.`;
+        insight.style.borderLeftColor = getColor('yellow');
+      } else if (day > 100) {
+        insight.textContent = `Steady growth breeds confidence. Models trained on this data would predict smooth sailing. They'd be right—until they're catastrophically wrong.`;
+        insight.style.borderLeftColor = getColor('base-700');
+      } else {
+        insight.textContent = 'Before the 2008 crash, sophisticated models showed housing prices "never" fell nationally. 10,000 days of data—all normal.';
+        insight.style.borderLeftColor = getColor('base-900');
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(0, 0, width, height);
+
+      const padding = { top: 40, right: 20, bottom: 50, left: 70 };
+      const chartW = width - padding.left - padding.right;
+      const chartH = height - padding.top - padding.bottom;
+
+      // Find value range
+      const values = history.map(h => h.value);
+      const minVal = Math.min(...values) * 0.9;
+      const maxVal = Math.max(...values) * 1.1;
+
+      // Draw axes
+      ctx.strokeStyle = getColor('base-200');
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, padding.top);
+      ctx.lineTo(padding.left, height - padding.bottom);
+      ctx.lineTo(width - padding.right, height - padding.bottom);
+      ctx.stroke();
+
+      // Y-axis labels
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '9px IBM Plex Mono';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+
+      for (let i = 0; i <= 4; i++) {
+        const val = minVal + (maxVal - minVal) * (i / 4);
+        const y = height - padding.bottom - (i / 4) * chartH;
+        ctx.fillText('$' + Math.round(val).toLocaleString(), padding.left - 8, y);
+
+        // Grid line
+        ctx.strokeStyle = getColor('base-200') + '40';
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(width - padding.right, y);
+        ctx.stroke();
+      }
+
+      // Draw portfolio line
+      if (history.length > 1) {
+        ctx.strokeStyle = getColor('green');
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        history.forEach((point, i) => {
+          const x = padding.left + (i / (history.length - 1)) * chartW;
+          const y = height - padding.bottom - ((point.value - minVal) / (maxVal - minVal)) * chartH;
+
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        // Mark black swan events
+        history.forEach((point, i) => {
+          if (point.blackSwan) {
+            const x = padding.left + (i / (history.length - 1)) * chartW;
+            const y = height - padding.bottom - ((point.value - minVal) / (maxVal - minVal)) * chartH;
+
+            // Red vertical line
+            ctx.strokeStyle = getColor('red') + '60';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x, padding.top);
+            ctx.lineTo(x, height - padding.bottom);
+            ctx.stroke();
+
+            // Black swan icon
+            ctx.fillStyle = getColor('base-900');
+            ctx.font = '16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('🦢', x, padding.top + 15);
+
+            // Impact label
+            ctx.fillStyle = getColor('red');
+            ctx.font = 'bold 9px IBM Plex Mono';
+            ctx.fillText(`-${Math.abs(blackSwanImpact * 100)}%`, x, y - 15);
+          }
+        });
+      }
+
+      // Title
+      ctx.fillStyle = getColor('base-900');
+      ctx.font = '11px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('Portfolio Value Over Time', width / 2, 20);
+
+      // X-axis label
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '9px IBM Plex Mono';
+      ctx.fillText(`Day ${day}`, width / 2, height - 15);
+
+      // Running indicator
+      if (running) {
+        ctx.fillStyle = getColor('green');
+        ctx.beginPath();
+        ctx.arc(width - 30, 25, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.font = '8px IBM Plex Mono';
+        ctx.textAlign = 'right';
+        ctx.fillText(speed + 'x', width - 40, 28);
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    function toggleSimulation() {
+      running = !running;
+      document.getElementById('toggleBtn').textContent = running ? 'Pause' : 'Resume';
+
+      if (running) {
+        runSimulation();
+      }
+    }
+
+    function runSimulation() {
+      if (!running) return;
+
+      for (let i = 0; i < speed; i++) {
+        simulateDay();
+      }
+
+      setTimeout(runSimulation, 50);
+    }
+
+    function speedUp() {
+      speed = speed === 1 ? 2 : speed === 2 ? 5 : speed === 5 ? 10 : 1;
+    }
+
+    function resetSimulation() {
+      running = false;
+      speed = 1;
+      day = 0;
+      portfolio = 10000;
+      history = [{ day: 0, value: 10000 }];
+      blackSwanCount = 0;
+      blackSwanDays = [];
+      lastBlackSwan = -1000;
+
+      document.getElementById('toggleBtn').textContent = 'Start Simulation';
+      updateStats();
+      updateInsight('reset');
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    updateStats();
+    draw();
+  </script>
+</body>
+</html>

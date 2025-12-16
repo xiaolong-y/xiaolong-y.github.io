@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clustering Illusion</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-green);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .canvas-container {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 380px;
+      cursor: pointer;
+    }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    button {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8em;
+      padding: 10px 16px;
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--fx-base-900);
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+
+    button:hover {
+      border-color: var(--fx-blue);
+      color: var(--fx-blue);
+    }
+
+    button.active {
+      background: var(--fx-green);
+      border-color: var(--fx-green);
+      color: var(--fx-paper);
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-green);
+    }
+
+    @media (max-width: 600px) {
+      canvas { height: 320px; }
+      h1 { font-size: 1.2em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Clustering Illusion</h1>
+    <p class="description">
+      We see patterns and "streaks" in random data that aren't really there. The "hot hand" in basketball is largely illusory—random sequences naturally contain runs that feel meaningful. Click on sequences where you see a "hot streak."
+    </p>
+
+    <div class="canvas-container">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <p class="instruction">This is a basketball player's shooting record. Click to mark where you see "hot streaks." Then analyze the sequence.</p>
+      <div class="button-row">
+        <button onclick="generateNew()">New Random Sequence</button>
+        <button onclick="analyzeSequence()" id="analyzeBtn">Analyze Sequence</button>
+        <button onclick="showExpected()">Show Expected Runs</button>
+        <button onclick="clearMarks()">Clear Marks</button>
+      </div>
+      <p class="insight" id="insight">Shooting record: 50% accuracy. Click anywhere you see a "hot streak" — multiple makes in a row that feel non-random.</p>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
+
+    // State
+    let sequence = [];
+    let marks = []; // User-marked "hot streaks"
+    let analyzed = false;
+    let showExpectedRuns = false;
+    const sequenceLength = 40;
+    const hitProb = 0.5;
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function generateSequence() {
+      sequence = [];
+      for (let i = 0; i < sequenceLength; i++) {
+        sequence.push(Math.random() < hitProb ? 1 : 0);
+      }
+    }
+
+    function generateNew() {
+      generateSequence();
+      marks = [];
+      analyzed = false;
+      showExpectedRuns = false;
+      updateInsight('new');
+    }
+
+    function clearMarks() {
+      marks = [];
+      analyzed = false;
+      updateInsight('cleared');
+    }
+
+    function getRunStats(seq) {
+      let runs = [];
+      let currentRun = 1;
+      let currentValue = seq[0];
+
+      for (let i = 1; i < seq.length; i++) {
+        if (seq[i] === currentValue) {
+          currentRun++;
+        } else {
+          runs.push({ value: currentValue, length: currentRun, start: i - currentRun });
+          currentRun = 1;
+          currentValue = seq[i];
+        }
+      }
+      runs.push({ value: currentValue, length: currentRun, start: seq.length - currentRun });
+
+      return runs;
+    }
+
+    function analyzeSequence() {
+      analyzed = true;
+      updateInsight('analyzed');
+    }
+
+    function showExpected() {
+      showExpectedRuns = !showExpectedRuns;
+    }
+
+    function updateInsight(type) {
+      const insight = document.getElementById('insight');
+      const runs = getRunStats(sequence);
+      const hitRuns = runs.filter(r => r.value === 1);
+      const maxHitRun = Math.max(...hitRuns.map(r => r.length));
+      const hitCount = sequence.filter(s => s === 1).length;
+      const hitPct = Math.round(hitCount / sequence.length * 100);
+
+      if (type === 'analyzed') {
+        // Calculate expected max run length for 50% probability
+        // For n trials, expected max run ≈ log2(n)
+        const expectedMaxRun = Math.round(Math.log2(sequenceLength));
+
+        insight.textContent = `Analysis: ${hitCount}/${sequenceLength} hits (${hitPct}%). Longest streak: ${maxHitRun}. Expected max streak for random 50%: ~${expectedMaxRun}-${expectedMaxRun+1}. ${maxHitRun <= expectedMaxRun + 1 ? 'This is perfectly normal randomness—no hot hand.' : 'Slightly long, but still plausible by chance.'}`;
+      } else if (marks.length > 0) {
+        insight.textContent = `You marked ${marks.length} region(s) as "hot streaks." Click "Analyze" to see if they're statistically unusual.`;
+      } else if (type === 'new') {
+        insight.textContent = `New sequence generated. ${hitCount}/${sequenceLength} shots made (${hitPct}%). Where do you see hot streaks?`;
+      } else {
+        insight.textContent = 'Shooting record: 50% accuracy. Click anywhere you see a "hot streak" — multiple makes in a row that feel non-random.';
+      }
+    }
+
+    function getItemAt(x, y) {
+      const startX = 40;
+      const startY = 100;
+      const cellW = (width - 80) / 20;
+      const cellH = 50;
+
+      for (let i = 0; i < sequence.length; i++) {
+        const row = Math.floor(i / 20);
+        const col = i % 20;
+        const itemX = startX + col * cellW + cellW / 2;
+        const itemY = startY + row * cellH + cellH / 2;
+
+        if (Math.abs(x - itemX) < cellW / 2 && Math.abs(y - itemY) < cellH / 2) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    function draw() {
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(0, 0, width, height);
+
+      const startX = 40;
+      const startY = 100;
+      const cellW = (width - 80) / 20;
+      const cellH = 50;
+
+      // Title
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '11px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('BASKETBALL SHOOTING RECORD (◯ = make, ✕ = miss)', width / 2, 30);
+
+      // Legend
+      ctx.font = '9px IBM Plex Mono';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = getColor('green');
+      ctx.fillText('◯ = Made shot', startX, 55);
+      ctx.fillStyle = getColor('red');
+      ctx.fillText('✕ = Missed shot', startX + 100, 55);
+
+      // Shot number labels
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '8px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      for (let i = 0; i < 20; i++) {
+        ctx.fillText((i + 1).toString(), startX + i * cellW + cellW / 2, 75);
+      }
+      for (let i = 20; i < 40; i++) {
+        ctx.fillText((i + 1).toString(), startX + (i - 20) * cellW + cellW / 2, 75 + cellH);
+      }
+
+      // Draw marked regions
+      marks.forEach(mark => {
+        const row = Math.floor(mark / 20);
+        const col = mark % 20;
+        const itemX = startX + col * cellW;
+        const itemY = startY + row * cellH - 5;
+
+        ctx.fillStyle = getColor('yellow') + '40';
+        ctx.fillRect(itemX, itemY, cellW, cellH);
+      });
+
+      // Draw sequence
+      sequence.forEach((shot, i) => {
+        const row = Math.floor(i / 20);
+        const col = i % 20;
+        const x = startX + col * cellW + cellW / 2;
+        const y = startY + row * cellH + cellH / 2;
+
+        ctx.font = '20px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        if (shot === 1) {
+          ctx.fillStyle = getColor('green');
+          ctx.fillText('◯', x, y);
+        } else {
+          ctx.fillStyle = getColor('red');
+          ctx.fillText('✕', x, y);
+        }
+      });
+
+      // Show runs analysis if analyzed
+      if (analyzed || showExpectedRuns) {
+        const runs = getRunStats(sequence);
+
+        // Highlight runs of 3+
+        runs.filter(r => r.value === 1 && r.length >= 3).forEach(run => {
+          for (let i = run.start; i < run.start + run.length; i++) {
+            const row = Math.floor(i / 20);
+            const col = i % 20;
+            const x = startX + col * cellW + cellW / 2;
+            const y = startY + row * cellH + cellH / 2;
+
+            ctx.strokeStyle = getColor('orange');
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(x, y, 18, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        });
+
+        // Run length distribution
+        const runDistY = startY + 2.5 * cellH + 30;
+
+        ctx.fillStyle = getColor('base-700');
+        ctx.font = '10px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('RUN LENGTH ANALYSIS', width / 2, runDistY);
+
+        // Count runs by length
+        const hitRunsByLength = {};
+        runs.filter(r => r.value === 1).forEach(r => {
+          hitRunsByLength[r.length] = (hitRunsByLength[r.length] || 0) + 1;
+        });
+
+        // Draw distribution
+        const maxLen = Math.max(5, ...Object.keys(hitRunsByLength).map(k => parseInt(k)));
+        const barWidth = 40;
+        const barMaxH = 50;
+        const distStartX = width / 2 - (maxLen * barWidth) / 2;
+
+        for (let len = 1; len <= maxLen; len++) {
+          const count = hitRunsByLength[len] || 0;
+          const barH = count * 15;
+          const x = distStartX + (len - 1) * barWidth;
+          const y = runDistY + 50;
+
+          // Bar
+          ctx.fillStyle = len >= 3 ? getColor('orange') + '80' : getColor('blue') + '60';
+          ctx.fillRect(x + 5, y + barMaxH - barH, barWidth - 10, barH);
+
+          // Count label
+          ctx.fillStyle = getColor('base-900');
+          ctx.font = '9px IBM Plex Mono';
+          ctx.textAlign = 'center';
+          ctx.fillText(count.toString(), x + barWidth / 2, y + barMaxH - barH - 5);
+
+          // Length label
+          ctx.fillStyle = getColor('base-700');
+          ctx.fillText(len.toString(), x + barWidth / 2, y + barMaxH + 12);
+        }
+
+        ctx.fillText('Run length (consecutive makes)', width / 2, runDistY + barMaxH + 80);
+
+        // Expected values note
+        ctx.fillStyle = getColor('base-700');
+        ctx.font = '9px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('For 50% probability: runs of 3+ are EXPECTED in any 40-shot sequence', width / 2, runDistY + barMaxH + 100);
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    canvas.addEventListener('click', (e) => {
+      if (analyzed) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const idx = getItemAt(x, y);
+      if (idx >= 0) {
+        if (marks.includes(idx)) {
+          marks = marks.filter(m => m !== idx);
+        } else {
+          marks.push(idx);
+        }
+        updateInsight('marked');
+      }
+    });
+
+    resize();
+    window.addEventListener('resize', resize);
+    generateSequence();
+    draw();
+  </script>
+</body>
+</html>

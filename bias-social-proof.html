@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Proof</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-cyan);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .canvas-container {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 400px;
+      cursor: pointer;
+    }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    button {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8em;
+      padding: 10px 16px;
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--fx-base-900);
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+
+    button:hover {
+      border-color: var(--fx-blue);
+      color: var(--fx-blue);
+    }
+
+    button.active {
+      background: var(--fx-cyan);
+      border-color: var(--fx-cyan);
+      color: var(--fx-paper);
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-cyan);
+    }
+
+    @media (max-width: 600px) {
+      canvas { height: 350px; }
+      h1 { font-size: 1.2em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Social Proof</h1>
+    <p class="description">
+      We look to others' behavior to determine correct action. When uncertain, we assume the crowd knows something we don't. Click a door to enter—but watch how the crowd influences which door feels "right."
+    </p>
+
+    <div class="canvas-container">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <p class="instruction">Two identical restaurants. One is empty, one has a line. Which do you choose? Toggle the crowd to feel the pull.</p>
+      <div class="button-row">
+        <button id="toggleCrowd" onclick="toggleCrowd()">Add Crowd to B</button>
+        <button onclick="resetChoice()">Reset</button>
+        <button onclick="revealTruth()">Reveal Truth</button>
+      </div>
+      <p class="insight" id="insight">Both restaurants are identical. But an empty one feels suspicious—what do they know that we don't?</p>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
+
+    // State
+    let crowdOnB = false;
+    let userChoice = null;
+    let revealed = false;
+    let people = [];
+    let animationPhase = 0;
+
+    // Generate crowd positions
+    function generateCrowd(centerX, startY, count) {
+      const crowd = [];
+      for (let i = 0; i < count; i++) {
+        crowd.push({
+          x: centerX + (Math.random() - 0.5) * 80,
+          y: startY + i * 18 + Math.random() * 10,
+          sway: Math.random() * Math.PI * 2,
+          swaySpeed: 0.02 + Math.random() * 0.02,
+          height: 20 + Math.random() * 8
+        });
+      }
+      return crowd;
+    }
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function drawPerson(x, y, h, sway, highlight) {
+      const swayX = Math.sin(sway) * 2;
+
+      ctx.strokeStyle = highlight ? getColor('cyan') : getColor('base-700');
+      ctx.lineWidth = highlight ? 2 : 1.5;
+      ctx.lineCap = 'round';
+
+      // Head
+      ctx.beginPath();
+      ctx.arc(x + swayX, y - h + 5, 5, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Body
+      ctx.beginPath();
+      ctx.moveTo(x + swayX, y - h + 10);
+      ctx.lineTo(x + swayX * 0.5, y - 5);
+      ctx.stroke();
+
+      // Arms
+      ctx.beginPath();
+      ctx.moveTo(x + swayX - 6, y - h + 18);
+      ctx.lineTo(x + swayX, y - h + 14);
+      ctx.lineTo(x + swayX + 6, y - h + 18);
+      ctx.stroke();
+
+      // Legs
+      ctx.beginPath();
+      ctx.moveTo(x + swayX * 0.5, y - 5);
+      ctx.lineTo(x - 4, y);
+      ctx.moveTo(x + swayX * 0.5, y - 5);
+      ctx.lineTo(x + 4, y);
+      ctx.stroke();
+    }
+
+    function drawRestaurant(x, y, w, h, label, isChosen, crowd) {
+      // Building
+      ctx.fillStyle = getColor('base-50');
+      ctx.strokeStyle = isChosen ? getColor('green') : getColor('base-200');
+      ctx.lineWidth = isChosen ? 3 : 1;
+
+      ctx.beginPath();
+      ctx.rect(x, y, w, h);
+      ctx.fill();
+      ctx.stroke();
+
+      // Door
+      const doorW = 40;
+      const doorH = 60;
+      const doorX = x + w / 2 - doorW / 2;
+      const doorY = y + h - doorH;
+
+      ctx.fillStyle = isChosen ? getColor('green') + '30' : getColor('paper');
+      ctx.fillRect(doorX, doorY, doorW, doorH);
+      ctx.strokeRect(doorX, doorY, doorW, doorH);
+
+      // Door handle
+      ctx.fillStyle = getColor('base-700');
+      ctx.beginPath();
+      ctx.arc(doorX + doorW - 8, doorY + doorH / 2, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sign
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = 'bold 14px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Restaurant ${label}`, x + w / 2, y + 25);
+
+      // Rating (identical)
+      ctx.font = '10px IBM Plex Mono';
+      ctx.fillStyle = getColor('yellow');
+      ctx.fillText('★★★★☆ 4.2', x + w / 2, y + 42);
+
+      // Price (identical)
+      ctx.fillStyle = getColor('base-700');
+      ctx.fillText('$$', x + w / 2, y + 56);
+
+      // Windows
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(x + 15, y + 70, 30, 25);
+      ctx.fillRect(x + w - 45, y + 70, 30, 25);
+      ctx.strokeRect(x + 15, y + 70, 30, 25);
+      ctx.strokeRect(x + w - 45, y + 70, 30, 25);
+
+      // Draw crowd if present
+      if (crowd && crowd.length > 0) {
+        crowd.forEach(person => {
+          person.sway += person.swaySpeed;
+          drawPerson(person.x, person.y, person.height, person.sway, false);
+        });
+
+        // Queue line indicator
+        ctx.fillStyle = getColor('base-700');
+        ctx.font = '9px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${crowd.length} people waiting`, x + w / 2, y + h + crowd.length * 18 + 30);
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(0, 0, width, height);
+
+      animationPhase += 0.02;
+
+      const restaurantW = 150;
+      const restaurantH = 150;
+      const gap = 100;
+      const totalW = restaurantW * 2 + gap;
+      const startX = (width - totalW) / 2;
+      const startY = 60;
+
+      // Title
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '11px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('Two restaurants with identical ratings, prices, and menus.', width / 2, 30);
+      ctx.fillText('Click one to enter.', width / 2, 45);
+
+      // Draw Restaurant A (always empty or minimal)
+      const crowdA = [];
+      drawRestaurant(startX, startY, restaurantW, restaurantH, 'A', userChoice === 'A', crowdA);
+
+      // Draw Restaurant B (with optional crowd)
+      const crowdB = crowdOnB ? people : [];
+      drawRestaurant(startX + restaurantW + gap, startY, restaurantW, restaurantH, 'B', userChoice === 'B', crowdB);
+
+      // "Empty" label for A
+      if (crowdOnB) {
+        ctx.fillStyle = getColor('base-700');
+        ctx.font = '9px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('(empty)', startX + restaurantW / 2, startY + restaurantH + 25);
+      }
+
+      // Revealed overlay
+      if (revealed) {
+        ctx.fillStyle = getColor('paper') + 'E0';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.fillStyle = getColor('orange');
+        ctx.font = '14px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('Both restaurants are IDENTICAL.', width / 2, height / 2 - 30);
+
+        ctx.fillStyle = getColor('base-700');
+        ctx.font = '11px IBM Plex Mono';
+        ctx.fillText('Same food. Same service. Same prices.', width / 2, height / 2);
+        ctx.fillText('The only difference was the crowd—and that changed your perception.', width / 2, height / 2 + 20);
+
+        if (userChoice === 'B' && crowdOnB) {
+          ctx.fillStyle = getColor('cyan');
+          ctx.fillText('You followed the crowd. 73% of people do the same.', width / 2, height / 2 + 50);
+        } else if (userChoice === 'A' && crowdOnB) {
+          ctx.fillStyle = getColor('green');
+          ctx.fillText('You resisted social proof! Only 27% choose the empty restaurant.', width / 2, height / 2 + 50);
+        }
+      }
+
+      // You indicator
+      ctx.fillStyle = getColor('cyan');
+      ctx.font = 'bold 10px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('YOU', width / 2, height - 40);
+
+      // Draw "you" as stick figure at bottom center
+      const youX = width / 2;
+      const youY = height - 50;
+      drawPerson(youX, youY, 25, animationPhase, true);
+
+      requestAnimationFrame(draw);
+    }
+
+    function handleClick(e) {
+      if (revealed) {
+        revealed = false;
+        return;
+      }
+
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const restaurantW = 150;
+      const restaurantH = 150;
+      const gap = 100;
+      const totalW = restaurantW * 2 + gap;
+      const startX = (width - totalW) / 2;
+      const startY = 60;
+
+      // Check Restaurant A
+      if (x >= startX && x <= startX + restaurantW && y >= startY && y <= startY + restaurantH) {
+        userChoice = 'A';
+        updateInsight();
+      }
+
+      // Check Restaurant B
+      if (x >= startX + restaurantW + gap && x <= startX + totalW && y >= startY && y <= startY + restaurantH) {
+        userChoice = 'B';
+        updateInsight();
+      }
+    }
+
+    function toggleCrowd() {
+      crowdOnB = !crowdOnB;
+      const btn = document.getElementById('toggleCrowd');
+
+      if (crowdOnB) {
+        // Generate crowd for B
+        const restaurantW = 150;
+        const gap = 100;
+        const totalW = restaurantW * 2 + gap;
+        const startX = (width - totalW) / 2;
+        const restaurantBX = startX + restaurantW + gap + restaurantW / 2;
+        const startY = 60 + 150 + 10; // Below restaurant
+
+        people = generateCrowd(restaurantBX, startY, 8);
+        btn.textContent = 'Remove Crowd';
+        btn.classList.add('active');
+      } else {
+        people = [];
+        btn.textContent = 'Add Crowd to B';
+        btn.classList.remove('active');
+      }
+
+      updateInsight();
+    }
+
+    function resetChoice() {
+      userChoice = null;
+      revealed = false;
+      updateInsight();
+    }
+
+    function revealTruth() {
+      revealed = true;
+      updateInsight();
+    }
+
+    function updateInsight() {
+      const insight = document.getElementById('insight');
+
+      if (revealed) {
+        insight.textContent = 'The crowd was meaningless. They could have been waiting for a friend, following a fake review, or simply wrong. Yet their presence felt like evidence.';
+        return;
+      }
+
+      if (!crowdOnB) {
+        if (userChoice === 'A') {
+          insight.textContent = 'You chose A. With no crowd difference, the choice feels arbitrary—which it is.';
+        } else if (userChoice === 'B') {
+          insight.textContent = 'You chose B. With no crowd difference, the choice feels arbitrary—which it is.';
+        } else {
+          insight.textContent = 'Both restaurants are identical. But an empty one feels suspicious—what do they know that we don\'t?';
+        }
+      } else {
+        if (userChoice === 'B') {
+          insight.textContent = 'You chose the crowded one. We assume: "If others chose it, they must know something." But crowds can be wrong—or random.';
+        } else if (userChoice === 'A') {
+          insight.textContent = 'You chose the empty one despite the crowd at B. This takes real cognitive effort—social proof is powerful.';
+        } else {
+          insight.textContent = '8 people waiting at B. None at A. The crowd signals "this is good"—even though you have no idea why they\'re there.';
+        }
+      }
+    }
+
+    canvas.addEventListener('click', handleClick);
+
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+  </script>
+</body>
+</html>
