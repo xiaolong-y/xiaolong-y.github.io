@@ -192,11 +192,36 @@
     font-size: 0.9em;
   }
 
+  /* Floating title animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .site-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 300;
+    font-size: 2.2em;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: inline-block;
+    animation: float 6s ease-in-out infinite;
+    text-shadow: 0 6px 16px rgba(0,0,0,0.04);
+    border-bottom: none;
+    margin-bottom: 1.5em;
+  }
+
   /* Headings with Flexoki styling */
   h1 {
     color: var(--fx-orange);
     border-bottom: 1px solid var(--fx-base-200);
     padding-bottom: 0.3em;
+  }
+
+  h1.site-title {
+    color: inherit;
+    border-bottom: none;
+    padding-bottom: 0;
   }
 
   h2, h3 {
@@ -235,8 +260,28 @@
     h2, h3 {
       color: var(--fx-base-300);
     }
+
+    .site-title {
+      text-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    }
+
+    /* Dark mode title colors - inverted for dark bg */
+    .site-title .c1 { color: #A8ABA5 !important; }
+    .site-title .c2 { color: #989B95 !important; }
+    .site-title .c3 { color: #888B85 !important; }
+    .site-title .c4 { color: #787B75 !important; }
+    .site-title .c5 { color: #909590 !important; }
+    .site-title .c6 { color: #808580 !important; }
+    .site-title .c7 { color: #707570 !important; }
+    .site-title .c8 { color: #606560 !important; }
+    .site-title .y1 { color: #A09878 !important; }
+    .site-title .y2 { color: #AA9E80 !important; }
+    .site-title .y3 { color: #B4A888 !important; }
+    .site-title .y4 { color: #BEB290 !important; }
   }
 </style>
+
+<h1 class="site-title"><span class="c1" style="color:#3C3F3A">X</span><span class="c2" style="color:#4C4F4A">i</span><span class="c3" style="color:#5C5F5A">a</span><span class="c4" style="color:#6C6F6A">o</span><span class="c5" style="color:#52554F">l</span><span class="c6" style="color:#62655F">o</span><span class="c7" style="color:#72756F">n</span><span class="c8" style="color:#82857F">g</span> <span class="y1" style="color:#807862">Y</span><span class="y2" style="color:#8A826A">a</span><span class="y3" style="color:#948C72">n</span><span class="y4" style="color:#9E967A">g</span></h1>
 
 <div class="neural-container">
   <canvas id="neuron-canvas" role="img" aria-label="Interactive neural network visualization showing neurons connected by dendrites with animated synaptic signals"></canvas>
