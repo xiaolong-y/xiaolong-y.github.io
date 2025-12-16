@@ -309,12 +309,13 @@
   // DENDRITE
   // ============================================================
   class Dendrite {
-    constructor(startX, startY, angle, length, depth, parent = null) {
+    constructor(startX, startY, angle, length, depth, scale = 1, parent = null) {
       this.startX = startX;
       this.startY = startY;
       this.angle = angle;
       this.length = length;
       this.depth = depth;
+      this.scale = scale;
       this.parent = parent;
 
       // Calculate end point with slight curve
@@ -329,8 +330,8 @@
       this.controlX = startX + Math.cos(angle) * midLength + Math.cos(perpAngle) * curveAmount;
       this.controlY = startY + Math.sin(angle) * midLength + Math.sin(perpAngle) * curveAmount;
 
-      // Visual properties
-      this.thickness = Utils.lerp(2.5, 0.5, depth / CONFIG.dendriteDepth);
+      // Visual properties - scale thickness
+      this.thickness = Utils.lerp(2.5, 0.5, depth / CONFIG.dendriteDepth) * scale;
       this.activation = 0;
       this.pulsePhase = Utils.random(0, Math.PI * 2);
 
@@ -342,19 +343,21 @@
       if (this.depth >= CONFIG.dendriteDepth) return;
 
       const numChildren = Math.random() < CONFIG.dendriteBranching ? 2 : 1;
+      const minLength = 10 * this.scale; // Scale minimum length too
 
       for (let i = 0; i < numChildren; i++) {
         const angleOffset = Utils.random(-CONFIG.dendriteAngleSpread, CONFIG.dendriteAngleSpread);
         const childAngle = this.angle + angleOffset;
         const childLength = this.length * Utils.random(0.6, 0.8);
 
-        if (childLength > 10) {
+        if (childLength > minLength) {
           const child = new Dendrite(
             this.endX,
             this.endY,
             childAngle,
             childLength,
             this.depth + 1,
+            this.scale,
             this
           );
           child.generateChildren();
@@ -438,21 +441,23 @@
   // NEURON
   // ============================================================
   class Neuron {
-    constructor(x, y, id) {
+    constructor(x, y, id, scale = 1) {
       this.x = x;
       this.y = y;
       this.id = id;
-      this.radius = Utils.random(CONFIG.neuronRadius.min, CONFIG.neuronRadius.max);
+      this.scale = scale;
+      this.radius = Utils.random(CONFIG.neuronRadius.min, CONFIG.neuronRadius.max) * scale;
 
       // Generate dendrites in golden angle pattern
       this.dendrites = [];
-      const numDendrites = Utils.randomInt(4, 7);
+      const numDendrites = Math.max(2, Math.round(Utils.randomInt(4, 7) * scale));
 
       for (let i = 0; i < numDendrites; i++) {
         const angle = i * Utils.goldenAngle + Utils.random(-0.3, 0.3);
-        const length = Utils.random(CONFIG.dendriteLength.min, CONFIG.dendriteLength.max);
+        const baseLength = Utils.random(CONFIG.dendriteLength.min, CONFIG.dendriteLength.max);
+        const length = baseLength * scale;
 
-        const dendrite = new Dendrite(x, y, angle, length, 0);
+        const dendrite = new Dendrite(x, y, angle, length, 0, scale);
         dendrite.generateChildren();
         this.dendrites.push(dendrite);
       }
@@ -767,9 +772,10 @@
   // CONNECTION
   // ============================================================
   class Connection {
-    constructor(sourceNeuron, targetNeuron) {
+    constructor(sourceNeuron, targetNeuron, scale = 1) {
       this.source = sourceNeuron;
       this.target = targetNeuron;
+      this.scale = scale;
 
       // Calculate bezier control points
       const midX = (sourceNeuron.x + targetNeuron.x) / 2;
@@ -1206,7 +1212,15 @@
     resize() {
       const container = this.canvas.parentElement;
       this.width = container.clientWidth;
-      this.height = Math.min(400, Math.max(280, container.clientHeight || 350));
+      // Keep aspect ratio roughly square for small sizes, wider for large
+      const aspectRatio = this.width < 200 ? 1.0 : (this.width < 300 ? 0.9 : 0.85);
+      this.height = Math.min(400, Math.max(this.width * aspectRatio, 120));
+
+      // Calculate scale factor (reference: 350x350 = full scale)
+      const refArea = 350 * 350;
+      const currentArea = this.width * this.height;
+      this.scaleFactor = Math.sqrt(currentArea / refArea);
+      this.scaleFactor = Math.max(0.3, Math.min(1.0, this.scaleFactor)); // Clamp 0.3-1.0
 
       // Set canvas size with DPR
       this.canvas.width = this.width * this.dpr;
@@ -1218,7 +1232,7 @@
 
       // Recreate flow field and spatial grid
       this.flowField = new FlowField(this.width, this.height);
-      this.spatialGrid = new SpatialGrid(CONFIG.spatialGridSize, this.width, this.height);
+      this.spatialGrid = new SpatialGrid(CONFIG.spatialGridSize * this.scaleFactor, this.width, this.height);
 
       // Regenerate neurons if size changed significantly
       if (this.neurons.length > 0) {
@@ -1230,9 +1244,12 @@
     createNeurons() {
       this.neurons = [];
 
-      const count = Utils.randomInt(CONFIG.neuronCount.min, CONFIG.neuronCount.max);
-      const padding = 80;
-      const minDistance = 100;
+      // Scale neuron count and spacing based on canvas size
+      const scale = this.scaleFactor || 1;
+      const baseCount = Utils.randomInt(CONFIG.neuronCount.min, CONFIG.neuronCount.max);
+      const count = Math.max(3, Math.round(baseCount * scale));
+      const padding = Math.max(15, 80 * scale);
+      const minDistance = Math.max(30, 100 * scale);
 
       // Use Poisson disk-like distribution
       for (let i = 0; i < count; i++) {
@@ -1253,7 +1270,7 @@
           }
 
           if (!tooClose) {
-            this.neurons.push(new Neuron(x, y, i));
+            this.neurons.push(new Neuron(x, y, i, scale));
             placed = true;
           }
 
@@ -1268,6 +1285,10 @@
     createConnections() {
       this.connections = [];
 
+      // Scale connection distance
+      const scale = this.scaleFactor || 1;
+      const maxDist = CONFIG.connectionDistance * scale;
+
       // Connect neurons within range
       for (let i = 0; i < this.neurons.length; i++) {
         for (let j = i + 1; j < this.neurons.length; j++) {
@@ -1275,8 +1296,8 @@
           const n2 = this.neurons[j];
           const dist = Utils.distance(n1.x, n1.y, n2.x, n2.y);
 
-          if (dist < CONFIG.connectionDistance) {
-            const connection = new Connection(n1, n2);
+          if (dist < maxDist) {
+            const connection = new Connection(n1, n2, scale);
             this.connections.push(connection);
             n1.connections.push({ connection, target: n2 });
             n2.connections.push({ connection, target: n1 });
@@ -1437,19 +1458,24 @@
       this.mouseX = e.clientX - rect.left;
       this.mouseY = e.clientY - rect.top;
 
+      // Scale interaction radius
+      const scale = this.scaleFactor || 1;
+      const influenceRadius = CONFIG.mouseInfluenceRadius * scale;
+      const closeProximity = 40 * scale;
+
       // Check proximity to neurons
       const nearbyNeurons = this.spatialGrid.queryRadius(
-        this.mouseX, this.mouseY, CONFIG.mouseInfluenceRadius
+        this.mouseX, this.mouseY, influenceRadius
       );
 
       nearbyNeurons.forEach(neuron => {
         const dist = Utils.distance(this.mouseX, this.mouseY, neuron.x, neuron.y);
-        if (dist < CONFIG.mouseInfluenceRadius) {
-          const intensity = 1 - (dist / CONFIG.mouseInfluenceRadius);
+        if (dist < influenceRadius) {
+          const intensity = 1 - (dist / influenceRadius);
           neuron.activate(intensity * 0.3, this.time);
 
           // Fire signals on close proximity (but not the same neuron twice in a row)
-          if (dist < 40 && neuron !== this.lastMouseNeuron && neuron.connections.length > 0) {
+          if (dist < closeProximity && neuron !== this.lastMouseNeuron && neuron.connections.length > 0) {
             const randomConn = neuron.connections[Utils.randomInt(0, neuron.connections.length - 1)];
             this.fireSignal(neuron, randomConn.target, randomConn.connection);
             this.lastMouseNeuron = neuron;
