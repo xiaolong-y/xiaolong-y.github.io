@@ -362,6 +362,12 @@
   if (artOptions[randomIndex].id === 'art-neural') {
     const script = document.createElement('script');
     script.src = 'assets/js/neural-symphony.js';
+    script.onload = function() {
+      // Manually initialize since DOMContentLoaded has already fired
+      if (window.NeuralSymphony && document.getElementById('neuron-canvas')) {
+        window.neuralSymphony = new window.NeuralSymphony('neuron-canvas');
+      }
+    };
     document.body.appendChild(script);
   }
 })();
@@ -394,7 +400,7 @@ I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu
 
 Non-academically, I write on my [bear blog](https://xiaolongy.bearblog.dev) occasionally.
 
-I also keep my favorite [quotes](quotes.md), [bookshelf](bookshelf.md), and [ephemeral thoughts](ephemeral-thoughts-final.html) here. I created a collection of interactive [cognitive bias](cognitive-biases.html) visualizations in collaboration with [Claude Code](https://claude.ai/code).
+I also keep my favorite [quotes](quotes.md), [bookshelf](bookshelf.md), and [thought snippets](ephemeral-thoughts-final.html) here. I created a collection of interactive [cognitive bias](cognitive-biases.html) visualizations in collaboration with [Claude Code](https://claude.ai/code).
 
 <div style="clear: both;"></div>
 
