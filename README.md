@@ -317,18 +317,55 @@
     .site-title .y3 { color: #B4A888 !important; }
     .site-title .y4 { color: #BEB290 !important; }
   }
+
+  /* Art alternation - hide by default, show when active */
+  .art-option {
+    display: none;
+  }
+
+  .art-option.active {
+    display: block;
+  }
 </style>
 
 <h1 class="site-title"><span class="c1" style="color:#3C3F3A">X</span><span class="c2" style="color:#4C4F4A">i</span><span class="c3" style="color:#5C5F5A">a</span><span class="c4" style="color:#6C6F6A">o</span><span class="c5" style="color:#52554F">l</span><span class="c6" style="color:#62655F">o</span><span class="c7" style="color:#72756F">n</span><span class="c8" style="color:#82857F">g</span> <span class="y1" style="color:#807862">Y</span><span class="y2" style="color:#8A826A">a</span><span class="y3" style="color:#948C72">n</span><span class="y4" style="color:#9E967A">g</span></h1>
 
-<div class="neural-container">
-  <canvas id="neuron-canvas" role="img" aria-label="Interactive neural network visualization showing neurons connected by dendrites with animated synaptic signals"></canvas>
-  <p class="neural-caption">
-    <em>Neural Connection Symphony</em> visualizes the invisible music of thought. Each neuron fires with biologically-accurate action potentials—sharp depolarization flashes followed by refractory "cooling" periods. Signals cascade through dendrites using saltatory conduction, while calcium blooms mark synaptic arrivals. The psychedelic color palette evokes altered states where creativity flourishes. Click any neuron to trigger a cascade; the burst particles follow actual dendrite angles, simulating back-propagating action potentials. This is consciousness rendered visible: the tension between organic unpredictability and algorithmic precision.<br><br>
-    <em>Inspired by Neuropit #13 by the Zairja Collective. Created with Claude AI.</em>
-  </p>
+<!-- Art Option 1: Neural Connection Symphony -->
+<div class="art-option" id="art-neural">
+  <div class="neural-container">
+    <canvas id="neuron-canvas" role="img" aria-label="Interactive neural network visualization showing neurons connected by dendrites with animated synaptic signals"></canvas>
+    <p class="neural-caption">
+      <em>Neural Connection Symphony</em> visualizes the invisible music of thought. Each neuron fires with biologically-accurate action potentials—sharp depolarization flashes followed by refractory "cooling" periods. Signals cascade through dendrites using saltatory conduction, while calcium blooms mark synaptic arrivals. The psychedelic color palette evokes altered states where creativity flourishes. Click any neuron to trigger a cascade; the burst particles follow actual dendrite angles, simulating back-propagating action potentials. This is consciousness rendered visible: the tension between organic unpredictability and algorithmic precision.<br><br>
+      <em>Inspired by Neuropit #13 by the Zairja Collective. Created with Claude AI.</em>
+    </p>
+  </div>
 </div>
-<script src="assets/js/neural-symphony.js"></script>
+
+<!-- Art Option 2: Kismet -->
+<div class="art-option" id="art-kismet">
+  <div class="neural-container">
+    <img src="kismet.png" alt="Kismet, an expressive anthropomorphic robot with large eyes and mechanical features designed for social interaction">
+    <p class="neural-caption">
+      <em><a href="http://www.ai.mit.edu/projects/humanoid-robotics-group/kismet/kismet.html">Kismet</a></em> is an expressive anthropomorphic robot developed by <a href="https://www.media.mit.edu/people/cynthiab/overview/">Cynthia Breazeal</a>, designed to engage people in natural face-to-face interaction through facial expressions, gaze, and vocal babbles—embodying how social and computer systems can meaningfully interact.
+    </p>
+  </div>
+</div>
+
+<!-- Random art selection and conditional script loading -->
+<script>
+(function() {
+  const artOptions = document.querySelectorAll('.art-option');
+  const randomIndex = Math.floor(Math.random() * artOptions.length);
+  artOptions[randomIndex].classList.add('active');
+
+  // Only load neural-symphony.js if that art is selected
+  if (artOptions[randomIndex].id === 'art-neural') {
+    const script = document.createElement('script');
+    script.src = 'assets/js/neural-symphony.js';
+    document.body.appendChild(script);
+  }
+})();
+</script>
 
 Welcome! I am a G2 graduate student in Harvard University's Master's program of [Regional Studies - East Asia](https://rsea.fas.harvard.edu) at the Kenneth C. Griffin Graduate School of Arts and Sciences.
 
