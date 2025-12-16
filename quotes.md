@@ -309,6 +309,70 @@
     }
   }
 
+  /* Image cards */
+  .quote-card.image-card {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .quote-card.image-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .quote-card.image-card .image-caption {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75em;
+    font-weight: 300;
+    color: var(--fx-base-600);
+    padding: var(--sp-2) var(--sp-2) var(--sp-2);
+    line-height: 1.5;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .quote-card.image-card .image-caption {
+      color: var(--fx-base-500);
+    }
+  }
+
+  /* Video cards */
+  .quote-card.video-card {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .quote-card.video-card .video-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+  }
+
+  .quote-card.video-card .video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .quote-card.video-card .video-caption {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75em;
+    font-weight: 300;
+    color: var(--fx-base-600);
+    padding: var(--sp-2) var(--sp-2) var(--sp-2);
+    line-height: 1.5;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .quote-card.video-card .video-caption {
+      color: var(--fx-base-500);
+    }
+  }
+
   /* Parallax effect classes added by JS */
   .quote-card.parallax-slow { --parallax-speed: 0.02; }
   .quote-card.parallax-medium { --parallax-speed: 0.035; }
@@ -369,6 +433,18 @@
     "Follow your heart."
   </div>
   <div class="quote-author">Kosuke Imai</div>
+</div>
+
+<div class="quote-card image-card">
+  <img src="assets/images/m87-black-hole.jpg" alt="First image of a black hole - M87* captured by the Event Horizon Telescope">
+  <div class="image-caption">First image of a black hole, M87* — Event Horizon Telescope, April 2019</div>
+</div>
+
+<div class="quote-card video-card">
+  <div class="video-wrapper">
+    <iframe src="https://www.youtube.com/embed/bvim4rsNHkQ" title="YouTube video" allowfullscreen></iframe>
+  </div>
+  <div class="video-caption">The Most Astounding Fact — Neil deGrasse Tyson</div>
 </div>
 
 <div class="quote-card">
