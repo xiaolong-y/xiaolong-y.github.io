@@ -457,7 +457,7 @@
 
 <div class="quote-card image-card">
   <img src="assets/images/m87-black-hole.jpg" alt="First image of a black hole - M87* captured by the Event Horizon Telescope">
-  <div class="image-caption">M87* — Seeing the unseeable</div>
+  <div class="image-caption"><a href="https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-87/">M87*</a> — Seeing the unseeable</div>
 </div>
 
 <div class="quote-card video-card">
