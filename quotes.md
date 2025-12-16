@@ -79,6 +79,24 @@
     box-sizing: border-box;
   }
 
+  /* Hide Jekyll default header completely */
+  header.page-header,
+  section.page-header,
+  .page-header,
+  .project-name,
+  .project-tagline,
+  header[role="banner"],
+  .site-header,
+  .main-content > h1:first-child,
+  .markdown-body > h1:first-child {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
   body {
     background-color: var(--fx-paper);
     color: var(--fx-base-900);

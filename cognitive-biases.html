@@ -83,36 +83,29 @@
       padding: var(--sp-4) var(--sp-3);
     }
 
-    /* Navigation - matching main page */
-    .site-nav {
-      display: flex;
-      justify-content: center;
+    /* Back link */
+    .back-link {
+      display: inline-flex;
       align-items: center;
-      gap: var(--sp-4);
-      padding: var(--sp-3) 0;
-      margin-bottom: var(--sp-5);
-      border-bottom: 1px solid var(--fx-base-200);
-    }
-
-    .nav-link {
-      color: var(--fx-base-700);
+      gap: 6px;
+      color: var(--fx-base-600);
       text-decoration: none;
-      padding: var(--sp-1) var(--sp-2);
-      border-bottom: 2px solid transparent;
-      font-size: 0.9em;
-      font-weight: 300;
-      letter-spacing: 0.02em;
-      transition: all var(--duration-fast) var(--ease-mechanical);
+      font-size: 0.8em;
+      font-weight: 200;
+      margin-bottom: var(--sp-4);
+      transition: color var(--duration-fast) var(--ease-mechanical);
     }
 
-    .nav-link:hover {
+    .back-link:hover {
       color: var(--fx-blue);
-      border-bottom-color: var(--fx-blue);
     }
 
-    .nav-link.active {
-      color: var(--fx-yellow);
-      border-bottom-color: var(--fx-yellow);
+    .back-link span {
+      transition: transform var(--duration-fast) var(--ease-mechanical);
+    }
+
+    .back-link:hover span {
+      transform: translateX(-3px);
     }
 
     /* Page header */
@@ -189,12 +182,7 @@
 </head>
 <body>
   <div class="container">
-    <nav class="site-nav">
-      <a href="/" class="nav-link">home</a>
-      <a href="quotes" class="nav-link">quotes</a>
-      <a href="bookshelf" class="nav-link">bookshelf</a>
-      <a href="cognitive-biases" class="nav-link active">cognitive biases</a>
-    </nav>
+    <a href="/" class="back-link"><span>&larr;</span> back</a>
 
     <header class="page-header">
       <h1>Cognitive Biases</h1>

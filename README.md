@@ -243,22 +243,23 @@
   }
 
   h2 {
-    color: var(--fx-base-700);
-    font-weight: 300;
-    font-size: 1.1em;
-    letter-spacing: 0.08em;
+    color: var(--fx-base-600);
+    font-weight: 200;
+    font-size: 0.9em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    margin-top: 2em;
-    margin-bottom: 0.8em;
+    margin-top: 2.5em;
+    margin-bottom: 1em;
   }
 
   h3 {
-    color: var(--fx-base-600);
-    font-weight: 300;
-    font-size: 0.95em;
-    letter-spacing: 0.05em;
-    margin-top: 1.5em;
-    margin-bottom: 0.5em;
+    color: var(--fx-base-500);
+    font-weight: 200;
+    font-size: 0.8em;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    margin-top: 1.8em;
+    margin-bottom: 0.6em;
   }
 
   /* Flexoki Dark mode support */
@@ -290,11 +291,11 @@
     }
 
     h2 {
-      color: var(--fx-base-400);
+      color: var(--fx-base-500);
     }
 
     h3 {
-      color: var(--fx-base-500);
+      color: var(--fx-base-400);
     }
 
     .site-title {
@@ -355,7 +356,7 @@ I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu
 
 Non-academically, I write on my [bear blog](https://xiaolongy.bearblog.dev) occasionally.
 
-I also keep my favorite [quotes](quotes.md) and [bookshelf](bookshelf.md) here. I maintain a collection of interactive [cognitive bias](cognitive-biases.html) visualizations.
+I also keep my favorite [quotes](quotes.md) and [bookshelf](bookshelf.md) here. I created a collection of interactive [cognitive bias](cognitive-biases.html) visualizations in collaboration with [Claude Code](https://claude.ai/code).
 
 <div style="clear: both;"></div>
 
