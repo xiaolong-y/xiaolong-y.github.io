@@ -10,6 +10,7 @@
     :root {
       --fx-paper: #FFFCF0;
       --fx-base-50: #F2F0E5;
+      --fx-base-100: #E6E4D9;
       --fx-base-200: #DAD8CE;
       --fx-base-700: #6F6E69;
       --fx-base-900: #2D2B28;
@@ -29,6 +30,7 @@
       :root {
         --fx-paper: #100F0F;
         --fx-base-50: #1C1B1A;
+        --fx-base-100: #282726;
         --fx-base-200: #403E3C;
         --fx-base-700: #878580;
         --fx-base-900: #CECDC3;
@@ -86,48 +88,244 @@
       max-width: 700px;
     }
 
-    .canvas-container {
+    .story-container {
       background: var(--fx-base-50);
       border: 1px solid var(--fx-base-200);
       border-radius: 4px;
+      padding: 24px;
       margin-bottom: 20px;
-      overflow: hidden;
     }
 
-    canvas {
-      display: block;
-      width: 100%;
-      height: 420px;
-      cursor: crosshair;
+    .story-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
-    .controls {
+    .protagonist {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--fx-base-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .protagonist-info h2 {
+      font-size: 1.1em;
+      font-weight: 400;
+      color: var(--fx-base-900);
+    }
+
+    .protagonist-info p {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+    }
+
+    .outcome-badge {
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      font-weight: 500;
+      transition: all var(--duration-medium) var(--ease-mechanical);
+    }
+
+    .outcome-badge.success {
+      background: var(--fx-green);
+      color: var(--fx-paper);
+    }
+
+    .outcome-badge.failure {
+      background: var(--fx-red);
+      color: var(--fx-paper);
+    }
+
+    .outcome-badge.hidden {
+      background: var(--fx-base-200);
+      color: var(--fx-base-700);
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 24px;
+      border-left: 2px solid var(--fx-base-200);
+      margin-bottom: 24px;
+    }
+
+    .event {
+      position: relative;
+      padding: 16px;
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 16px;
+      margin-left: 16px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+
+    .event::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 20px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--fx-base-200);
+      border: 2px solid var(--fx-paper);
+    }
+
+    .event:last-child {
+      margin-bottom: 0;
+    }
+
+    .event-year {
+      font-size: 0.7em;
+      color: var(--fx-base-700);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .event-title {
+      font-size: 0.95em;
+      color: var(--fx-base-900);
+      font-weight: 400;
+    }
+
+    .explanation-box {
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .explanation-prompt {
+      font-size: 0.9em;
+      color: var(--fx-base-900);
+      margin-bottom: 12px;
+    }
+
+    .explanation-options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .explanation-option {
+      padding: 14px 16px;
+      background: var(--fx-base-50);
+      border: 2px solid var(--fx-base-200);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+      font-size: 0.85em;
+      color: var(--fx-base-900);
+      text-align: left;
+    }
+
+    .explanation-option:hover {
+      border-color: var(--fx-blue);
+      background: var(--fx-paper);
+    }
+
+    .explanation-option.selected {
+      border-color: var(--fx-orange);
+      background: var(--fx-orange);
+      color: var(--fx-paper);
+    }
+
+    .flip-section {
       background: var(--fx-base-50);
       border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .flip-title {
+      font-size: 1em;
+      color: var(--fx-base-900);
+      margin-bottom: 16px;
+    }
+
+    .flip-comparison {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 700px) {
+      .flip-comparison {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .flip-arrow { transform: rotate(90deg); }
+    }
+
+    .flip-box {
+      background: var(--fx-paper);
+      border: 2px solid var(--fx-base-200);
       border-radius: 4px;
       padding: 16px;
     }
 
-    .instruction {
+    .flip-box.original { border-color: var(--fx-base-200); }
+    .flip-box.flipped { border-color: var(--fx-purple); }
+
+    .flip-box h3 {
       font-size: 0.8em;
       color: var(--fx-base-700);
-      margin-bottom: 12px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .button-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
+    .flip-box .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 3px;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+
+    .flip-box .badge.success { background: var(--fx-green); color: var(--fx-paper); }
+    .flip-box .badge.failure { background: var(--fx-red); color: var(--fx-paper); }
+
+    .flip-arrow {
+      font-size: 24px;
+      color: var(--fx-purple);
+    }
+
+    .flip-explanation {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      font-style: italic;
+      margin-top: 8px;
+      line-height: 1.5;
     }
 
     button {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.8em;
-      padding: 10px 16px;
+      font-size: 0.85em;
+      padding: 12px 24px;
       background: var(--fx-paper);
       border: 1px solid var(--fx-base-200);
-      border-radius: 3px;
+      border-radius: 4px;
       cursor: pointer;
       color: var(--fx-base-900);
       transition: all var(--duration-fast) var(--ease-mechanical);
@@ -138,24 +336,77 @@
       color: var(--fx-blue);
     }
 
-    button.active {
+    button.primary {
       background: var(--fx-orange);
       border-color: var(--fx-orange);
       color: var(--fx-paper);
     }
 
+    button.primary:hover {
+      background: var(--fx-cyan);
+      border-color: var(--fx-cyan);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
     .insight {
       font-size: 0.85em;
       color: var(--fx-base-700);
-      padding: 12px;
+      padding: 16px;
       background: var(--fx-paper);
-      border-radius: 3px;
+      border-radius: 4px;
       border-left: 3px solid var(--fx-orange);
+      line-height: 1.6;
+    }
+
+    .phase-indicator {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .phase-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--fx-base-200);
+      transition: all var(--duration-medium) var(--ease-mechanical);
+    }
+
+    .phase-dot.active {
+      background: var(--fx-orange);
+      box-shadow: 0 0 8px var(--fx-orange);
+    }
+
+    .phase-dot.complete {
+      background: var(--fx-cyan);
+    }
+
+    .hidden { display: none !important; }
+
+    .same-events-note {
+      text-align: center;
+      font-size: 0.9em;
+      color: var(--fx-purple);
+      font-weight: 500;
+      padding: 12px;
+      background: var(--fx-purple);
+      color: var(--fx-paper);
+      border-radius: 4px;
+      margin-bottom: 16px;
     }
 
     @media (max-width: 600px) {
-      canvas { height: 380px; }
       h1 { font-size: 1.2em; }
+      .story-header { flex-direction: column; align-items: flex-start; }
+      .event { padding: 12px; margin-left: 12px; }
+      .explanation-option { padding: 10px 12px; }
     }
   </style>
 </head>
@@ -170,366 +421,327 @@
 
     <h1>Narrative Fallacy</h1>
     <p class="description">
-      We create coherent stories to explain random events. Our minds cannot accept randomness—they weave cause-and-effect tales from noise. Watch events unfold. Notice how you instinctively connect them into a story.
+      We create coherent stories to explain outcomes after the fact. The same events can "explain" opposite results—we just adjust the narrative. Experience this by explaining someone's outcome, then watch the story flip.
     </p>
 
-    <div class="canvas-container">
-      <canvas id="canvas"></canvas>
+    <div class="phase-indicator">
+      <div class="phase-dot active" id="phase1"></div>
+      <div class="phase-dot" id="phase2"></div>
+      <div class="phase-dot" id="phase3"></div>
     </div>
 
-    <div class="controls">
-      <p class="instruction">Click and drag between events to draw the "story" you see. Then reveal the truth.</p>
-      <div class="button-row">
-        <button onclick="generateNewSequence()">New Random Events</button>
-        <button onclick="clearConnections()">Clear Lines</button>
-        <button id="revealBtn" onclick="revealTruth()">Reveal Truth</button>
+    <!-- Phase 1: See the story and outcome -->
+    <div id="phase1Container">
+      <div class="story-container">
+        <div class="story-header">
+          <div class="protagonist">
+            <div class="avatar" id="avatar">👤</div>
+            <div class="protagonist-info">
+              <h2 id="protagonistName">Alex Chen</h2>
+              <p>Entrepreneur, Age 35</p>
+            </div>
+          </div>
+          <div class="outcome-badge" id="outcomeBadge">Loading...</div>
+        </div>
+
+        <div class="timeline" id="timeline">
+          <!-- Events will be inserted here -->
+        </div>
       </div>
-      <p class="insight" id="insight">As you watch, your mind will automatically construct a narrative explaining why each event led to the next.</p>
+
+      <div class="explanation-box">
+        <p class="explanation-prompt" id="explanationPrompt">
+          Based on these life events, why do you think this outcome makes sense?
+        </p>
+        <div class="explanation-options" id="explanationOptions">
+          <!-- Options will be inserted here -->
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button class="primary" onclick="selectExplanation()" id="continueBtn" disabled>Select an explanation to continue</button>
+      </div>
+    </div>
+
+    <!-- Phase 2: The Flip -->
+    <div id="phase2Container" class="hidden">
+      <div class="flip-section">
+        <h2 class="flip-title">Now watch what happens when we flip the outcome...</h2>
+
+        <div class="same-events-note">
+          The exact same life events
+        </div>
+
+        <div class="flip-comparison">
+          <div class="flip-box original">
+            <h3>Original Outcome</h3>
+            <span class="badge" id="originalBadge">Success</span>
+            <p class="flip-explanation" id="originalExplanation">"Your selected explanation"</p>
+          </div>
+
+          <div class="flip-arrow">→</div>
+
+          <div class="flip-box flipped">
+            <h3>Flipped Outcome</h3>
+            <span class="badge" id="flippedBadge">Failure</span>
+            <p class="flip-explanation" id="flippedExplanation">"Alternative explanation"</p>
+          </div>
+        </div>
+
+        <p class="insight">
+          <strong>The same events explain both outcomes.</strong> Your brain instantly rewires the "why" to fit whatever ending it's given. This is the narrative fallacy—we don't discover stories in data, we impose them.
+        </p>
+      </div>
+
+      <div class="button-row">
+        <button onclick="showPhase3()">See More Examples</button>
+        <button class="primary" onclick="startOver()">Try Another Story</button>
+      </div>
+    </div>
+
+    <!-- Phase 3: Examples -->
+    <div id="phase3Container" class="hidden">
+      <div class="story-container">
+        <h2 style="font-size: 1em; margin-bottom: 16px; color: var(--fx-base-900);">Real Examples of Narrative Reversal</h2>
+
+        <div class="event">
+          <div class="event-year">Example 1</div>
+          <div class="event-title"><strong>"Dropped out of college"</strong></div>
+          <p style="font-size: 0.8em; color: var(--fx-base-700); margin-top: 8px;">
+            <span style="color: var(--fx-green);">Success story:</span> "Proved formal education is unnecessary for genius"<br>
+            <span style="color: var(--fx-red);">Failure story:</span> "Showed reckless disregard for learning fundamentals"
+          </p>
+        </div>
+
+        <div class="event">
+          <div class="event-year">Example 2</div>
+          <div class="event-title"><strong>"Took big risks early"</strong></div>
+          <p style="font-size: 0.8em; color: var(--fx-base-700); margin-top: 8px;">
+            <span style="color: var(--fx-green);">Success story:</span> "Bold visionary who seized opportunities"<br>
+            <span style="color: var(--fx-red);">Failure story:</span> "Reckless gambler who couldn't manage risk"
+          </p>
+        </div>
+
+        <div class="event">
+          <div class="event-year">Example 3</div>
+          <div class="event-title"><strong>"Ignored expert advice"</strong></div>
+          <p style="font-size: 0.8em; color: var(--fx-base-700); margin-top: 8px;">
+            <span style="color: var(--fx-green);">Success story:</span> "Trusted their unique vision against the crowd"<br>
+            <span style="color: var(--fx-red);">Failure story:</span> "Arrogantly dismissed valuable guidance"
+          </p>
+        </div>
+
+        <div class="event">
+          <div class="event-year">Example 4</div>
+          <div class="event-title"><strong>"Failed multiple times before"</strong></div>
+          <p style="font-size: 0.8em; color: var(--fx-base-700); margin-top: 8px;">
+            <span style="color: var(--fx-green);">Success story:</span> "Persistence and learning from mistakes"<br>
+            <span style="color: var(--fx-red);">Failure story:</span> "Pattern of poor judgment and repeated errors"
+          </p>
+        </div>
+      </div>
+
+      <div class="insight">
+        <strong>Nassim Taleb calls this "the narrative fallacy":</strong> Our need to fit a neat story to a series of facts. We are biologically incapable of seeing randomness—everything must have a cause, a hero, a plot. History books are fiction written backward from outcomes.
+      </div>
+
+      <div class="button-row" style="margin-top: 20px;">
+        <button class="primary" onclick="startOver()">Try Another Story</button>
+      </div>
     </div>
   </div>
 
   <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    let width, height, dpr;
-
-    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
-
-    // Random events pool
-    const eventPool = [
-      { icon: '📈', label: 'Stock rises' },
-      { icon: '📉', label: 'Stock falls' },
-      { icon: '🗞️', label: 'News article' },
-      { icon: '💼', label: 'CEO hired' },
-      { icon: '🏢', label: 'Merger announced' },
-      { icon: '🔬', label: 'New product' },
-      { icon: '⚖️', label: 'Lawsuit filed' },
-      { icon: '🌍', label: 'Global event' },
-      { icon: '💰', label: 'Funding round' },
-      { icon: '📊', label: 'Report released' },
-      { icon: '🎯', label: 'Target missed' },
-      { icon: '✅', label: 'Target met' },
-      { icon: '👤', label: 'Key hire' },
-      { icon: '🔥', label: 'Viral moment' },
-      { icon: '❄️', label: 'Market freeze' },
+    // Story templates
+    const stories = [
+      {
+        name: "Alex Chen",
+        avatar: "👨‍💼",
+        events: [
+          { year: "2010", title: "Dropped out of Stanford computer science" },
+          { year: "2012", title: "First startup failed after 18 months" },
+          { year: "2014", title: "Took a risky bet on an unproven technology" },
+          { year: "2016", title: "Ignored advice from experienced investors" },
+          { year: "2018", title: "Hired friends instead of experienced executives" }
+        ],
+        successExplanations: [
+          "The unconventional path showed they could think independently and weren't afraid to fail—essential traits for breakthrough success.",
+          "Each 'failure' was actually a learning experience that prepared them for the big win. They persisted where others quit.",
+          "Ignoring conventional wisdom let them see opportunities others missed. Great entrepreneurs don't follow the crowd."
+        ],
+        failureExplanations: [
+          "The pattern of impulsive decisions and inability to learn from mistakes made failure inevitable.",
+          "Surrounding themselves with inexperienced people and ignoring expert advice showed poor judgment from the start.",
+          "Dropping out and repeated pivots revealed someone who couldn't commit and follow through on anything."
+        ]
+      },
+      {
+        name: "Sarah Williams",
+        avatar: "👩‍💼",
+        events: [
+          { year: "2008", title: "Quit stable job to pursue uncertain startup" },
+          { year: "2010", title: "Rejected acquisition offer to stay independent" },
+          { year: "2013", title: "Expanded aggressively into new markets" },
+          { year: "2015", title: "Fired the founding team to bring in outsiders" },
+          { year: "2017", title: "Bet everything on a single product pivot" }
+        ],
+        successExplanations: [
+          "Bold conviction and willingness to make hard choices—even painful ones—is what separates visionaries from managers.",
+          "Knowing when to reject 'good enough' and hold out for greatness. That acquisition offer would have capped their potential.",
+          "Aggressive expansion showed confidence and market vision that paid off handsomely."
+        ],
+        failureExplanations: [
+          "Reckless risk-taking and inability to recognize when to take the win. Should have taken that acquisition offer.",
+          "Overexpansion and betraying loyal team members created a toxic culture that drove away talent.",
+          "Betting everything on one pivot showed desperation, not vision. Prudent diversification would have saved them."
+        ]
+      },
+      {
+        name: "Marcus Johnson",
+        avatar: "👨‍🔬",
+        events: [
+          { year: "2005", title: "Spent 5 years on research with no commercial product" },
+          { year: "2010", title: "Refused to pivot despite market feedback" },
+          { year: "2012", title: "Lost key team members who wanted to move faster" },
+          { year: "2015", title: "Turned down multiple partnership offers" },
+          { year: "2018", title: "Finally launched product 10 years after starting" }
+        ],
+        successExplanations: [
+          "Patient genius. While others chased quick wins, they built something truly revolutionary that changed the industry.",
+          "Staying true to their vision despite pressure. Real innovation takes time—anyone can build a quick app.",
+          "The team members who left didn't share the vision. Better to lose them early than compromise the mission."
+        ],
+        failureExplanations: [
+          "Stubborn refusal to adapt. 10 years of ignoring the market while competitors evolved and dominated.",
+          "Driving away talented people with an inability to collaborate or accept feedback.",
+          "Ego prevented partnerships that could have brought success years earlier. Went down with the ship for pride."
+        ]
+      }
     ];
 
     // State
-    let events = [];
-    let connections = [];
-    let dragging = false;
-    let dragStart = null;
-    let revealed = false;
-    let animationProgress = 0;
+    let currentStory = null;
+    let currentOutcome = null;
+    let selectedExplanationIndex = -1;
 
-    function resize() {
-      dpr = window.devicePixelRatio || 1;
-      width = canvas.clientWidth;
-      height = canvas.clientHeight;
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-      ctx.scale(dpr, dpr);
+    function generateStory() {
+      // Pick random story and outcome
+      currentStory = stories[Math.floor(Math.random() * stories.length)];
+      currentOutcome = Math.random() < 0.5 ? 'success' : 'failure';
+
+      // Update UI
+      document.getElementById('avatar').textContent = currentStory.avatar;
+      document.getElementById('protagonistName').textContent = currentStory.name;
+
+      // Set outcome badge
+      const badge = document.getElementById('outcomeBadge');
+      badge.textContent = currentOutcome === 'success' ? 'BECAME SUCCESSFUL' : 'ULTIMATELY FAILED';
+      badge.className = 'outcome-badge ' + currentOutcome;
+
+      // Build timeline
+      const timeline = document.getElementById('timeline');
+      timeline.innerHTML = currentStory.events.map(event => `
+        <div class="event">
+          <div class="event-year">${event.year}</div>
+          <div class="event-title">${event.title}</div>
+        </div>
+      `).join('');
+
+      // Build explanation options
+      const explanations = currentOutcome === 'success'
+        ? currentStory.successExplanations
+        : currentStory.failureExplanations;
+
+      const optionsContainer = document.getElementById('explanationOptions');
+      optionsContainer.innerHTML = explanations.map((exp, i) => `
+        <div class="explanation-option" onclick="selectOption(${i})" id="option${i}">
+          "${exp}"
+        </div>
+      `).join('');
+
+      // Update prompt
+      document.getElementById('explanationPrompt').textContent =
+        `Given these life events and ${currentOutcome === 'success' ? 'their success' : 'their failure'}, which explanation makes the most sense to you?`;
+
+      // Reset state
+      selectedExplanationIndex = -1;
+      document.getElementById('continueBtn').disabled = true;
+      document.getElementById('continueBtn').textContent = 'Select an explanation to continue';
     }
 
-    function generateNewSequence() {
-      events = [];
-      connections = [];
-      revealed = false;
-      animationProgress = 0;
-
-      const numEvents = 6;
-      const shuffled = [...eventPool].sort(() => Math.random() - 0.5);
-
-      for (let i = 0; i < numEvents; i++) {
-        events.push({
-          ...shuffled[i],
-          x: 80 + (width - 160) * (i / (numEvents - 1)),
-          y: 150 + (Math.random() - 0.5) * 100,
-          delay: i * 0.15,
-          randomSeed: Math.random() // Proves randomness
-        });
-      }
-
-      document.getElementById('revealBtn').textContent = 'Reveal Truth';
-      updateInsight();
-    }
-
-    function getEventAt(x, y) {
-      for (const event of events) {
-        const dx = x - event.x;
-        const dy = y - event.y;
-        if (dx * dx + dy * dy < 900) { // 30px radius
-          return event;
-        }
-      }
-      return null;
-    }
-
-    function clearConnections() {
-      connections = [];
-    }
-
-    function revealTruth() {
-      revealed = !revealed;
-      document.getElementById('revealBtn').textContent = revealed ? 'Hide Truth' : 'Reveal Truth';
-      updateInsight();
-    }
-
-    function updateInsight() {
-      const insight = document.getElementById('insight');
-
-      if (revealed) {
-        insight.textContent = 'Each event was randomly selected. The sequence has no causal chain—yet your mind instantly created one. This is the narrative fallacy.';
-      } else if (connections.length > 0) {
-        insight.textContent = `You've drawn ${connections.length} connection(s). Each line represents a causal story your mind constructed. Click "Reveal Truth" to see reality.`;
-      } else {
-        insight.textContent = 'As you watch, your mind will automatically construct a narrative explaining why each event led to the next.';
-      }
-    }
-
-    function draw() {
-      ctx.fillStyle = getColor('paper');
-      ctx.fillRect(0, 0, width, height);
-
-      animationProgress = Math.min(1, animationProgress + 0.02);
-
-      // Draw timeline
-      ctx.strokeStyle = getColor('base-200');
-      ctx.lineWidth = 2;
-      ctx.setLineDash([5, 5]);
-      ctx.beginPath();
-      ctx.moveTo(50, height / 2 + 50);
-      ctx.lineTo(width - 50, height / 2 + 50);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // Timeline labels
-      ctx.fillStyle = getColor('base-700');
-      ctx.font = '9px IBM Plex Mono';
-      ctx.textAlign = 'center';
-      ctx.fillText('TIME →', width - 50, height / 2 + 70);
-
-      // Draw user connections
-      ctx.strokeStyle = getColor('orange') + '80';
-      ctx.lineWidth = 2;
-      connections.forEach(conn => {
-        ctx.beginPath();
-        ctx.moveTo(conn.from.x, conn.from.y);
-        ctx.lineTo(conn.to.x, conn.to.y);
-        ctx.stroke();
-
-        // Arrow head
-        const angle = Math.atan2(conn.to.y - conn.from.y, conn.to.x - conn.from.x);
-        ctx.save();
-        ctx.translate(conn.to.x - 25 * Math.cos(angle), conn.to.y - 25 * Math.sin(angle));
-        ctx.rotate(angle);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(-8, -4);
-        ctx.lineTo(-8, 4);
-        ctx.closePath();
-        ctx.fillStyle = getColor('orange') + '80';
-        ctx.fill();
-        ctx.restore();
+    function selectOption(index) {
+      // Clear previous selection
+      document.querySelectorAll('.explanation-option').forEach(opt => {
+        opt.classList.remove('selected');
       });
 
-      // Draw current drag line
-      if (dragging && dragStart) {
-        ctx.strokeStyle = getColor('orange') + '40';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([4, 4]);
-        ctx.beginPath();
-        ctx.moveTo(dragStart.x, dragStart.y);
-        ctx.lineTo(dragStart.currentX, dragStart.currentY);
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
+      // Select new option
+      document.getElementById('option' + index).classList.add('selected');
+      selectedExplanationIndex = index;
 
-      // Draw events
-      events.forEach((event, i) => {
-        const progress = Math.max(0, Math.min(1, (animationProgress - event.delay) * 3));
-        if (progress <= 0) return;
-
-        const scale = progress;
-        const alpha = progress;
-
-        ctx.save();
-        ctx.translate(event.x, event.y);
-        ctx.scale(scale, scale);
-        ctx.globalAlpha = alpha;
-
-        // Event circle
-        ctx.fillStyle = getColor('base-50');
-        ctx.strokeStyle = getColor('base-200');
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(0, 0, 28, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        // Icon
-        ctx.font = '20px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(event.icon, 0, -2);
-
-        // Label
-        ctx.fillStyle = getColor('base-700');
-        ctx.font = '8px IBM Plex Mono';
-        ctx.fillText(event.label, 0, 42);
-
-        // Event number
-        ctx.fillStyle = getColor('base-900');
-        ctx.font = 'bold 9px IBM Plex Mono';
-        ctx.fillText(`${i + 1}`, 0, 18);
-
-        ctx.restore();
-      });
-
-      // Revealed overlay showing randomness
-      if (revealed) {
-        // Show random seeds
-        ctx.fillStyle = getColor('red') + '20';
-        ctx.fillRect(0, 0, width, height);
-
-        ctx.fillStyle = getColor('red');
-        ctx.font = 'bold 12px IBM Plex Mono';
-        ctx.textAlign = 'center';
-        ctx.fillText('RANDOM GENERATION DATA', width / 2, 30);
-
-        events.forEach((event, i) => {
-          ctx.fillStyle = getColor('red');
-          ctx.font = '8px IBM Plex Mono';
-          ctx.fillText(`Seed: ${event.randomSeed.toFixed(4)}`, event.x, event.y + 60);
-        });
-
-        // Cross out connections
-        ctx.strokeStyle = getColor('red');
-        ctx.lineWidth = 2;
-        connections.forEach(conn => {
-          const midX = (conn.from.x + conn.to.x) / 2;
-          const midY = (conn.from.y + conn.to.y) / 2;
-
-          ctx.beginPath();
-          ctx.moveTo(midX - 15, midY - 15);
-          ctx.lineTo(midX + 15, midY + 15);
-          ctx.moveTo(midX + 15, midY - 15);
-          ctx.lineTo(midX - 15, midY + 15);
-          ctx.stroke();
-        });
-
-        // Message
-        ctx.fillStyle = getColor('base-900');
-        ctx.font = '11px IBM Plex Mono';
-        ctx.textAlign = 'center';
-        ctx.fillText('Each event was selected by Math.random(). No causation exists.', width / 2, height - 50);
-        ctx.fillText('Your story was fiction—a narrative imposed on noise.', width / 2, height - 30);
-      }
-
-      // Instructions
-      if (!revealed && events.length > 0) {
-        ctx.fillStyle = getColor('base-700');
-        ctx.font = '10px IBM Plex Mono';
-        ctx.textAlign = 'center';
-        ctx.fillText('Drag between events to draw the story you see', width / 2, height - 25);
-      }
-
-      requestAnimationFrame(draw);
+      // Enable continue
+      document.getElementById('continueBtn').disabled = false;
+      document.getElementById('continueBtn').textContent = 'See what happens when we flip the outcome';
     }
 
-    // Mouse handling
-    canvas.addEventListener('mousedown', (e) => {
-      if (revealed) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+    function selectExplanation() {
+      if (selectedExplanationIndex < 0) return;
 
-      const event = getEventAt(x, y);
-      if (event) {
-        dragging = true;
-        dragStart = { ...event, currentX: x, currentY: y };
-      }
-    });
+      // Get the selected explanation
+      const selectedExplanation = currentOutcome === 'success'
+        ? currentStory.successExplanations[selectedExplanationIndex]
+        : currentStory.failureExplanations[selectedExplanationIndex];
 
-    canvas.addEventListener('mousemove', (e) => {
-      if (!dragging || !dragStart) return;
-      const rect = canvas.getBoundingClientRect();
-      dragStart.currentX = e.clientX - rect.left;
-      dragStart.currentY = e.clientY - rect.top;
-    });
+      // Get a random opposite explanation
+      const oppositeExplanations = currentOutcome === 'success'
+        ? currentStory.failureExplanations
+        : currentStory.successExplanations;
+      const oppositeExplanation = oppositeExplanations[Math.floor(Math.random() * oppositeExplanations.length)];
 
-    canvas.addEventListener('mouseup', (e) => {
-      if (!dragging || !dragStart) return;
+      // Update flip UI
+      document.getElementById('originalBadge').textContent = currentOutcome === 'success' ? 'Success' : 'Failure';
+      document.getElementById('originalBadge').className = 'badge ' + currentOutcome;
+      document.getElementById('originalExplanation').textContent = `"${selectedExplanation}"`;
 
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      document.getElementById('flippedBadge').textContent = currentOutcome === 'success' ? 'Failure' : 'Success';
+      document.getElementById('flippedBadge').className = 'badge ' + (currentOutcome === 'success' ? 'failure' : 'success');
+      document.getElementById('flippedExplanation').textContent = `"${oppositeExplanation}"`;
 
-      const targetEvent = getEventAt(x, y);
-      if (targetEvent && targetEvent !== events.find(ev => ev.x === dragStart.x && ev.y === dragStart.y)) {
-        connections.push({
-          from: { x: dragStart.x, y: dragStart.y },
-          to: { x: targetEvent.x, y: targetEvent.y }
-        });
-        updateInsight();
-      }
+      // Transition to phase 2
+      document.getElementById('phase1').classList.remove('active');
+      document.getElementById('phase1').classList.add('complete');
+      document.getElementById('phase2').classList.add('active');
 
-      dragging = false;
-      dragStart = null;
-    });
+      document.getElementById('phase1Container').classList.add('hidden');
+      document.getElementById('phase2Container').classList.remove('hidden');
+    }
 
-    canvas.addEventListener('mouseleave', () => {
-      dragging = false;
-      dragStart = null;
-    });
+    function showPhase3() {
+      document.getElementById('phase2').classList.remove('active');
+      document.getElementById('phase2').classList.add('complete');
+      document.getElementById('phase3').classList.add('active');
 
-    // Touch support
-    canvas.addEventListener('touchstart', (e) => {
-      if (revealed) return;
-      e.preventDefault();
-      const rect = canvas.getBoundingClientRect();
-      const x = e.touches[0].clientX - rect.left;
-      const y = e.touches[0].clientY - rect.top;
+      document.getElementById('phase2Container').classList.add('hidden');
+      document.getElementById('phase3Container').classList.remove('hidden');
+    }
 
-      const event = getEventAt(x, y);
-      if (event) {
-        dragging = true;
-        dragStart = { ...event, currentX: x, currentY: y };
-      }
-    }, { passive: false });
+    function startOver() {
+      // Reset phases
+      document.getElementById('phase1').className = 'phase-dot active';
+      document.getElementById('phase2').className = 'phase-dot';
+      document.getElementById('phase3').className = 'phase-dot';
 
-    canvas.addEventListener('touchmove', (e) => {
-      if (!dragging || !dragStart) return;
-      e.preventDefault();
-      const rect = canvas.getBoundingClientRect();
-      dragStart.currentX = e.touches[0].clientX - rect.left;
-      dragStart.currentY = e.touches[0].clientY - rect.top;
-    }, { passive: false });
+      // Show phase 1
+      document.getElementById('phase1Container').classList.remove('hidden');
+      document.getElementById('phase2Container').classList.add('hidden');
+      document.getElementById('phase3Container').classList.add('hidden');
 
-    canvas.addEventListener('touchend', (e) => {
-      if (!dragging || !dragStart) return;
+      // Generate new story
+      generateStory();
+    }
 
-      const rect = canvas.getBoundingClientRect();
-      const x = dragStart.currentX;
-      const y = dragStart.currentY;
-
-      const targetEvent = getEventAt(x, y);
-      if (targetEvent && targetEvent !== events.find(ev => ev.x === dragStart.x && ev.y === dragStart.y)) {
-        connections.push({
-          from: { x: dragStart.x, y: dragStart.y },
-          to: { x: targetEvent.x, y: targetEvent.y }
-        });
-        updateInsight();
-      }
-
-      dragging = false;
-      dragStart = null;
-    });
-
-    resize();
-    window.addEventListener('resize', resize);
-    generateNewSequence();
-    draw();
+    // Initialize
+    generateStory();
   </script>
 </body>
 </html>
