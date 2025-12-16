@@ -93,77 +93,78 @@
     color: var(--fx-cyan);
   }
   
-  /* Mobile-first approach */
+  /* Neural art - floats right at all sizes */
   .neural-container {
-    display: block;
-    width: 100%;
-    margin: 0 auto 30px auto;
+    float: right;
+    width: 140px;
+    margin: 0 0 16px 16px;
     text-align: center;
   }
-  
+
   .neural-container img, .neural-container canvas {
-    width: 85%;
-    max-width: 400px;
-    margin: 0 auto;
-    display: block;
-    border-radius: 8px;
+    width: 100%;
+    border-radius: 6px;
     box-shadow: 0 2px 8px rgba(47, 45, 40, 0.15);
     transition: box-shadow 0.3s ease;
   }
-  
+
   .neural-caption {
-    width: 85%;
-    margin: 10px auto 0 auto;
-    font-size: 12px;
-    color: var(--fx-base-600);
-    line-height: 1.4;
-    text-align: left;
+    display: none; /* Hidden on mobile to save space */
   }
-  
-  /* Portrait tablets and small desktops */
+
+  /* Small phones - slightly larger art */
+  @media (min-width: 400px) {
+    .neural-container {
+      width: 160px;
+      margin: 0 0 20px 20px;
+    }
+  }
+
+  /* Larger phones */
+  @media (min-width: 500px) {
+    .neural-container {
+      width: 200px;
+    }
+
+    .neural-caption {
+      display: block;
+      font-size: 10px;
+      color: var(--fx-base-600);
+      line-height: 1.4;
+      text-align: left;
+      margin-top: 8px;
+    }
+  }
+
+  /* Tablets */
   @media (min-width: 600px) {
     .neural-container {
-      float: right;
-      width: 280px;
+      width: 240px;
       margin: 0 0 25px 25px;
     }
-    
-    .neural-container img, .neural-container canvas {
-      width: 100%;
-    }
-    
+
     .neural-caption {
-      width: 100%;
-      margin: 10px 0 0 0;
-      padding: 0 5px;
+      font-size: 11px;
     }
   }
-  
+
   /* Desktop */
   @media (min-width: 992px) {
     .neural-container {
-      width: 320px;
+      width: 300px;
       margin: 0 0 30px 30px;
     }
+
+    .neural-caption {
+      font-size: 12px;
+    }
   }
-  
+
   /* Large desktop */
   @media (min-width: 1200px) {
     .neural-container {
-      width: 350px;
+      width: 340px;
       margin: 0 0 30px 40px;
-    }
-  }
-  
-  /* Handle landscape orientation on phones */
-  @media (max-width: 768px) and (orientation: landscape) {
-    .neural-container img, .neural-container canvas {
-      width: 50%;
-      max-width: 300px;
-    }
-    
-    .neural-caption {
-      width: 50%;
     }
   }
   
