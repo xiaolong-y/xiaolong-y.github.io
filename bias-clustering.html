@@ -309,10 +309,99 @@
     .hidden { display: none !important; }
 
     @media (max-width: 600px) {
+      /* Ensure minimum text size of 14px */
+      body { font-size: 14px; }
+
+      /* Canvas adjustments */
       canvas { height: 280px; }
+
+      /* Heading sizes */
       h1 { font-size: 1.2em; }
-      .stats-row { grid-template-columns: 1fr; }
-      .quiz-options { flex-direction: column; }
+
+      /* Navigation - increase touch target */
+      .back-nav {
+        font-size: 0.9em;
+        padding: 12px 16px;
+        min-height: 44px;
+        display: inline-flex;
+      }
+
+      /* Field headers */
+      .field-header {
+        font-size: 0.95em;
+        padding: 14px 16px;
+      }
+
+      .field-header .tag {
+        font-size: 0.85em;
+        padding: 4px 10px;
+      }
+
+      /* Instructions and descriptions */
+      .description { font-size: 0.95em; }
+      .instruction { font-size: 0.9em; }
+      .insight { font-size: 0.95em; }
+
+      /* Buttons - ensure 44x44px touch targets */
+      button {
+        font-size: 0.9em;
+        padding: 14px 20px;
+        min-height: 44px;
+        min-width: 44px;
+      }
+
+      .button-row {
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      /* Quiz options - larger touch targets */
+      .quiz-option {
+        padding: 18px 24px;
+        font-size: 1em;
+        min-height: 44px;
+      }
+
+      .quiz-options {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      /* Stats */
+      .stats-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .stat-label {
+        font-size: 0.8em;
+      }
+
+      .stat-value {
+        font-size: 1.8em;
+      }
+
+      /* Event elements */
+      .event-year {
+        font-size: 0.8em;
+      }
+
+      .event-title {
+        font-size: 1em;
+      }
+
+      /* Explanation options */
+      .explanation-option {
+        font-size: 0.95em;
+        padding: 16px 18px;
+        min-height: 44px;
+      }
+
+      /* Phase indicator - larger touch feedback */
+      .phase-dot {
+        width: 12px;
+        height: 12px;
+      }
     }
   </style>
 </head>

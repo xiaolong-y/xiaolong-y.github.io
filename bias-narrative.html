@@ -403,10 +403,124 @@
     }
 
     @media (max-width: 600px) {
+      /* Ensure minimum text size of 14px */
+      body { font-size: 14px; }
+
+      /* Heading sizes */
       h1 { font-size: 1.2em; }
-      .story-header { flex-direction: column; align-items: flex-start; }
-      .event { padding: 12px; margin-left: 12px; }
-      .explanation-option { padding: 10px 12px; }
+
+      /* Navigation - increase touch target */
+      .back-nav {
+        font-size: 0.9em;
+        padding: 12px 16px;
+        min-height: 44px;
+        display: inline-flex;
+      }
+
+      /* Description and text elements */
+      .description { font-size: 0.95em; }
+      .insight { font-size: 0.95em; }
+
+      /* Story header adjustments */
+      .story-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .protagonist-info h2 {
+        font-size: 1.15em;
+      }
+
+      .protagonist-info p {
+        font-size: 0.9em;
+      }
+
+      /* Outcome badge - larger touch target */
+      .outcome-badge {
+        font-size: 1em;
+        padding: 12px 20px;
+        min-height: 44px;
+      }
+
+      /* Timeline events */
+      .event {
+        padding: 14px;
+        margin-left: 12px;
+      }
+
+      .event-year {
+        font-size: 0.8em;
+      }
+
+      .event-title {
+        font-size: 1em;
+      }
+
+      /* Explanation prompt and options */
+      .explanation-prompt {
+        font-size: 1em;
+      }
+
+      .explanation-option {
+        padding: 16px 18px;
+        font-size: 0.95em;
+        min-height: 44px;
+      }
+
+      .explanation-options {
+        gap: 12px;
+      }
+
+      /* Buttons - ensure 44x44px touch targets */
+      button {
+        font-size: 0.95em;
+        padding: 14px 24px;
+        min-height: 44px;
+        min-width: 44px;
+      }
+
+      .button-row {
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      /* Flip section elements */
+      .flip-title {
+        font-size: 1.05em;
+      }
+
+      .flip-box h3 {
+        font-size: 0.85em;
+      }
+
+      .flip-box .badge {
+        font-size: 0.9em;
+        padding: 6px 14px;
+      }
+
+      .flip-explanation {
+        font-size: 0.9em;
+      }
+
+      /* Same events note */
+      .same-events-note {
+        font-size: 0.95em;
+        padding: 14px;
+      }
+
+      /* Phase indicator - larger touch feedback */
+      .phase-dot {
+        width: 12px;
+        height: 12px;
+      }
+
+      /* Avatar - slightly larger on mobile */
+      .avatar {
+        width: 56px;
+        height: 56px;
+        font-size: 28px;
+      }
     }
   </style>
 </head>

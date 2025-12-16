@@ -313,6 +313,40 @@
       h1 { font-size: 1.2em; }
       .choice-buttons { grid-template-columns: 1fr; }
       .action-buttons { flex-direction: column; }
+
+      /* Mobile button fixes - ensure 44x44px touch targets */
+      .action-btn {
+        font-size: 14px;
+        padding: 14px 20px;
+        min-height: 44px;
+      }
+
+      .choice-btn {
+        font-size: 14px;
+        padding: 18px 20px;
+        min-height: 44px;
+      }
+
+      /* Mobile text size fixes - minimum 14px */
+      .slider-labels {
+        font-size: 14px;
+      }
+
+      .choice-btn .sublabel {
+        font-size: 14px;
+      }
+
+      .stat {
+        font-size: 14px;
+      }
+
+      .crowd-label {
+        font-size: 14px;
+      }
+
+      .crowd-count {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
