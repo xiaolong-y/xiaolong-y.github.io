@@ -366,6 +366,13 @@
 
 <div class="quote-card">
   <div class="quote-text">
+    "Follow your heart."
+  </div>
+  <div class="quote-author">Kosuke Imai</div>
+</div>
+
+<div class="quote-card">
+  <div class="quote-text">
     "What mysterious forces precede the appearance of the processes, promote their growth and ramification, stimulate the corresponding migration of the cells and fibres in predetermined directions, as if in obedience to a skillfully arranged architectural plan, and finally establish those protoplasmic kisses, the intercellular articulations, which seem to constitute the final ecstasy of an epic love story?"
   </div>
   <div class="quote-author">Ramon y Cajal</div>
