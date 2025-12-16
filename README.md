@@ -236,56 +236,7 @@
       color: var(--fx-base-300);
     }
   }
-  /* Navigation bar */
-  .site-nav {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    padding: 20px 0;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--fx-base-200);
-  }
-
-  .site-nav a {
-    color: var(--fx-base-700);
-    text-decoration: none;
-    font-size: 0.95em;
-    font-weight: 300;
-    padding: 8px 4px;
-    border-bottom: 2px solid transparent;
-    transition: color 0.2s ease, border-color 0.2s ease;
-  }
-
-  .site-nav a:hover {
-    color: var(--fx-blue);
-  }
-
-  .site-nav a.active {
-    color: var(--fx-blue);
-    border-bottom-color: var(--fx-blue);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .site-nav {
-      border-bottom-color: var(--fx-base-800);
-    }
-    .site-nav a {
-      color: var(--fx-base-400);
-    }
-    .site-nav a:hover,
-    .site-nav a.active {
-      color: var(--fx-cyan);
-      border-bottom-color: var(--fx-cyan);
-    }
-  }
 </style>
-
-<nav class="site-nav">
-  <a href="/" class="active">home</a>
-  <a href="quotes">quotes</a>
-  <a href="bookshelf">bookshelf</a>
-  <a href="cognitive-biases">cognitive biases</a>
-</nav>
 
 <div class="neural-container">
   <canvas id="neuron-canvas" role="img" aria-label="Interactive neural network visualization showing neurons connected by dendrites with animated synaptic signals"></canvas>
