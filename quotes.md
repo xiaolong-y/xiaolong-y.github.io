@@ -178,6 +178,24 @@
     transform: translateX(-3px);
   }
 
+  /* Page title */
+  .page-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9em;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--fx-base-600);
+    margin: var(--sp-4) 0 var(--sp-3);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .page-title {
+      color: var(--fx-base-500);
+    }
+  }
+
   /* Page intro */
   .page-intro {
     max-width: 700px;
@@ -422,8 +440,10 @@
   </a>
 </nav>
 
+<h1 class="page-title">Inspirations</h1>
+
 <p class="page-intro">
-  These quotations have had a profound influence on me. Their value lies not only in the solutions and perspectives they present, but in the reminder that others&mdash;often our heroes&mdash;have thought deeply about the same problems. That recognition is both heartening and humbling.
+  These inspirations have had a profound influence on me. Their value lies not only in the solutions and perspectives they present, but in the reminder that others&mdash;often our heroes&mdash;have thought deeply about the same problems. That recognition is both heartening and humbling.
 </p>
 
 <div class="quotes-container" id="quotesContainer">
@@ -437,14 +457,14 @@
 
 <div class="quote-card image-card">
   <img src="assets/images/m87-black-hole.jpg" alt="First image of a black hole - M87* captured by the Event Horizon Telescope">
-  <div class="image-caption">First image of a black hole, M87* — Event Horizon Telescope, April 2019</div>
+  <div class="image-caption">M87* — Seeing the unseeable</div>
 </div>
 
 <div class="quote-card video-card">
   <div class="video-wrapper">
     <iframe src="https://www.youtube.com/embed/bvim4rsNHkQ" title="YouTube video" allowfullscreen></iframe>
   </div>
-  <div class="video-caption">The Most Astounding Fact — Neil deGrasse Tyson</div>
+  <div class="video-caption">Painful but good failures.</div>
 </div>
 
 <div class="quote-card">
