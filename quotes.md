@@ -455,6 +455,17 @@
   <div class="quote-author">Kosuke Imai</div>
 </div>
 
+<div class="quote-card">
+  <div class="quote-text">
+    1. QUESTION dumb requirements<br>
+    2. DELETE anything you can<br>
+    3. SIMPLIFY/OPTIMIZE<br>
+    4. ACCELERATE CYCLE TIME<br>
+    5. AUTOMATE
+  </div>
+  <div class="quote-author">Elon Musk</div>
+</div>
+
 <div class="quote-card image-card">
   <img src="assets/images/m87-black-hole.jpg" alt="First image of a black hole - M87* captured by the Event Horizon Telescope">
   <div class="image-caption"><a href="https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-87/">M87*</a> — Seeing the unseeable</div>
