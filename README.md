@@ -1,3 +1,6 @@
+<!-- Preconnect for calendar API -->
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RQC3VEC49K"></script>
 <script>
@@ -553,7 +556,7 @@ I also keep my favorite [inspirations](quotes.md), [books](bookshelf.md), and [t
     SECRET_TOKEN: '84943a9316e6a8e03d48e25dc776426b',
     ENABLE_FETCH: true,
     CACHE_KEY: 'cal_widget_cache',
-    CACHE_MINUTES: 30      // Cache duration
+    CACHE_MINUTES: 360     // Cache for 6 hours
   };
 
   const tooltip = document.getElementById('cal-tooltip');
@@ -622,12 +625,6 @@ I also keep my favorite [inspirations](quotes.md), [books](bookshelf.md), and [t
   async function fetchCalendarData() {
     if (!CALENDAR_CONFIG.ENABLE_FETCH || !CALENDAR_CONFIG.APPS_SCRIPT_URL) {
       return null;
-    }
-
-    // Check cache first
-    const cached = getCachedData();
-    if (cached) {
-      return cached;
     }
 
     try {
@@ -792,12 +789,24 @@ I also keep my favorite [inspirations](quotes.md), [books](bookshelf.md), and [t
   // ============================================
 
   async function initCalendar() {
-    // Try to fetch real data, fall back to simulated
-    calendarData = await fetchCalendarData();
-    if (!calendarData) {
-      calendarData = generateSimulatedData();
+    // Check cache first for instant render
+    const cached = getCachedData();
+    if (cached) {
+      calendarData = cached;
+      renderCalendar(calendarData);
+      return;
     }
+
+    // Render simulated immediately for instant feedback
+    calendarData = generateSimulatedData();
     renderCalendar(calendarData);
+
+    // Fetch real data in background, swap when ready
+    const realData = await fetchCalendarData();
+    if (realData) {
+      calendarData = realData;
+      renderCalendar(calendarData);
+    }
   }
 
   function handleColorSchemeChange() {
