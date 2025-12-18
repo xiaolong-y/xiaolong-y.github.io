@@ -591,7 +591,7 @@ I also keep my favorite [inspirations](quotes.md), [books](bookshelf.md), and [t
   // CALENDAR DATA FETCHING
   // ============================================
 
-  // Check cache validity
+  // Check cache - returns { data, isStale } or null
   function getCachedData() {
     try {
       const cached = localStorage.getItem(CALENDAR_CONFIG.CACHE_KEY);
@@ -600,9 +600,10 @@ I also keep my favorite [inspirations](quotes.md), [books](bookshelf.md), and [t
       const { data, timestamp } = JSON.parse(cached);
       const age = (Date.now() - timestamp) / (1000 * 60);
 
-      if (age < CALENDAR_CONFIG.CACHE_MINUTES) {
-        return data;
-      }
+      return {
+        data: data,
+        isStale: age >= CALENDAR_CONFIG.CACHE_MINUTES
+      };
     } catch (e) {
       console.warn('Cache read error:', e);
     }
@@ -789,23 +790,32 @@ I also keep my favorite [inspirations](quotes.md), [books](bookshelf.md), and [t
   // ============================================
 
   async function initCalendar() {
-    // Check cache first for instant render
     const cached = getCachedData();
+
+    // Render instantly: cached real data (even if stale) > simulated
     if (cached) {
-      calendarData = cached;
+      calendarData = cached.data;
       renderCalendar(calendarData);
-      return;
-    }
 
-    // Render simulated immediately for instant feedback
-    calendarData = generateSimulatedData();
-    renderCalendar(calendarData);
+      // If fresh, we're done
+      if (!cached.isStale) return;
 
-    // Fetch real data in background, swap when ready
-    const realData = await fetchCalendarData();
-    if (realData) {
-      calendarData = realData;
+      // If stale, refresh in background
+      const freshData = await fetchCalendarData();
+      if (freshData) {
+        calendarData = freshData;
+        renderCalendar(calendarData);
+      }
+    } else {
+      // No cache: show simulated, fetch real in background
+      calendarData = generateSimulatedData();
       renderCalendar(calendarData);
+
+      const realData = await fetchCalendarData();
+      if (realData) {
+        calendarData = realData;
+        renderCalendar(calendarData);
+      }
     }
   }
 
