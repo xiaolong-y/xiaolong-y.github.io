@@ -223,14 +223,20 @@
   .site-title {
     font-family: 'IBM Plex Mono', monospace;
     font-weight: 200;
-    font-size: 1.8em;
-    letter-spacing: 0.14em;
+    font-size: 1.5em;
+    letter-spacing: 0.25em;
     text-transform: uppercase;
-    display: inline-block;
+    display: block;
+    text-align: center;
+    line-height: 1.5;
     animation: float 8s ease-in-out infinite;
     text-shadow: 0 4px 12px rgba(0,0,0,0.03);
     border-bottom: none;
     margin-bottom: 1.2em;
+  }
+
+  .site-title .line {
+    display: block;
   }
 
   /* Headings with Flexoki styling */
@@ -433,7 +439,7 @@
   }
 </style>
 
-<h1 class="site-title"><span class="c1" style="color:#3C3F3A">X</span><span class="c2" style="color:#4C4F4A">i</span><span class="c3" style="color:#5C5F5A">a</span><span class="c4" style="color:#6C6F6A">o</span><span class="c5" style="color:#52554F">l</span><span class="c6" style="color:#62655F">o</span><span class="c7" style="color:#72756F">n</span><span class="c8" style="color:#82857F">g</span> <span class="y1" style="color:#807862">Y</span><span class="y2" style="color:#8A826A">a</span><span class="y3" style="color:#948C72">n</span><span class="y4" style="color:#9E967A">g</span></h1>
+<h1 class="site-title"><span class="line"><span class="y1" style="color:#807862">Y</span><span class="y2" style="color:#8A826A">a</span><span class="y3" style="color:#948C72">n</span><span class="y4" style="color:#9E967A">g</span></span><span class="line"><span class="c1" style="color:#3C3F3A">X</span><span class="c2" style="color:#4C4F4A">i</span><span class="c3" style="color:#5C5F5A">a</span><span class="c4" style="color:#6C6F6A">o</span><span class="c5" style="color:#52554F">l</span><span class="c6" style="color:#62655F">o</span><span class="c7" style="color:#72756F">n</span><span class="c8" style="color:#82857F">g</span></span></h1>
 
 <!-- Art Option 1: Neural Connection Symphony -->
 <div class="art-option" id="art-neural">
