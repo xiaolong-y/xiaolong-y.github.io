@@ -326,6 +326,108 @@
   .art-option.active {
     display: block;
   }
+
+  /* ========================================
+     Calendar Strip Widget (8 weeks)
+     Light, soft, minimal design
+     ======================================== */
+
+  .calendar-widget {
+    display: flex;
+    justify-content: center;
+    margin: 24px 0;
+    padding: 8px 0;
+  }
+
+  .cal-strip-8w {
+    display: flex;
+    justify-content: center;
+  }
+
+  .cal-strip-8w-days {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .cal-strip-8w-week {
+    display: flex;
+    gap: 2px;
+  }
+
+  .cal-strip-8w-week:not(:last-child) {
+    margin-right: 4px;
+  }
+
+  .cal-strip-8w-day {
+    width: 10px;
+    height: 10px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  .cal-strip-8w-day:hover {
+    transform: scale(1.4);
+    z-index: 10;
+    position: relative;
+  }
+
+  .cal-strip-8w-day.weekend {
+    border-radius: 50%;
+  }
+
+  .cal-strip-8w-day.today {
+    box-shadow: 0 0 0 1.5px var(--fx-cyan);
+  }
+
+  /* Tooltip - soft and light */
+  .cal-tooltip {
+    position: fixed;
+    background: var(--fx-base-50);
+    color: var(--fx-base-700);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 100ms ease;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .cal-tooltip.visible {
+    opacity: 1;
+  }
+
+  /* Dark mode adjustments */
+  @media (prefers-color-scheme: dark) {
+    .cal-strip-8w-day.today {
+      box-shadow: 0 0 0 1.5px var(--fx-cyan);
+    }
+
+    .cal-tooltip {
+      background: var(--fx-base-850);
+      color: var(--fx-base-300);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cal-strip-8w-day,
+    .cal-tooltip {
+      transition: none;
+    }
+
+    .cal-strip-8w-day:hover {
+      transform: none;
+    }
+  }
 </style>
 
 <h1 class="site-title"><span class="c1" style="color:#3C3F3A">X</span><span class="c2" style="color:#4C4F4A">i</span><span class="c3" style="color:#5C5F5A">a</span><span class="c4" style="color:#6C6F6A">o</span><span class="c5" style="color:#52554F">l</span><span class="c6" style="color:#62655F">o</span><span class="c7" style="color:#72756F">n</span><span class="c8" style="color:#82857F">g</span> <span class="y1" style="color:#807862">Y</span><span class="y2" style="color:#8A826A">a</span><span class="y3" style="color:#948C72">n</span><span class="y4" style="color:#9E967A">g</span></h1>
@@ -404,6 +506,14 @@ I also keep my favorite [inspirations](quotes.md), [books](bookshelf.md), and [t
 
 <div style="clear: both;"></div>
 
+<!-- Calendar Widget: 8-week busyness view -->
+<div class="calendar-widget">
+  <div class="cal-strip-8w" id="cal-8w">
+    <div class="cal-strip-8w-days" id="cal-8w-days"></div>
+  </div>
+</div>
+<div class="cal-tooltip" id="cal-tooltip"></div>
+
 ---
 
 <div align="center" style="margin: 30px 0;">
@@ -424,3 +534,284 @@ I also keep my favorite [inspirations](quotes.md), [books](bookshelf.md), and [t
 <div align="center">
   <sub>Many thanks to <a href="https://jtibshirani.github.io/">Julie Tibshirani</a> for showing the perfect implementation of a lightweight website.</sub>
 </div>
+
+<!-- Calendar Widget JavaScript -->
+<script>
+(function() {
+  'use strict';
+
+  // ============================================
+  // CALENDAR API CONFIGURATION
+  // To enable real calendar data:
+  // 1. Deploy calendar-api.gs to Google Apps Script
+  // 2. Fill in APPS_SCRIPT_URL and SECRET_TOKEN below
+  // 3. Set ENABLE_FETCH to true
+  // See CALENDAR_INTEGRATION.md for setup instructions
+  // ============================================
+  const CALENDAR_CONFIG = {
+    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycby2vx1W23lG_b4sHX2-ZnlobMMj__yBrTEbVPzcUR5Woy6zVIG1SsZL_QfnVbMfjHRbDQ/exec',
+    SECRET_TOKEN: '84943a9316e6a8e03d48e25dc776426b',
+    ENABLE_FETCH: true,
+    CACHE_KEY: 'cal_widget_cache',
+    CACHE_MINUTES: 30      // Cache duration
+  };
+
+  const tooltip = document.getElementById('cal-tooltip');
+  let calendarData = null;
+
+  function isDarkMode() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  // Soft, light color gradient
+  function hoursToColor(hours, dark) {
+    const t = Math.min(hours / 8, 1);
+
+    if (dark) {
+      // Dark mode: subtle warm tones
+      if (t < 0.1) return '#1C1B1A';
+      if (t < 0.25) return `rgba(180, 160, 120, ${0.15 + t * 0.4})`;
+      if (t < 0.5) return `rgba(200, 160, 100, ${0.25 + t * 0.3})`;
+      if (t < 0.75) return `rgba(210, 140, 90, ${0.35 + t * 0.25})`;
+      return `rgba(200, 120, 100, ${0.45 + t * 0.2})`;
+    } else {
+      // Light mode: soft pastel warmth
+      if (t < 0.1) return '#FFFCF0';
+      if (t < 0.25) return '#FDF8E8';
+      if (t < 0.5) return '#F8EDCD';
+      if (t < 0.75) return '#F2DEB0';
+      return '#EBCFA0';
+    }
+  }
+
+  // ============================================
+  // CALENDAR DATA FETCHING
+  // ============================================
+
+  // Check cache validity
+  function getCachedData() {
+    try {
+      const cached = localStorage.getItem(CALENDAR_CONFIG.CACHE_KEY);
+      if (!cached) return null;
+
+      const { data, timestamp } = JSON.parse(cached);
+      const age = (Date.now() - timestamp) / (1000 * 60);
+
+      if (age < CALENDAR_CONFIG.CACHE_MINUTES) {
+        return data;
+      }
+    } catch (e) {
+      console.warn('Cache read error:', e);
+    }
+    return null;
+  }
+
+  // Save to cache
+  function setCachedData(data) {
+    try {
+      localStorage.setItem(CALENDAR_CONFIG.CACHE_KEY, JSON.stringify({
+        data: data,
+        timestamp: Date.now()
+      }));
+    } catch (e) {
+      console.warn('Cache write error:', e);
+    }
+  }
+
+  // Fetch from Google Apps Script API
+  async function fetchCalendarData() {
+    if (!CALENDAR_CONFIG.ENABLE_FETCH || !CALENDAR_CONFIG.APPS_SCRIPT_URL) {
+      return null;
+    }
+
+    // Check cache first
+    const cached = getCachedData();
+    if (cached) {
+      return cached;
+    }
+
+    try {
+      const url = `${CALENDAR_CONFIG.APPS_SCRIPT_URL}?token=${encodeURIComponent(CALENDAR_CONFIG.SECRET_TOKEN)}&days=56`;
+      const response = await fetch(url, {
+        method: 'GET',
+        mode: 'cors'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const json = await response.json();
+
+      if (!json.success) {
+        throw new Error(json.error || 'API error');
+      }
+
+      // Transform API response to widget format
+      const data = transformApiData(json.days);
+      setCachedData(data);
+      return data;
+
+    } catch (error) {
+      console.warn('Calendar fetch failed, using simulated data:', error.message);
+      return null;
+    }
+  }
+
+  // Transform API response to widget data format
+  function transformApiData(apiDays) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return apiDays.map((day, index) => {
+      const [year, month, dayNum] = day.date.split('-').map(Number);
+      const date = new Date(year, month - 1, dayNum);
+
+      return {
+        date: date,
+        hours: day.hours,
+        eventCount: day.eventCount,
+        isToday: index === 0
+      };
+    });
+  }
+
+  // ============================================
+  // SIMULATED DATA (fallback)
+  // ============================================
+
+  function seededRandom(seed) {
+    return function() {
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+      return seed / 0x7fffffff;
+    };
+  }
+
+  function generateSimulatedData() {
+    const data = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const weekSeed = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+    const random = seededRandom(weekSeed);
+
+    for (let i = 0; i < 56; i++) {
+      const date = new Date(today);
+      date.setDate(date.getDate() + i);
+      const dayOfWeek = date.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const weekNum = Math.floor(i / 7);
+
+      let hours = 0;
+      let mult = 1;
+
+      if (weekNum === 2 || weekNum === 3) mult = 1.3;
+      else if (weekNum === 4) mult = 0.5;
+      else if (weekNum === 6) mult = 1.15;
+
+      if (isWeekend) {
+        hours = random() < 0.2 ? random() * 2.5 : 0;
+      } else {
+        const r = random();
+        if (r < 0.12) hours = 0;
+        else if (r < 0.3) hours = 1 + random() * 2;
+        else if (r < 0.6) hours = 2.5 + random() * 2.5;
+        else if (r < 0.85) hours = 4 + random() * 2.5;
+        else hours = 6 + random() * 2;
+        hours *= mult;
+      }
+
+      data.push({
+        date: date,
+        hours: Math.max(0, Math.min(9, Math.round(hours * 10) / 10)),
+        isToday: i === 0
+      });
+    }
+    return data;
+  }
+
+  // ============================================
+  // UI RENDERING
+  // ============================================
+
+  function formatDate(date) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
+  }
+
+  function showTooltip(el, dateStr, hours) {
+    tooltip.textContent = hours > 0 ? `${dateStr} · ${hours}h` : dateStr;
+    const rect = el.getBoundingClientRect();
+    tooltip.style.left = `${rect.left + rect.width / 2}px`;
+    tooltip.style.top = `${rect.top - 28}px`;
+    tooltip.style.transform = 'translateX(-50%)';
+    tooltip.classList.add('visible');
+  }
+
+  function hideTooltip() {
+    tooltip.classList.remove('visible');
+  }
+
+  function renderCalendar(data) {
+    const container = document.getElementById('cal-8w-days');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const dark = isDarkMode();
+
+    for (let week = 0; week < 8; week++) {
+      const weekEl = document.createElement('div');
+      weekEl.className = 'cal-strip-8w-week';
+
+      for (let day = 0; day < 7; day++) {
+        const d = data[week * 7 + day];
+        if (!d) continue;
+
+        const dayEl = document.createElement('div');
+        dayEl.className = 'cal-strip-8w-day';
+
+        if (d.date.getDay() === 0 || d.date.getDay() === 6) {
+          dayEl.classList.add('weekend');
+        }
+        if (d.isToday) dayEl.classList.add('today');
+
+        dayEl.style.backgroundColor = hoursToColor(d.hours, dark);
+
+        const dateStr = formatDate(d.date);
+        dayEl.addEventListener('mouseenter', () => showTooltip(dayEl, dateStr, d.hours));
+        dayEl.addEventListener('mouseleave', hideTooltip);
+
+        weekEl.appendChild(dayEl);
+      }
+      container.appendChild(weekEl);
+    }
+  }
+
+  // ============================================
+  // INITIALIZATION
+  // ============================================
+
+  async function initCalendar() {
+    // Try to fetch real data, fall back to simulated
+    calendarData = await fetchCalendarData();
+    if (!calendarData) {
+      calendarData = generateSimulatedData();
+    }
+    renderCalendar(calendarData);
+  }
+
+  function handleColorSchemeChange() {
+    if (calendarData) {
+      renderCalendar(calendarData);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCalendar);
+  } else {
+    initCalendar();
+  }
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', handleColorSchemeChange);
+})();
+</script>
