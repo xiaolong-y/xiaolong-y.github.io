@@ -600,8 +600,16 @@ I also keep my favorite [inspirations](quotes.md), [books](bookshelf.md), and [t
       const { data, timestamp } = JSON.parse(cached);
       const age = (Date.now() - timestamp) / (1000 * 60);
 
+      // Rehydrate Date objects (JSON stringifies them as ISO strings)
+      const rehydrated = data.map((d, index) => ({
+        date: new Date(d.date),
+        hours: d.hours,
+        eventCount: d.eventCount,
+        isToday: index === 0  // Recalculate since today may have changed
+      }));
+
       return {
-        data: data,
+        data: rehydrated,
         isStale: age >= CALENDAR_CONFIG.CACHE_MINUTES
       };
     } catch (e) {
