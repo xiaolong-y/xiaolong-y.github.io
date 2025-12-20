@@ -575,6 +575,12 @@
 
 <script>
 (function() {
+  // Shuffle cards on page load to mix different types
+  const container = document.getElementById('quotesContainer');
+  const cardsArray = Array.from(container.children);
+  cardsArray.sort(() => Math.random() - 0.5);
+  cardsArray.forEach(card => container.appendChild(card));
+
   // Check for reduced motion preference
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

@@ -517,7 +517,7 @@ I was fortunate to be a part of Prof. [Kosuke Imai](https://imai.fas.harvard.edu
 
 Non-academically, I write on my [bear blog](https://xiaolongy.bearblog.dev) occasionally.
 
-I also keep my favorite [inspirations](quotes.md), [books](bookshelf.md), and [thought snippets](ephemeral-thoughts-final.html) here. I created a collection of interactive [cognitive bias](cognitive-biases.html) visualizations in collaboration with [Claude Code](https://claude.ai/code).
+I also keep my favorite [inspirations](quotes.md), [books](bookshelf.md), and [thought snippets](thought-snippets.html) here. I created a collection of interactive [cognitive bias](cognitive-biases.html) visualizations in collaboration with [Claude Code](https://claude.ai/code).
 
 <div style="clear: both;"></div>
 
