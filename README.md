@@ -351,6 +351,12 @@
   .cal-strip-8w {
     display: flex;
     justify-content: center;
+    cursor: pointer;
+  }
+
+  .cal-strip-8w.refreshing {
+    opacity: 0.5;
+    pointer-events: none;
   }
 
   .cal-strip-8w-days {
@@ -846,5 +852,46 @@ I also keep my favorite [inspirations](quotes.md), [books](bookshelf.md), and [t
   }
 
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', handleColorSchemeChange);
+
+  // ============================================
+  // CLICK TO FORCE REFRESH
+  // ============================================
+
+  async function forceRefreshCalendar() {
+    const container = document.getElementById('cal-8w');
+    if (!container || container.classList.contains('refreshing')) return;
+
+    // Visual feedback
+    container.classList.add('refreshing');
+
+    // Clear cache
+    try {
+      localStorage.removeItem(CALENDAR_CONFIG.CACHE_KEY);
+    } catch (e) {}
+
+    // Fetch fresh data
+    const freshData = await fetchCalendarData();
+    if (freshData) {
+      calendarData = freshData;
+      renderCalendar(calendarData);
+    }
+
+    // Remove refreshing state
+    container.classList.remove('refreshing');
+  }
+
+  // Add click handler to calendar (after DOM ready)
+  function setupClickHandler() {
+    const calContainer = document.getElementById('cal-8w');
+    if (calContainer) {
+      calContainer.addEventListener('click', forceRefreshCalendar);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupClickHandler);
+  } else {
+    setupClickHandler();
+  }
 })();
 </script>
