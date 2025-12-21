@@ -447,6 +447,13 @@
 </p>
 
 <div class="quotes-container" id="quotesContainer">
+<div class="quote-card">
+  <div class="quote-text">
+    "Brick walls let us show our dedication."
+  </div>
+  <div class="quote-author">Randy Pausch</div>
+</div>
+
 
 <div class="quote-card">
   <div class="quote-text">
