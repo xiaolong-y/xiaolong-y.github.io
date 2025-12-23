@@ -449,6 +449,13 @@
 <div class="quotes-container" id="quotesContainer">
 <div class="quote-card">
   <div class="quote-text">
+    "You can love the subject, work harder than everyone else, do everything right, and still not win the USAMO; that’s what makes it worth doing."
+  </div>
+  <div class="quote-author">Evan Chen</div>
+</div>
+
+<div class="quote-card">
+  <div class="quote-text">
     "Brick walls let us show our dedication."
   </div>
   <div class="quote-author">Randy Pausch</div>
