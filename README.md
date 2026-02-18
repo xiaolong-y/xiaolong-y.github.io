@@ -1,3 +1,6 @@
+<!-- Remove default favicon -->
+<link rel="icon" href="data:,">
+
 <!-- Preconnect for calendar API -->
 <link rel="preconnect" href="https://script.google.com" crossorigin>
 
