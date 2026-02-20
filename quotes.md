@@ -590,6 +590,13 @@
   <div class="quote-author">George Saunders</div>
 </div>
 
+<div class="quote-card">
+  <div class="quote-text">
+    "Persistence Despite Revolutions. You can take my wealth, you can take my school, but you cannot take my aspiration to improve."
+  </div>
+  <div class="quote-author">Becker et al. 2020 &amp; Alesina et al. 2022</div>
+</div>
+
 </div>
 
 </div>
