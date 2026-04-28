@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4-Week Calendar Strip</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+
+    /* Flexoki base colors */
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-paper-dark: #100F0F;
+      --fx-base-50: #F2F0E5;
+      --fx-base-100: #E6E4D9;
+      --fx-base-200: #DAD8CE;
+      --fx-base-600: #878681;
+      --fx-base-700: #6F6E69;
+      --fx-base-800: #575653;
+      --fx-base-850: #403E3C;
+      --fx-base-900: #2D2B28;
+      --fx-blue: #205EA6;
+      --fx-blue-dark: #4385BE;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--fx-paper);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      transition: background-color 0.3s ease;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: var(--fx-paper-dark);
+      }
+    }
+
+    /* ========================================
+       4-Week Calendar Strip Widget
+       Self-contained, embeddable component
+       ======================================== */
+
+    .cal-strip-4w {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px; /* Week separator gap */
+      position: relative;
+      padding: 4px 0;
+    }
+
+    .cal-strip-4w__week {
+      display: flex;
+      gap: 3px;
+    }
+
+    .cal-strip-4w__day {
+      width: 11px;
+      height: 11px;
+      border-radius: 2px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      cursor: pointer;
+      transition: transform 150ms ease, box-shadow 150ms ease;
+      position: relative;
+    }
+
+    /* Weekend circles */
+    .cal-strip-4w__day--weekend {
+      border-radius: 50%;
+    }
+
+    /* Today marker */
+    .cal-strip-4w__day--today {
+      box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.1),
+        inset 0 -2px 0 var(--fx-blue);
+    }
+
+    /* Hover state */
+    .cal-strip-4w__day:hover {
+      transform: scale(1.25);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+      z-index: 10;
+    }
+
+    .cal-strip-4w__day--today:hover {
+      box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.12),
+        inset 0 -2px 0 var(--fx-blue);
+    }
+
+    /* Tooltip */
+    .cal-strip-4w__tooltip {
+      position: fixed;
+      background: var(--fx-base-900);
+      color: var(--fx-paper);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      padding: 4px 6px;
+      border-radius: 2px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateX(-50%) translateY(-4px);
+      transition: opacity 120ms ease, transform 120ms ease;
+      white-space: nowrap;
+      z-index: 1000;
+    }
+
+    .cal-strip-4w__tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: var(--fx-base-900);
+    }
+
+    .cal-strip-4w__tooltip--visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Dark mode adjustments */
+    @media (prefers-color-scheme: dark) {
+      .cal-strip-4w__day {
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .cal-strip-4w__day--today {
+        box-shadow:
+          0 1px 3px rgba(0, 0, 0, 0.3),
+          inset 0 -2px 0 var(--fx-blue-dark);
+      }
+
+      .cal-strip-4w__day--today:hover {
+        box-shadow:
+          0 2px 6px rgba(0, 0, 0, 0.3),
+          inset 0 -2px 0 var(--fx-blue-dark);
+      }
+
+      .cal-strip-4w__tooltip {
+        background: var(--fx-base-100);
+        color: var(--fx-base-900);
+      }
+
+      .cal-strip-4w__tooltip::after {
+        border-top-color: var(--fx-base-100);
+      }
+    }
+
+    /* Reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      .cal-strip-4w__day,
+      .cal-strip-4w__tooltip {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cal-strip-4w" id="cal-4w"></div>
+
+  <script>
+  (function() {
+    'use strict';
+
+    // Configuration
+    const CONFIG = {
+      squareSize: 11,
+      gap: 3,
+      weekGap: 6,
+      daysToShow: 28,
+      maxHoursForColor: 7
+    };
+
+    // Detect dark mode
+    function isDarkMode() {
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    // Color interpolation for heat visualization
+    function interpolateColor(stops, t) {
+      // Find the two stops to interpolate between
+      let lower = stops[0];
+      let upper = stops[stops.length - 1];
+
+      for (let i = 0; i < stops.length - 1; i++) {
+        if (t >= stops[i].pos && t <= stops[i + 1].pos) {
+          lower = stops[i];
+          upper = stops[i + 1];
+          break;
+        }
+      }
+
+      // Calculate local t between these two stops
+      const range = upper.pos - lower.pos;
+      const localT = range === 0 ? 0 : (t - lower.pos) / range;
+
+      // Interpolate RGB values
+      const r = Math.round(lower.color[0] + (upper.color[0] - lower.color[0]) * localT);
+      const g = Math.round(lower.color[1] + (upper.color[1] - lower.color[1]) * localT);
+      const b = Math.round(lower.color[2] + (upper.color[2] - lower.color[2]) * localT);
+
+      // Handle alpha if present
+      const lowerA = lower.color[3] !== undefined ? lower.color[3] : 1;
+      const upperA = upper.color[3] !== undefined ? upper.color[3] : 1;
+      const a = lowerA + (upperA - lowerA) * localT;
+
+      if (a < 1) {
+        return `rgba(${r}, ${g}, ${b}, ${a})`;
+      }
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    function hoursToColor(hours, dark) {
+      const t = Math.min(hours / CONFIG.maxHoursForColor, 1);
+
+      const stops = dark ? [
+        // Dark mode: paper dark -> warm dark -> golden -> amber -> coral
+        { pos: 0.0, color: [16, 15, 15] },           // #100F0F paper dark
+        { pos: 0.15, color: [35, 32, 28] },          // warm dark
+        { pos: 0.4, color: [208, 162, 21, 0.4] },    // golden with alpha
+        { pos: 0.7, color: [218, 112, 44, 0.55] },   // amber
+        { pos: 1.0, color: [209, 77, 65, 0.7] }      // coral
+      ] : [
+        // Light mode: paper -> cream -> golden -> amber -> coral
+        { pos: 0.0, color: [255, 252, 240] },        // #FFFCF0 paper
+        { pos: 0.15, color: [250, 245, 230] },       // warm cream
+        { pos: 0.4, color: [245, 220, 140] },        // golden tint
+        { pos: 0.7, color: [240, 180, 120] },        // amber tint
+        { pos: 1.0, color: [230, 140, 130] }         // coral tint
+      ];
+
+      return interpolateColor(stops, t);
+    }
+
+    // Generate simulated activity data for past 28 days
+    function generateActivityData() {
+      const data = [];
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      for (let i = 27; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+
+        // Generate realistic-looking work hours with weekly patterns
+        const dayOfWeek = date.getDay();
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+        let hours;
+        if (isWeekend) {
+          // Lower activity on weekends
+          hours = Math.random() < 0.3 ? 0 : Math.random() * 3;
+        } else {
+          // Work days have higher activity with some variation
+          const baseHours = 2 + Math.random() * 4;
+          hours = Math.random() < 0.1 ? 0 : baseHours; // 10% chance of no work
+        }
+
+        // Add some randomness for variety
+        hours = Math.max(0, hours + (Math.random() - 0.5) * 2);
+
+        data.push({
+          date: date,
+          hours: Math.round(hours * 10) / 10,
+          isToday: i === 0
+        });
+      }
+
+      return data;
+    }
+
+    // Format date for tooltip
+    function formatDate(date) {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${months[date.getMonth()]} ${date.getDate()}`;
+    }
+
+    // Build the calendar widget
+    function buildCalendar(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const data = generateActivityData();
+      const dark = isDarkMode();
+
+      // Create tooltip element
+      const tooltip = document.createElement('div');
+      tooltip.className = 'cal-strip-4w__tooltip';
+      tooltip.setAttribute('role', 'tooltip');
+      document.body.appendChild(tooltip);
+
+      // Create 4 week containers
+      for (let week = 0; week < 4; week++) {
+        const weekContainer = document.createElement('div');
+        weekContainer.className = 'cal-strip-4w__week';
+
+        for (let day = 0; day < 7; day++) {
+          const index = week * 7 + day;
+          const dayData = data[index];
+
+          const dayEl = document.createElement('div');
+          dayEl.className = 'cal-strip-4w__day';
+
+          // Weekend styling (Sunday = 0, Saturday = 6)
+          const dayOfWeek = dayData.date.getDay();
+          if (dayOfWeek === 0 || dayOfWeek === 6) {
+            dayEl.classList.add('cal-strip-4w__day--weekend');
+          }
+
+          // Today marker
+          if (dayData.isToday) {
+            dayEl.classList.add('cal-strip-4w__day--today');
+          }
+
+          // Apply color based on hours
+          dayEl.style.backgroundColor = hoursToColor(dayData.hours, dark);
+
+          // Store data for tooltip
+          dayEl.dataset.date = formatDate(dayData.date);
+          dayEl.dataset.hours = dayData.hours;
+
+          // Accessibility
+          dayEl.setAttribute('role', 'gridcell');
+          dayEl.setAttribute('aria-label',
+            `${formatDate(dayData.date)}: ${dayData.hours > 0 ? dayData.hours + ' hours' : 'No activity'}`
+          );
+          dayEl.setAttribute('tabindex', '0');
+
+          weekContainer.appendChild(dayEl);
+        }
+
+        container.appendChild(weekContainer);
+      }
+
+      // Tooltip positioning and visibility
+      function showTooltip(el, event) {
+        const dateStr = el.dataset.date;
+        const hours = parseFloat(el.dataset.hours);
+
+        tooltip.textContent = hours > 0
+          ? `${dateStr} \u2022 ${hours}h`
+          : dateStr;
+
+        const rect = el.getBoundingClientRect();
+        const tooltipRect = tooltip.getBoundingClientRect();
+
+        // Position above the element
+        tooltip.style.left = `${rect.left + rect.width / 2}px`;
+        tooltip.style.top = `${rect.top - 8}px`;
+
+        tooltip.classList.add('cal-strip-4w__tooltip--visible');
+      }
+
+      function hideTooltip() {
+        tooltip.classList.remove('cal-strip-4w__tooltip--visible');
+      }
+
+      // Event delegation for tooltips
+      container.addEventListener('mouseenter', function(e) {
+        if (e.target.classList.contains('cal-strip-4w__day')) {
+          showTooltip(e.target, e);
+        }
+      }, true);
+
+      container.addEventListener('mouseleave', function(e) {
+        if (e.target.classList.contains('cal-strip-4w__day')) {
+          hideTooltip();
+        }
+      }, true);
+
+      // Keyboard support for accessibility
+      container.addEventListener('focus', function(e) {
+        if (e.target.classList.contains('cal-strip-4w__day')) {
+          showTooltip(e.target, e);
+        }
+      }, true);
+
+      container.addEventListener('blur', function(e) {
+        if (e.target.classList.contains('cal-strip-4w__day')) {
+          hideTooltip();
+        }
+      }, true);
+
+      // Update colors when color scheme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+        const newDark = isDarkMode();
+        const days = container.querySelectorAll('.cal-strip-4w__day');
+        days.forEach((day, index) => {
+          day.style.backgroundColor = hoursToColor(data[index].hours, newDark);
+        });
+      });
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        buildCalendar('cal-4w');
+      });
+    } else {
+      buildCalendar('cal-4w');
+    }
+  })();
+  </script>
+
+</body>
+</html>

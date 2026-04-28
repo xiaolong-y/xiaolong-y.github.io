@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar Widget | 30-Day Busyness Strip</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+
+    /* Flexoki Color Palette */
+    :root {
+      --paper: #FFFCF0;
+      --ink: #2D2B28;
+      --muted: #878580;
+      --line: #DAD8CE;
+      --panel: #F2F0E5;
+      --blue: #205EA6;
+      --cyan: #24837B;
+      --yellow: #AD8301;
+      --orange: #BC5215;
+      --red: #AF3029;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #100F0F;
+        --ink: #CECDC3;
+        --muted: #878580;
+        --line: #403E3C;
+        --panel: #1C1B1A;
+        --blue: #4385BE;
+        --cyan: #3AA99F;
+        --yellow: #D0A215;
+        --orange: #DA702C;
+        --red: #D14D41;
+      }
+    }
+
+    /* Reset */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Demo page styling */
+    body {
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .demo-container {
+      max-width: 700px;
+      width: 100%;
+    }
+
+    .demo-title {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .demo-section {
+      margin: 40px 0;
+      padding: 24px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 3px;
+    }
+
+    .demo-label {
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    /* Calendar Strip Component */
+    .calendar-strip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    }
+
+    .calendar-label {
+      font-size: 8px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .calendar-days {
+      display: flex;
+      gap: 2px;
+      flex-wrap: nowrap;
+    }
+
+    .calendar-day {
+      width: 13px;
+      height: 13px;
+      border-radius: 2px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .calendar-day:hover {
+      transform: scale(1.4);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      z-index: 10;
+      position: relative;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .calendar-day:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    /* Today marker */
+    .calendar-day.today {
+      border-bottom: 2px solid var(--blue);
+    }
+
+    /* Weekend styling - circular */
+    .calendar-day.weekend {
+      border-radius: 50%;
+    }
+
+    /* Busyness levels */
+    .calendar-day.level-0 {
+      background: var(--paper);
+    }
+
+    .calendar-day.level-1 {
+      background: var(--panel);
+    }
+
+    .calendar-day.level-2 {
+      background: rgba(173, 131, 1, 0.25);
+      border-color: rgba(173, 131, 1, 0.4);
+    }
+
+    .calendar-day.level-3 {
+      background: rgba(188, 82, 21, 0.4);
+      border-color: rgba(188, 82, 21, 0.5);
+    }
+
+    .calendar-day.level-4 {
+      background: rgba(175, 48, 41, 0.55);
+      border-color: rgba(175, 48, 41, 0.6);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .calendar-day.level-2 {
+        background: rgba(208, 162, 21, 0.3);
+        border-color: rgba(208, 162, 21, 0.45);
+      }
+
+      .calendar-day.level-3 {
+        background: rgba(218, 112, 44, 0.45);
+        border-color: rgba(218, 112, 44, 0.55);
+      }
+
+      .calendar-day.level-4 {
+        background: rgba(209, 77, 65, 0.6);
+        border-color: rgba(209, 77, 65, 0.7);
+      }
+    }
+
+    /* Tooltip */
+    .calendar-tooltip {
+      position: fixed;
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 9px;
+      padding: 5px 8px;
+      border-radius: 3px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      z-index: 1000;
+      white-space: nowrap;
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    }
+
+    .calendar-tooltip.visible {
+      opacity: 1;
+    }
+
+    .calendar-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: var(--ink);
+    }
+
+    /* Legend */
+    .calendar-legend {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+      font-size: 8px;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      border: 1px solid var(--line);
+    }
+
+    .legend-swatch.l0 { background: var(--paper); }
+    .legend-swatch.l1 { background: var(--panel); }
+    .legend-swatch.l2 { background: rgba(173, 131, 1, 0.25); border-color: rgba(173, 131, 1, 0.4); }
+    .legend-swatch.l3 { background: rgba(188, 82, 21, 0.4); border-color: rgba(188, 82, 21, 0.5); }
+    .legend-swatch.l4 { background: rgba(175, 48, 41, 0.55); border-color: rgba(175, 48, 41, 0.6); }
+
+    @media (prefers-color-scheme: dark) {
+      .legend-swatch.l2 { background: rgba(208, 162, 21, 0.3); border-color: rgba(208, 162, 21, 0.45); }
+      .legend-swatch.l3 { background: rgba(218, 112, 44, 0.45); border-color: rgba(218, 112, 44, 0.55); }
+      .legend-swatch.l4 { background: rgba(209, 77, 65, 0.6); border-color: rgba(209, 77, 65, 0.7); }
+    }
+
+    /* Accessibility: Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .calendar-day,
+      .calendar-tooltip {
+        transition: none;
+      }
+
+      .calendar-day:hover {
+        transform: none;
+      }
+    }
+
+    /* Responsive: Stack on very small screens */
+    @media (max-width: 520px) {
+      .calendar-strip {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .calendar-label {
+        display: none;
+      }
+
+      .calendar-days {
+        flex-wrap: wrap;
+        gap: 3px;
+      }
+
+      .calendar-day {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="demo-container">
+  <p class="demo-title">30-Day Busyness Calendar</p>
+
+  <!-- Calendar Strip Component -->
+  <div class="calendar-strip" id="calendar-strip" role="img" aria-label="30-day calendar showing busyness levels">
+    <span class="calendar-label">Today</span>
+    <div class="calendar-days" id="calendar-days">
+      <!-- Days generated by JavaScript -->
+    </div>
+    <span class="calendar-label">+30d</span>
+  </div>
+
+  <!-- Tooltip (positioned via JS) -->
+  <div class="calendar-tooltip" id="tooltip"></div>
+
+  <!-- Optional: Legend for demo -->
+  <div class="demo-section">
+    <p class="demo-label">Legend</p>
+    <div class="calendar-legend">
+      <div class="legend-item"><span class="legend-swatch l0"></span> Free</div>
+      <div class="legend-item"><span class="legend-swatch l1"></span> Light</div>
+      <div class="legend-item"><span class="legend-swatch l2"></span> Moderate</div>
+      <div class="legend-item"><span class="legend-swatch l3"></span> Busy</div>
+      <div class="legend-item"><span class="legend-swatch l4"></span> Very Busy</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * Calendar Widget - 30-Day Busyness Strip
+ *
+ * A minimal, elegant calendar widget showing upcoming busyness levels.
+ * Supports Google Calendar API, custom endpoints, or simulated data.
+ */
+
+// ============================================
+// CONFIGURATION
+// ============================================
+
+const CALENDAR_CONFIG = {
+  // Data source type: 'google', 'custom', or 'simulated'
+  type: 'simulated',
+
+  // Google Calendar settings (when type: 'google')
+  // 1. Create a Google Cloud project at https://console.cloud.google.com
+  // 2. Enable the Google Calendar API
+  // 3. Create an API key and restrict it to your domain
+  // 4. Make your calendar public (Settings > Access permissions)
+  // 5. Find calendar ID in Settings > Integrate calendar
+  google: {
+    calendarId: 'YOUR_CALENDAR_ID@group.calendar.google.com',
+    apiKey: 'YOUR_API_KEY'
+  },
+
+  // Custom endpoint settings (when type: 'custom')
+  // Your endpoint should return: { "YYYY-MM-DD": { hours: number, count: number }, ... }
+  custom: {
+    endpoint: 'https://your-api.com/calendar/events'
+  },
+
+  // Number of days to display
+  days: 30
+};
+
+// ============================================
+// CALENDAR DATA FETCHING
+// ============================================
+
+/**
+ * Fetch calendar events based on configured data source
+ * @returns {Promise<Object>} Daily busyness data keyed by date string
+ */
+async function fetchCalendarEvents() {
+  switch (CALENDAR_CONFIG.type) {
+    case 'google':
+      return fetchGoogleCalendar();
+    case 'custom':
+      return fetchCustomEndpoint();
+    case 'simulated':
+    default:
+      return generateSimulatedData();
+  }
+}
+
+/**
+ * Fetch events from Google Calendar API
+ * Requires public calendar and valid API key
+ */
+async function fetchGoogleCalendar() {
+  const { calendarId, apiKey } = CALENDAR_CONFIG.google;
+
+  const now = new Date();
+  const endDate = new Date(now.getTime() + CALENDAR_CONFIG.days * 24 * 60 * 60 * 1000);
+
+  const params = new URLSearchParams({
+    key: apiKey,
+    timeMin: now.toISOString(),
+    timeMax: endDate.toISOString(),
+    singleEvents: 'true',
+    orderBy: 'startTime'
+  });
+
+  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.warn('Google Calendar API error, falling back to simulated data');
+      return generateSimulatedData();
+    }
+    const data = await response.json();
+    return processGoogleEvents(data.items || []);
+  } catch (error) {
+    console.warn('Failed to fetch Google Calendar, falling back to simulated data:', error);
+    return generateSimulatedData();
+  }
+}
+
+/**
+ * Process Google Calendar events into daily busyness scores
+ */
+function processGoogleEvents(events) {
+  const days = initializeDays();
+
+  for (const event of events) {
+    if (!event.start) continue;
+
+    const startDate = event.start.dateTime || event.start.date;
+    const endDate = event.end?.dateTime || event.end?.date;
+    const key = new Date(startDate).toISOString().split('T')[0];
+
+    if (days[key]) {
+      days[key].count++;
+
+      // Calculate duration in hours
+      if (event.start.dateTime && endDate) {
+        const start = new Date(event.start.dateTime);
+        const end = new Date(endDate);
+        days[key].hours += (end - start) / (1000 * 60 * 60);
+      } else {
+        // All-day event
+        days[key].hours += 8;
+      }
+    }
+  }
+
+  return days;
+}
+
+/**
+ * Fetch from custom API endpoint
+ */
+async function fetchCustomEndpoint() {
+  try {
+    const response = await fetch(CALENDAR_CONFIG.custom.endpoint);
+    if (!response.ok) {
+      throw new Error('Custom endpoint error');
+    }
+    return await response.json();
+  } catch (error) {
+    console.warn('Failed to fetch custom endpoint, falling back to simulated data:', error);
+    return generateSimulatedData();
+  }
+}
+
+/**
+ * Generate realistic simulated calendar data
+ * Patterns:
+ * - Weekdays: 40% chance of 2-6 hours busy
+ * - Weekends: 20% chance of 1-3 hours busy
+ * - Random "heavy" days: 10% chance of 6+ hours
+ * - Some completely free days
+ */
+function generateSimulatedData() {
+  const days = initializeDays();
+
+  // Use a seeded random for consistent display (based on current week)
+  const weekSeed = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+  let seedRandom = createSeededRandom(weekSeed);
+
+  Object.keys(days).forEach((dateKey, index) => {
+    const date = new Date(dateKey);
+    const dayOfWeek = date.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+    const rand = seedRandom();
+
+    if (isWeekend) {
+      // Weekend: 20% chance of light activity
+      if (rand < 0.2) {
+        days[dateKey].hours = 1 + seedRandom() * 2;
+        days[dateKey].count = Math.ceil(seedRandom() * 2);
+      }
+    } else {
+      // Weekday patterns
+      if (rand < 0.1) {
+        // 10% very busy
+        days[dateKey].hours = 6 + seedRandom() * 4;
+        days[dateKey].count = 3 + Math.floor(seedRandom() * 4);
+      } else if (rand < 0.5) {
+        // 40% moderately busy
+        days[dateKey].hours = 2 + seedRandom() * 4;
+        days[dateKey].count = 1 + Math.floor(seedRandom() * 3);
+      }
+      // 50% free or very light
+    }
+  });
+
+  return days;
+}
+
+/**
+ * Initialize days object with empty data
+ */
+function initializeDays() {
+  const days = {};
+  const now = new Date();
+
+  for (let i = 0; i < CALENDAR_CONFIG.days; i++) {
+    const date = new Date(now);
+    date.setDate(date.getDate() + i);
+    const key = date.toISOString().split('T')[0];
+    days[key] = { hours: 0, count: 0 };
+  }
+
+  return days;
+}
+
+/**
+ * Simple seeded random number generator
+ */
+function createSeededRandom(seed) {
+  return function() {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return (seed / 0x7fffffff);
+  };
+}
+
+// ============================================
+// UI RENDERING
+// ============================================
+
+/**
+ * Calculate busyness level (0-4) from hours
+ */
+function getBusynessLevel(hours) {
+  if (hours === 0) return 0;
+  if (hours < 2) return 1;
+  if (hours < 4) return 2;
+  if (hours < 6) return 3;
+  return 4;
+}
+
+/**
+ * Format date for tooltip display
+ */
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const options = { weekday: 'short', month: 'short', day: 'numeric' };
+  return date.toLocaleDateString('en-US', options);
+}
+
+/**
+ * Render the calendar strip
+ */
+async function renderCalendar() {
+  const container = document.getElementById('calendar-days');
+  const tooltip = document.getElementById('tooltip');
+
+  if (!container) return;
+
+  // Fetch calendar data
+  const calendarData = await fetchCalendarEvents();
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Get today's date key
+  const today = new Date().toISOString().split('T')[0];
+
+  // Create day squares
+  Object.entries(calendarData).forEach(([dateKey, data]) => {
+    const date = new Date(dateKey);
+    const dayOfWeek = date.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    const isToday = dateKey === today;
+    const level = getBusynessLevel(data.hours);
+
+    const dayEl = document.createElement('div');
+    dayEl.className = 'calendar-day';
+    dayEl.classList.add(`level-${level}`);
+
+    if (isToday) dayEl.classList.add('today');
+    if (isWeekend) dayEl.classList.add('weekend');
+
+    // Accessibility
+    dayEl.setAttribute('role', 'gridcell');
+    dayEl.setAttribute('aria-label', `${formatDate(dateKey)}: ${getLevelLabel(level)}`);
+    dayEl.tabIndex = 0;
+
+    // Store data for tooltip
+    dayEl.dataset.date = dateKey;
+    dayEl.dataset.hours = data.hours.toFixed(1);
+    dayEl.dataset.count = data.count;
+
+    // Tooltip handlers
+    dayEl.addEventListener('mouseenter', showTooltip);
+    dayEl.addEventListener('mouseleave', hideTooltip);
+    dayEl.addEventListener('focus', showTooltip);
+    dayEl.addEventListener('blur', hideTooltip);
+
+    container.appendChild(dayEl);
+  });
+}
+
+/**
+ * Get accessibility label for busyness level
+ */
+function getLevelLabel(level) {
+  const labels = ['Free', 'Light', 'Moderate', 'Busy', 'Very Busy'];
+  return labels[level] || 'Unknown';
+}
+
+/**
+ * Show tooltip on hover/focus
+ */
+function showTooltip(event) {
+  const tooltip = document.getElementById('tooltip');
+  const target = event.currentTarget;
+
+  const date = target.dataset.date;
+  const hours = parseFloat(target.dataset.hours);
+  const count = parseInt(target.dataset.count);
+
+  // Build tooltip content
+  let content = formatDate(date);
+  if (count > 0) {
+    content += ` - ${count} event${count > 1 ? 's' : ''}`;
+    if (hours > 0) {
+      content += ` (${hours.toFixed(1)}h)`;
+    }
+  } else {
+    content += ' - Free';
+  }
+
+  tooltip.textContent = content;
+
+  // Position tooltip above the element
+  const rect = target.getBoundingClientRect();
+  tooltip.style.left = rect.left + rect.width / 2 - tooltip.offsetWidth / 2 + 'px';
+  tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
+
+  tooltip.classList.add('visible');
+}
+
+/**
+ * Hide tooltip
+ */
+function hideTooltip() {
+  const tooltip = document.getElementById('tooltip');
+  tooltip.classList.remove('visible');
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
+document.addEventListener('DOMContentLoaded', renderCalendar);
+
+// Re-render at midnight to update "today" marker
+function scheduleNightlyRefresh() {
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 1, 0);
+
+  const msUntilMidnight = tomorrow - now;
+
+  setTimeout(() => {
+    renderCalendar();
+    scheduleNightlyRefresh();
+  }, msUntilMidnight);
+}
+
+scheduleNightlyRefresh();
+</script>
+
+<!--
+================================================================================
+EMBEDDING INSTRUCTIONS
+================================================================================
+
+To embed this calendar widget in your website:
+
+1. COPY THE CSS
+   Copy the <style> block (or the relevant .calendar-* classes) into your
+   page's CSS or <style> tag. The essential classes are:
+   - .calendar-strip
+   - .calendar-label
+   - .calendar-days
+   - .calendar-day (and its modifiers: .today, .weekend, .level-0 through .level-4)
+   - .calendar-tooltip
+
+2. COPY THE HTML
+   Add this where you want the widget to appear:
+
+   <div class="calendar-strip" id="calendar-strip">
+     <span class="calendar-label">Today</span>
+     <div class="calendar-days" id="calendar-days"></div>
+     <span class="calendar-label">+30d</span>
+   </div>
+   <div class="calendar-tooltip" id="tooltip"></div>
+
+3. COPY THE JAVASCRIPT
+   Include the <script> block before your closing </body> tag.
+   The widget will automatically initialize on DOMContentLoaded.
+
+================================================================================
+GOOGLE CALENDAR INTEGRATION
+================================================================================
+
+To display real calendar data:
+
+1. Go to Google Cloud Console (https://console.cloud.google.com)
+2. Create a new project or select existing
+3. Enable "Google Calendar API" in APIs & Services
+4. Create an API Key in Credentials
+   - Restrict the key to your domain for security
+5. In Google Calendar:
+   - Go to Settings for your calendar
+   - Under "Access permissions", make it public
+   - Under "Integrate calendar", copy the Calendar ID
+6. Update CALENDAR_CONFIG:
+
+   const CALENDAR_CONFIG = {
+     type: 'google',
+     google: {
+       calendarId: 'YOUR_CALENDAR_ID@group.calendar.google.com',
+       apiKey: 'AIza...'
+     },
+     days: 30
+   };
+
+================================================================================
+CUSTOM API ENDPOINT
+================================================================================
+
+For serverless functions (Netlify, Vercel) or custom backends:
+
+1. Create an endpoint that returns JSON in this format:
+   {
+     "2024-01-15": { "hours": 4.5, "count": 2 },
+     "2024-01-16": { "hours": 0, "count": 0 },
+     ...
+   }
+
+2. Update CALENDAR_CONFIG:
+
+   const CALENDAR_CONFIG = {
+     type: 'custom',
+     custom: {
+       endpoint: 'https://your-api.com/calendar/events'
+     },
+     days: 30
+   };
+
+================================================================================
+CUSTOMIZATION
+================================================================================
+
+Colors: Modify the CSS custom properties in :root and the @media dark theme
+Size: Adjust .calendar-day width/height (default 13px)
+Spacing: Modify gap values in .calendar-days (default 2px)
+Levels: Adjust getBusynessLevel() thresholds for different hour ranges
+
+================================================================================
+-->
+
+</body>
+</html>

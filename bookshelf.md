@@ -1,973 +1,172 @@
----
-title: Bookshelf
----
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RQC3VEC49K"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-RQC3VEC49K');
-</script>
-
+<!-- Plaintext bookshelf inspired by patrickcollison.com/bookshelf. -->
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,200;0,300;0,400;0,500;1,200;1,300&display=swap');
-
   :root {
     --fx-paper: #FFFCF0;
     --fx-base-50: #F2F0E5;
-    --fx-base-100: #E6E4D9;
-    --fx-base-200: #DAD8CE;
-    --fx-base-300: #CECDC3;
-    --fx-base-400: #B7B5AC;
-    --fx-base-500: #9F9D94;
-    --fx-base-600: #878681;
-    --fx-base-700: #6F6E69;
-    --fx-base-800: #575653;
     --fx-base-900: #2D2B28;
     --fx-base-950: #1C1B18;
-    --fx-red: #AF3029;
-    --fx-orange: #BC5215;
-    --fx-yellow: #AD8301;
-    --fx-green: #66800B;
-    --fx-cyan: #24837B;
     --fx-blue: #205EA6;
-    --fx-purple: #5E409D;
-    --fx-magenta: #A02F6F;
-    --bg-primary: var(--fx-paper);
-    --bg-secondary: var(--fx-base-50);
-    --text-primary: var(--fx-base-900);
-    --text-secondary: var(--fx-base-700);
-    --text-muted: var(--fx-base-500);
-    --border-color: var(--fx-base-200);
-    --shadow-sm: 0 2px 8px rgba(47, 45, 40, 0.08);
-    --shadow-md: 0 8px 24px rgba(47, 45, 40, 0.12);
-    --shadow-lg: 0 16px 48px rgba(47, 45, 40, 0.16);
+    --fx-cyan: #24837B;
+    --fx-orange: #BC5215;
+  }
+
+  body {
+    box-sizing: border-box;
+    max-width: 900px;
+    margin: 48px auto;
+    padding: 0 210px 0 18px;
+    color: var(--fx-base-900);
+    background: var(--fx-paper);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+
+  h1 {
+    margin: 0 0 1rem;
+    font-size: 1.7rem;
+    font-weight: 600;
+  }
+
+  h2 {
+    margin: 1.8rem 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  a {
+    color: var(--fx-blue);
+    transition: color 0.2s ease;
+  }
+
+  a:hover {
+    color: var(--fx-cyan);
+  }
+
+  code {
+    background-color: var(--fx-base-50);
+    color: var(--fx-orange);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  .site-nav {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    position: fixed;
+    top: 48px;
+    right: max(18px, calc(50vw - 450px));
+    width: 155px;
+    z-index: 1000;
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+
+  .site-nav li {
+    display: block;
+    margin: 0.18rem 0;
+  }
+
+  .site-nav li:not(:last-child)::after {
+    content: "";
+  }
+
+  .site-nav a {
+    color: var(--fx-blue, #205EA6);
+  }
+
+  .site-nav a:hover {
+    color: var(--fx-cyan, #24837B);
+  }
+
+  .quiet {
+    color: #555;
   }
 
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --fx-red: #D14D41; --fx-orange: #DA702C; --fx-yellow: #D0A215;
-      --fx-green: #879A39; --fx-cyan: #3AA99F; --fx-blue: #4385BE;
-      --fx-purple: #8B7EC8; --fx-magenta: #CE5D97;
-      --bg-primary: var(--fx-base-950); --bg-secondary: var(--fx-base-900);
-      --text-primary: var(--fx-base-100); --text-secondary: var(--fx-base-300);
-      --text-muted: var(--fx-base-500); --border-color: var(--fx-base-800);
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
-      --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.4);
+    body {
+      color: var(--fx-base-50);
+      background: var(--fx-base-950);
+    }
+
+    :root {
+      --fx-blue: #4385BE;
+      --fx-cyan: #3AA99F;
+      --fx-orange: #DA702C;
+    }
+
+    .quiet {
+      color: #aaa;
     }
   }
 
-  [data-theme="dark"] {
-    --fx-red: #D14D41; --fx-orange: #DA702C; --fx-yellow: #D0A215;
-    --fx-green: #879A39; --fx-cyan: #3AA99F; --fx-blue: #4385BE;
-    --fx-purple: #8B7EC8; --fx-magenta: #CE5D97;
-    --bg-primary: var(--fx-base-950); --bg-secondary: var(--fx-base-900);
-    --text-primary: var(--fx-base-100); --text-secondary: var(--fx-base-300);
-    --text-muted: var(--fx-base-500); --border-color: var(--fx-base-800);
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.4);
+  @media (max-width: 760px) {
+    body {
+      max-width: 720px;
+      padding: 0 18px;
+    }
+
+    .site-nav {
+      position: static;
+      width: auto;
+      margin: 1.25rem 0 2rem;
+    }
+
+    .site-nav li {
+      display: inline;
+      margin: 0;
+    }
+
+    .site-nav li:not(:last-child)::after {
+      content: " / ";
+      color: #777;
+    }
   }
 
-  * { box-sizing: border-box; }
-
-  body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: 'IBM Plex Mono', monospace;
-    font-weight: 200;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-  }
-
-  h1, h2, h3, h4 {
-    font-family: 'IBM Plex Mono', monospace;
-    font-weight: 300;
-    line-height: 1.3;
-  }
-
-  /* Hide Jekyll default header completely */
-  header.page-header,
-  section.page-header,
-  .page-header,
-  .project-name,
-  .project-tagline,
-  header[role="banner"],
-  .site-header,
-  .main-content > h1:first-child,
-  .markdown-body > h1:first-child {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-  }
-
-  .bookshelf-header {
-    text-align: center;
-    padding: 50px 20px 35px;
-  }
-
-  .bookshelf-header h1 {
-    font-size: 1.4rem;
-    font-weight: 300;
-    margin-bottom: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--fx-base-700);
-  }
-
-  .bookshelf-header p {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    max-width: 400px;
-    margin: 0 auto;
-    font-weight: 200;
-  }
-
-  .controls-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 40px;
-    padding: 0 20px;
-  }
-
-  .filter-btn {
-    padding: 8px 18px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-primary);
-    color: var(--text-secondary);
-    border-radius: 24px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 400;
-    transition: all 0.2s ease;
-  }
-
-  .filter-btn:hover { border-color: var(--fx-blue); color: var(--fx-blue); }
-  .filter-btn.active { background: var(--fx-blue); border-color: var(--fx-blue); color: white; }
-
-  .theme-toggle {
-    padding: 8px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-primary);
-    border-radius: 8px;
-    cursor: pointer;
-    margin-left: 12px;
-  }
-  .theme-toggle svg { width: 20px; height: 20px; fill: var(--text-secondary); }
-  .theme-toggle .sun-icon { display: none; }
-  .theme-toggle .moon-icon { display: block; }
-  [data-theme="dark"] .theme-toggle .sun-icon { display: block; }
-  [data-theme="dark"] .theme-toggle .moon-icon { display: none; }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .theme-toggle .sun-icon { display: block; }
-    :root:not([data-theme="light"]) .theme-toggle .moon-icon { display: none; }
-  }
-
-  /* ========== INFINITE SCROLL GRID ========== */
-  .book-grid {
-    display: flex;
-    gap: 24px;
-    padding: 0 24px;
-    max-width: 1400px;
-    margin: 0 auto 60px;
-    height: 85vh;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .book-column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .book-column-inner {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    will-change: transform;
-  }
-
-  /* Limit column width when fewer columns to prevent oversized covers */
-  .book-grid[data-columns="1"] {
-    justify-content: center;
-  }
-
-  .book-grid[data-columns="1"] .book-column {
-    flex: 0 0 auto;
-    max-width: 280px;
-  }
-
-  .book-grid[data-columns="2"] {
-    justify-content: center;
-  }
-
-  .book-grid[data-columns="2"] .book-column {
-    flex: 0 0 auto;
-    max-width: 280px;
-  }
-
-  /* Animations are created dynamically by JavaScript based on content height */
-  /* This allows perfect looping without visible seams */
-
-  /* Pause on hover for readability */
-  .book-grid:hover .book-column-inner {
-    animation-play-state: paused;
-  }
-
-  /* ========== BOOK CARD - 3D BOOK MODEL ========== */
-  .book-card {
-    flex-shrink: 0;
-    overflow: visible;
-    cursor: pointer;
-    position: relative;
-    transform-style: preserve-3d;
-    perspective: 1000px;
-    transition: transform 0.3s ease;
-  }
-
-  /* Book spine (left side - bound edge) */
-  .book-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -8px;
-    bottom: 4px;
-    width: 8px;
-    background: linear-gradient(90deg,
-      var(--fx-base-400) 0%,
-      var(--fx-base-300) 40%,
-      var(--fx-base-200) 100%);
-    border-radius: 3px 0 0 3px;
-    transform: rotateY(-90deg) translateZ(4px);
-    transform-origin: right center;
-    box-shadow: -2px 0 4px rgba(0,0,0,0.2);
-  }
-
-  /* Page edges (right side - opens here) */
-  .book-card::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    right: -6px;
-    bottom: 6px;
-    width: 6px;
-    background: repeating-linear-gradient(
-      180deg,
-      #f8f6f0 0px,
-      #e8e6e0 1px,
-      #f5f3ed 2px,
-      #eae8e2 3px
-    );
-    border-radius: 0 2px 2px 0;
-    box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-  }
-
-  /* Book bottom edge (thickness) */
-  .book-cover-wrapper::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -6px;
-    height: 6px;
-    background: linear-gradient(180deg,
-      var(--fx-base-200) 0%,
-      var(--fx-base-300) 50%,
-      var(--fx-base-400) 100%);
-    border-radius: 0 0 2px 2px;
-    transform: rotateX(-90deg) translateZ(3px);
-    transform-origin: top center;
-  }
-
-  /* Spine shadow on cover */
-  .book-cover-wrapper::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 20px;
-    background: linear-gradient(90deg,
-      rgba(0,0,0,0.15) 0%,
-      rgba(0,0,0,0.05) 40%,
-      transparent 100%);
-    z-index: 3;
-    pointer-events: none;
-    border-radius: 2px 0 0 2px;
-  }
-
-  .book-card:focus { outline: 3px solid var(--fx-cyan); outline-offset: 6px; }
-
-  /* ========== HOVER SHAKE ANIMATION ========== */
-  @keyframes gentle-shake {
-    0%, 100% { transform: rotate(0deg) translateY(0) scale(1); }
-    10% { transform: rotate(-1.5deg) translateY(-2px) scale(1.02); }
-    20% { transform: rotate(1.5deg) translateY(-3px) scale(1.02); }
-    30% { transform: rotate(-1deg) translateY(-2px) scale(1.01); }
-    40% { transform: rotate(1deg) translateY(-3px) scale(1.01); }
-    50% { transform: rotate(-0.5deg) translateY(-4px) scale(1.02); }
-    60% { transform: rotate(0.5deg) translateY(-3px) scale(1.02); }
-    70% { transform: rotate(-0.5deg) translateY(-2px) scale(1.01); }
-    80% { transform: rotate(0.5deg) translateY(-2px) scale(1.01); }
-    90% { transform: rotate(0deg) translateY(-1px) scale(1.01); }
-  }
-
-  .book-card:hover {
-    animation: gentle-shake 0.6s ease-in-out;
-    z-index: 10;
-  }
-
-  .book-card:hover::after {
-    box-shadow: 3px 3px 6px rgba(0,0,0,0.15);
-  }
-
-  .book-cover-wrapper {
-    position: relative;
-    z-index: 1;
-    border-radius: 2px;
-    overflow: hidden;
-    box-shadow:
-      0 1px 2px rgba(0,0,0,0.1),
-      0 4px 8px rgba(0,0,0,0.1),
-      0 8px 16px rgba(0,0,0,0.05);
-  }
-
-  .book-cover {
-    width: 100%;
-    aspect-ratio: 2/3;
-    object-fit: cover;
-    display: block;
-    background: var(--border-color);
-  }
-
-  /* ========== GENRE-SPECIFIC COVER ART ========== */
-  .book-cover-fallback {
-    width: 100%;
-    aspect-ratio: 2/3;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  /* Philosophy - Interconnected Minds/Nodes */
-  .book-cover-fallback[data-genre="philosophy"] {
-    background: linear-gradient(135deg, #5E409D 0%, #3d2a6b 100%);
-  }
-  .book-cover-fallback[data-genre="philosophy"]::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0.2;
-    background-image:
-      radial-gradient(circle at 30% 20%, white 4px, transparent 4px),
-      radial-gradient(circle at 70% 30%, white 3px, transparent 3px),
-      radial-gradient(circle at 20% 60%, white 3px, transparent 3px),
-      radial-gradient(circle at 80% 70%, white 4px, transparent 4px),
-      radial-gradient(circle at 50% 50%, white 5px, transparent 5px),
-      radial-gradient(circle at 40% 80%, white 3px, transparent 3px);
-  }
-  .book-cover-fallback[data-genre="philosophy"]::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0.15;
-    background-image:
-      linear-gradient(45deg, transparent 48%, white 49%, white 51%, transparent 52%),
-      linear-gradient(-45deg, transparent 48%, white 49%, white 51%, transparent 52%),
-      linear-gradient(30deg, transparent 48%, white 49%, white 51%, transparent 52%);
-    background-size: 60px 60px, 80px 80px, 100px 100px;
-    background-position: 10px 10px, 30px 20px, 0 0;
-  }
-
-  /* Science - Atomic Orbitals */
-  .book-cover-fallback[data-genre="science"] {
-    background: linear-gradient(135deg, #24837B 0%, #1a5f59 100%);
-  }
-  .book-cover-fallback[data-genre="science"]::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 200px;
-    height: 200px;
-    transform: translate(-50%, -50%);
-    border: 2px solid rgba(255,255,255,0.2);
-    border-radius: 50%;
-    box-shadow:
-      inset 0 0 0 40px transparent,
-      inset 0 0 0 42px rgba(255,255,255,0.15),
-      inset 0 0 0 80px transparent,
-      inset 0 0 0 82px rgba(255,255,255,0.1);
-  }
-  .book-cover-fallback[data-genre="science"]::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 180px;
-    height: 60px;
-    transform: translate(-50%, -50%) rotate(60deg);
-    border: 2px solid rgba(255,255,255,0.15);
-    border-radius: 50%;
-  }
-
-  /* Technology - Circuit Board */
-  .book-cover-fallback[data-genre="technology"] {
-    background: linear-gradient(135deg, #205EA6 0%, #163d6b 100%);
-  }
-  .book-cover-fallback[data-genre="technology"]::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0.2;
-    background-image:
-      linear-gradient(90deg, transparent 49%, white 49%, white 51%, transparent 51%),
-      linear-gradient(0deg, transparent 49%, white 49%, white 51%, transparent 51%),
-      radial-gradient(circle, white 3px, transparent 3px);
-    background-size: 40px 40px, 40px 40px, 40px 40px;
-    background-position: 0 0, 0 0, 20px 20px;
-  }
-  .book-cover-fallback[data-genre="technology"]::after {
-    content: '';
-    position: absolute;
-    inset: 20px;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 4px;
-  }
-
-  /* Economics - Graph Lines */
-  .book-cover-fallback[data-genre="economics"] {
-    background: linear-gradient(135deg, #66800B 0%, #455508 100%);
-  }
-  .book-cover-fallback[data-genre="economics"]::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0.2;
-    background-image:
-      linear-gradient(0deg, transparent 95%, white 95%),
-      linear-gradient(90deg, transparent 95%, white 95%);
-    background-size: 20px 30px;
-  }
-  .book-cover-fallback[data-genre="economics"]::after {
-    content: '';
-    position: absolute;
-    bottom: 30%;
-    left: 10%;
-    right: 10%;
-    height: 40%;
-    background:
-      linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.15) 30%, rgba(255,255,255,0.15) 32%, transparent 32%),
-      linear-gradient(-20deg, transparent 50%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.1) 52%, transparent 52%),
-      linear-gradient(70deg, transparent 40%, rgba(255,255,255,0.12) 40%, rgba(255,255,255,0.12) 42%, transparent 42%);
-  }
-
-  /* Fiction - Flowing Narrative Waves */
-  .book-cover-fallback[data-genre="fiction"] {
-    background: linear-gradient(135deg, #A02F6F 0%, #6b1f4a 100%);
-  }
-  .book-cover-fallback[data-genre="fiction"]::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0.15;
-    background-image:
-      radial-gradient(ellipse 100% 50% at 0% 50%, transparent 40%, rgba(255,255,255,0.3) 45%, transparent 50%),
-      radial-gradient(ellipse 100% 50% at 100% 30%, transparent 40%, rgba(255,255,255,0.2) 45%, transparent 50%),
-      radial-gradient(ellipse 100% 50% at 0% 70%, transparent 40%, rgba(255,255,255,0.25) 45%, transparent 50%);
-  }
-  .book-cover-fallback[data-genre="fiction"]::after {
-    content: '';
-    position: absolute;
-    top: 20%;
-    left: -20%;
-    width: 140%;
-    height: 60%;
-    border-top: 2px solid rgba(255,255,255,0.1);
-    border-radius: 50%;
-    transform: rotate(-10deg);
-  }
-
-  .fallback-title {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.9rem;
-    font-weight: 400;
-    color: white;
-    line-height: 1.3;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.4);
-    position: relative;
-    z-index: 1;
-  }
-
-  .fallback-author {
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.8);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-    position: relative;
-    z-index: 1;
-  }
-
-  /* ========== BOOK OPENING MODAL ========== */
-  .book-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.4s ease, visibility 0.4s ease, background 0.4s ease;
-    padding: 20px;
-    perspective: 2000px;
-  }
-
-  .book-modal-overlay.active {
-    opacity: 1;
-    visibility: visible;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
-  }
-
-  .book-modal {
-    background: var(--bg-primary);
-    border-radius: 4px;
-    max-width: 700px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-    transform-style: preserve-3d;
-    transform: rotateY(-90deg) scale(0.8);
-    transform-origin: left center;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow:
-      -20px 0 40px rgba(0,0,0,0.3),
-      0 20px 60px rgba(0,0,0,0.4);
-  }
-
-  .book-modal-overlay.active .book-modal {
-    transform: rotateY(0deg) scale(1);
-  }
-
-  /* Book spine effect */
-  .book-modal::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 20px;
-    background: linear-gradient(90deg,
-      rgba(0,0,0,0.15) 0%,
-      rgba(0,0,0,0.05) 50%,
-      rgba(255,255,255,0.05) 100%);
-    border-radius: 4px 0 0 4px;
-  }
-
-  /* Page edge effect */
-  .book-modal::after {
-    content: '';
-    position: absolute;
-    right: -3px;
-    top: 5px;
-    bottom: 5px;
-    width: 3px;
-    background: repeating-linear-gradient(
-      180deg,
-      var(--fx-base-200) 0px,
-      var(--fx-base-100) 1px,
-      var(--fx-base-200) 2px
-    );
-    border-radius: 0 2px 2px 0;
-  }
-
-  .modal-content {
-    padding: 40px 40px 40px 50px;
-  }
-
-  .modal-close {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    width: 40px;
-    height: 40px;
-    border: none;
-    background: var(--bg-secondary);
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    z-index: 10;
-  }
-  .modal-close:hover { background: var(--border-color); transform: rotate(90deg); }
-  .modal-close svg { width: 20px; height: 20px; stroke: var(--text-secondary); }
-
-  .modal-header {
-    display: flex;
-    gap: 28px;
-    margin-bottom: 28px;
-  }
-
-  .modal-cover-container {
-    flex-shrink: 0;
-  }
-
-  .modal-cover {
-    width: 160px;
-    height: 240px;
-    object-fit: cover;
-    border-radius: 4px;
-    box-shadow: var(--shadow-md);
-  }
-
-  .modal-cover-fallback {
-    width: 160px;
-    height: 240px;
-    border-radius: 4px;
-    box-shadow: var(--shadow-md);
-  }
-
-  .modal-info {
-    padding-top: 8px;
-  }
-
-  .modal-info h2 {
-    font-size: 1.3rem;
-    font-weight: 300;
-    margin-bottom: 8px;
-    line-height: 1.25;
-    letter-spacing: 0.02em;
-  }
-
-  .modal-author {
-    color: var(--text-secondary);
-    font-size: 1.1rem;
-    margin-bottom: 16px;
-  }
-
-  .modal-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    font-size: 0.9rem;
-    color: var(--text-muted);
-  }
-
-  .modal-meta span {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .modal-rating { color: var(--fx-yellow); }
-
-  .modal-description {
-    color: var(--text-secondary);
-    line-height: 1.8;
-    margin-bottom: 28px;
-    font-size: 1rem;
-  }
-
-  .modal-quote {
-    background: var(--bg-secondary);
-    padding: 28px;
-    border-radius: 8px;
-    position: relative;
-    border-left: 4px solid var(--fx-cyan);
-  }
-
-  .modal-quote::before {
-    content: '"';
-    position: absolute;
-    top: 12px;
-    left: 20px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 3rem;
-    color: var(--fx-cyan);
-    opacity: 0.2;
-    line-height: 1;
-  }
-
-  .modal-quote p {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.95rem;
-    font-style: italic;
-    font-weight: 200;
-    color: var(--text-primary);
-    line-height: 1.7;
-    margin-bottom: 12px;
-    padding-left: 24px;
-  }
-
-  .modal-quote cite {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    font-style: normal;
-    padding-left: 24px;
-    display: block;
-  }
-
-  /* ========== OVERVIEW MODE ========== */
-  .overview-toggle {
-    padding: 8px 16px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-primary);
-    color: var(--text-secondary);
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-    margin-left: 8px;
-  }
-
-  .overview-toggle:hover {
-    border-color: var(--fx-cyan);
-    color: var(--fx-cyan);
-  }
-
-  .overview-toggle.active {
-    background: var(--fx-cyan);
-    border-color: var(--fx-cyan);
-    color: white;
-  }
-
-  .overview-toggle svg {
-    width: 16px;
-    height: 16px;
-    stroke: currentColor;
-    fill: none;
-  }
-
-  /* Overview mode grid */
-  .book-grid.overview-mode {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 16px;
-    height: auto;
-    max-height: none;
-    overflow: visible;
-    padding: 0 24px 60px;
-  }
-
-  .book-grid.overview-mode .book-column {
-    display: contents;
-  }
-
-  .book-grid.overview-mode .book-column-inner {
-    display: contents;
-    animation: none !important;
-  }
-
-  .book-grid.overview-mode .book-card {
-    width: 100%;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-  }
-
-  .book-grid.overview-mode .book-card::before,
-  .book-grid.overview-mode .book-card::after {
-    display: none;
-  }
-
-  .book-grid.overview-mode .book-cover-wrapper::before,
-  .book-grid.overview-mode .book-cover-wrapper::after {
-    display: none;
-  }
-
-  .book-grid.overview-mode .book-cover-wrapper {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    border-radius: 3px;
-  }
-
-  .book-grid.overview-mode .book-card:hover {
-    animation: none;
-    transform: scale(1.08);
-    z-index: 10;
-  }
-
-  .book-grid.overview-mode .book-card:hover .book-cover-wrapper {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-  }
-
-  /* Smaller text for overview mode fallback covers */
-  .book-grid.overview-mode .fallback-title {
-    font-size: 0.65rem;
-    line-height: 1.2;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-  }
-
-  .book-grid.overview-mode .fallback-author {
-    font-size: 0.5rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .book-grid.overview-mode .book-cover-fallback {
-    padding: 10px;
-  }
-
-  /* Transition between modes - only animate safe properties to prevent jiggle */
-  /* Avoid transitioning height, display, overflow which cause layout thrashing */
-
-  /* ========== RESPONSIVE ========== */
-  @media (max-width: 1200px) {
-    .book-grid { gap: 20px; }
-    .book-column:nth-child(4) { display: none; }
-    .book-grid.overview-mode { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
-  }
-
-  @media (max-width: 900px) {
-    .book-grid { gap: 16px; padding: 0 16px; height: 80vh; }
-    .book-column:nth-child(3) { display: none; }
-    .bookshelf-header h1 { font-size: 2.5rem; }
-    .modal-header { flex-direction: column; align-items: center; text-align: center; }
-    .modal-cover, .modal-cover-fallback { width: 140px; height: 210px; }
-    .modal-content { padding: 32px 24px 32px 34px; }
-    .book-grid.overview-mode { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 12px; }
-  }
-
-  @media (max-width: 600px) {
-    .book-grid { height: 75vh; gap: 12px; }
-    .book-card { border-radius: 8px; }
-    .bookshelf-header { padding: 40px 16px 30px; }
-    .bookshelf-header h1 { font-size: 2rem; }
-    .modal-cover, .modal-cover-fallback { width: 120px; height: 180px; }
-    .modal-info h2 { font-size: 1.4rem; }
-    .modal-content { padding: 28px 20px 28px 30px; }
-    .book-grid.overview-mode { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; padding: 0 16px 40px; }
-    .overview-toggle span { display: none; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .book-column-inner { animation: none !important; }
-    .book-card:hover { animation: none; }
-    .book-modal { transition: opacity 0.2s; transform: none !important; }
-    .book-modal-overlay.active .book-modal { transform: none !important; }
-  }
-
-  .loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-  }
-
-  .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--border-color);
-    border-top-color: var(--fx-blue);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-muted);
-  }
-
-  .nav-links {
-    text-align: center;
-    padding: 30px 20px 60px;
-    border-top: 1px solid var(--border-color);
-    margin-top: 20px;
-  }
-  .nav-links a { color: var(--fx-blue); text-decoration: none; }
-  .nav-links a:hover { text-decoration: underline; }
 </style>
 
-<div class="bookshelf-header">
-  <h1>Bookshelf</h1>
-  <p>Books that shaped my thinking</p>
-</div>
+<ul class="site-nav">
+  <li><a href="/">Home</a></li>
+  <li><a href="pdfs/Resume_XiaolongYang_27.pdf">Resume</a></li>
+  <li><a href="research.html">Research</a></li>
+  <li><a href="software.html">Software</a></li>
+  <li><a href="teaching.html">Teaching</a></li>
+  <li><a href="bookshelf.html">Bookshelf</a></li>
+  <li><a href="blog/">Blog</a></li>
+  <li><a href="quotes.html">Quotes</a></li>
+  <li><a href="labs/">Maker Space</a></li>
+</ul>
 
-<div class="controls-bar">
-  <button class="filter-btn active" data-category="all">All</button>
-  <button class="filter-btn" data-category="philosophy">Philosophy</button>
-  <button class="filter-btn" data-category="science">Science</button>
-  <button class="filter-btn" data-category="technology">Technology</button>
-  <button class="filter-btn" data-category="economics">Economics</button>
-  <button class="filter-btn" data-category="fiction">Fiction</button>
-  <button class="overview-toggle" id="overview-toggle" aria-label="Toggle overview">
-    <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-    <span>Overview</span>
-  </button>
-  <button class="theme-toggle" aria-label="Toggle theme">
-    <svg class="sun-icon" viewBox="0 0 24 24"><path d="M12 7a5 5 0 100 10 5 5 0 000-10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-    <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-  </button>
-</div>
+# Bookshelf
 
-<div class="book-grid" role="list">
-  <div class="loading"><div class="loading-spinner"></div></div>
-</div>
+<p class="quiet">A plaintext list of books I have been reading or keeping nearby. The previous interactive version is preserved in <a href="labs/bookshelf.html">Maker Space</a>.</p>
 
-<div class="book-modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
-  <div class="book-modal">
-    <button class="modal-close" aria-label="Close">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-    </button>
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="modal-cover-container" id="modal-cover-container"></div>
-        <div class="modal-info">
-          <h2 id="modal-title"></h2>
-          <p class="modal-author" id="modal-author"></p>
-          <div class="modal-meta">
-            <span id="modal-year"></span>
-            <span id="modal-category"></span>
-            <span class="modal-rating" id="modal-rating"></span>
-          </div>
-        </div>
-      </div>
-      <p class="modal-description" id="modal-description"></p>
-      <div class="modal-quote" id="modal-quote-container" style="display: none;">
-        <p id="modal-quote"></p>
-        <cite id="modal-quote-author"></cite>
-      </div>
-    </div>
-  </div>
-</div>
+## Economics
 
-<div class="empty-state" style="display: none;" id="empty-state">
-  <p>No books found in this category.</p>
-</div>
+- [Capital in the Twenty-First Century](https://www.goodreads.com/book/show/18736925-capital-in-the-twenty-first-century), Thomas Piketty, 2013.
 
-<div class="nav-links">
-  <a href="/">← Back to Home</a>
-</div>
+<!-- ## Fiction -->
 
-<script src="assets/js/bookshelf.js"></script>
+## Philosophy
+
+- A Pattern Language, Christopher Alexander, Sara Ishikawa, and Murray Silverstein, 1977.
+- [Tractatus Logico-Philosophicus](https://www.goodreads.com/book/show/12075.Tractatus_Logico_Philosophicus), Ludwig Wittgenstein, 1922.
+- [Meditations](https://www.goodreads.com/book/show/30659.Meditations), Marcus Aurelius, 180.
+- [Zen and the Art of Motorcycle Maintenance](https://www.goodreads.com/book/show/629.Zen_and_the_Art_of_Motorcycle_Maintenance), Robert M. Pirsig, 1974.
+- [The Structure of Scientific Revolutions](https://www.goodreads.com/book/show/61539.The_Structure_of_Scientific_Revolutions), Thomas S. Kuhn, 1962.
+
+## Science
+
+- [Thinking, Fast and Slow](https://www.goodreads.com/book/show/11468377-thinking-fast-and-slow), Daniel Kahneman, 2011.
+- [Gödel, Escher, Bach](https://www.goodreads.com/book/show/24113.G_del_Escher_Bach), Douglas Hofstadter, 1979.
+- [Metamagical Themas: Questing for the Essence of Mind and Pattern](https://www.goodreads.com/book/show/181239.Metamagical_Themas), Douglas R. Hofstadter, 1985.
+- [Biophilia](https://www.goodreads.com/book/show/153268.Biophilia), Edward O. Wilson, 1984.
+- [The Elements of Statistical Learning](https://www.goodreads.com/book/show/148009.The_Elements_of_Statistical_Learning), Hastie, Tibshirani, Friedman, 2009.
+- [Image and Brain: The Resolution of the Imagery Debate](https://www.goodreads.com/book/show/6352017-image-and-brain), Stephen M. Kosslyn, 1994.
+
+## Technology
+
+- [The Innovator's Dilemma](https://www.goodreads.com/book/show/2615.The_Innovator_s_Dilemma), Clayton Christensen, 1997.
+- [Giant Brains: or Machines That Think](https://www.goodreads.com/book/show/25696020), Edmund Callis Berkeley, 1949.
+- [The Idea Factory: Bell Labs and the Great Age of American Innovation](https://www.goodreads.com/book/show/11797471-the-idea-factory), Jon Gertner, 2012.
+- [The Dream Machine: J.C.R. Licklider and the Revolution That Made Computing Personal](https://www.goodreads.com/book/show/722412.The_Dream_Machine), M. Mitchell Waldrop, 2001.
+- [The Art of Doing Science and Engineering](https://www.goodreads.com/book/show/530415.The_Art_of_Doing_Science_and_Engineering), Richard Hamming, 1997.

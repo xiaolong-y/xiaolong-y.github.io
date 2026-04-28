@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unconventional Time Visualization Concepts | Research Report | 2025-12-18</title>
+
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --paper: #FFFCF0; --ink: #2D2B28; --muted: #6F6E69;
+    --line: #DAD8CE; --panel: #F2F0E5;
+    --blue: #205EA6; --cyan: #24837B; --green: #66800B;
+    --orange: #BC5215; --red: #AF3029; --purple: #5E409D;
+    --yellow: #AD8301; --magenta: #A02F6F;
+    --base: 11px; --lh: 1.45; --sp: 8px; --radius: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #100F0F; --ink: #CECDC3; --muted: #878580;
+      --line: #403E3C; --panel: #1C1B1A;
+      --blue: #4385BE; --cyan: #3AA99F; --green: #879A39;
+      --orange: #DA702C; --red: #D14D41; --purple: #8B7EC8;
+      --yellow: #D0A215; --magenta: #CE5D97;
+    }
+  }
+
+  body {
+    font: var(--base)/var(--lh) 'IBM Plex Mono', ui-monospace, monospace;
+    background: var(--paper); color: var(--ink);
+    padding: var(--sp); max-width: 2400px; margin: 0 auto;
+  }
+
+  h1 { font-size: 1.15em; font-weight: 500; border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: var(--sp); }
+  h2 { font-size: 1em; font-weight: 500; border-left: 3px solid var(--blue); padding-left: 6px; margin: var(--sp) 0 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  h3 { font-size: 0.9em; font-weight: 500; color: var(--muted); margin: 6px 0 3px; }
+
+  section { margin-bottom: var(--sp); padding: var(--sp); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: var(--sp); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 900px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .grid, .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.9em; margin: 4px 0; }
+  th { text-align: left; padding: 3px 5px; border-bottom: 2px solid var(--line); color: var(--blue); font-weight: 400; }
+  td { padding: 3px 5px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: none; }
+
+  pre { font-size: 0.82em; background: var(--paper); padding: 4px 6px; border: 1px solid var(--line); border-radius: var(--radius); overflow-x: auto; margin: 4px 0; white-space: pre-wrap; }
+  code { font-family: inherit; background: var(--paper); padding: 1px 3px; border-radius: var(--radius); }
+
+  figure { margin: 4px 0; }
+  figure img { max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+  figure.viz { background: var(--paper); padding: 8px; border: 1px solid var(--line); border-radius: var(--radius); text-align: center; }
+  figure.viz svg { border: none; display: block; margin: 0 auto; }
+  figcaption { font-size: 0.8em; color: var(--muted); margin-top: 4px; text-align: center; }
+
+  .note { color: var(--muted); font-size: 0.82em; margin: 3px 0; }
+  .desc { font-size: 0.82em; margin: 4px 0; line-height: 1.35; }
+  .warn { color: var(--orange); } .err { color: var(--red); } .ok { color: var(--green); }
+
+  .tag { display: inline-block; padding: 1px 4px; border-radius: var(--radius); font-size: 0.73em; font-weight: 500; margin-left: 4px; border: 1px solid; vertical-align: middle; }
+  .tag.core { border-color: var(--blue); color: var(--blue); }
+  .tag.adv { border-color: var(--purple); color: var(--purple); }
+  .tag.eff { border-color: var(--green); color: var(--green); }
+  .tag.warn { border-color: var(--orange); color: var(--orange); }
+  .tag.new { border-color: var(--cyan); color: var(--cyan); }
+
+  ul, ol { margin: 3px 0 3px 16px; font-size: 0.9em; }
+  li { margin: 2px 0; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { color: var(--cyan); text-decoration: underline; }
+
+  .bib { font-size: 0.82em; background: var(--paper); padding: var(--sp); border: 1px solid var(--line); margin-top: 10px; }
+  .bib h2 { border-left-color: var(--purple); }
+  .bib ol { margin-left: 20px; }
+
+  .concept-card { border-left: 3px solid var(--cyan); }
+  .ascii-diagram { font-family: 'IBM Plex Mono', monospace; font-size: 0.75em; line-height: 1.2; white-space: pre; background: var(--paper); padding: 8px; border: 1px solid var(--line); margin: 6px 0; overflow-x: auto; }
+
+  .insight-box { background: var(--paper); border: 1px solid var(--cyan); border-radius: var(--radius); padding: 6px; margin: 6px 0; }
+  .insight-box h4 { font-size: 0.85em; color: var(--cyan); margin-bottom: 4px; }
+
+  .full-width { grid-column: 1 / -1; }
+
+  @media print {
+    body { font-size: 9pt; padding: 0; }
+    section { break-inside: avoid; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  </style>
+</head>
+<body>
+
+<h1>Unconventional Time Visualization Concepts <span class="tag new">research</span></h1>
+
+<p class="desc" style="margin-bottom: var(--sp);">
+  Exploring radical visual metaphors for representing "how many good days do I have before a deadline" -
+  drawing from cartography, physics, natural systems, music, and other domains far removed from traditional calendars.
+</p>
+
+<!-- Executive Summary -->
+<section class="full-width">
+  <h2>Executive Summary</h2>
+  <p class="desc">
+    Traditional calendar interfaces treat time as uniform boxes in a grid - a metaphor that fails to convey the
+    <em>felt experience</em> of time pressure. This research explores seven unconventional visualization concepts
+    that make time <strong>feel</strong> different by borrowing visual languages from topography, fluid dynamics,
+    astronomy, geology, biology, music, and meteorology. Each concept surfaces unique insights about temporal scarcity
+    that flat calendars cannot communicate.
+  </p>
+  <p class="note" style="margin-top: 6px;">
+    Design goal: Transform "14 days until deadline" from abstract number into visceral understanding.
+  </p>
+</section>
+
+<div class="grid grid-2">
+
+<!-- Concept 1: Topographic Pressure Map -->
+<section class="concept-card">
+  <h2>1. Topographic Pressure Map <span class="tag core">recommended</span></h2>
+
+  <h3>The Metaphor</h3>
+  <p class="desc">
+    Deadlines are <strong>mountain peaks</strong>. Time pressure is <strong>elevation</strong>. Available days are
+    <strong>valleys</strong> where you can move freely. As you approach a deadline, you're climbing toward a summit -
+    the terrain becomes steeper, movement becomes harder.
+  </p>
+
+  <h3>Visual Encoding</h3>
+  <table>
+    <tr><th>Data Element</th><th>Visual Representation</th></tr>
+    <tr><td>Deadline</td><td>Peak / summit point</td></tr>
+    <tr><td>Time to deadline</td><td>Distance from peak (horizontal)</td></tr>
+    <tr><td>Urgency / pressure</td><td>Elevation / slope steepness</td></tr>
+    <tr><td>Available days</td><td>Flat valleys / plateaus</td></tr>
+    <tr><td>Blocked days</td><td>Cliffs / impassable terrain</td></tr>
+    <tr><td>Multiple deadlines</td><td>Mountain range with multiple peaks</td></tr>
+  </table>
+
+  <h3>Conceptual Sketch</h3>
+  <div class="ascii-diagram">
+                    DEADLINE A          DEADLINE B
+                        /\                  /\
+                       /  \                /  \
+                      /    \    ____      /    \
+            _____    /      \  /    \    /      \
+      NOW  /     \__/        \/      \__/        \___
+      [*]
+      |----valley----|--slope--|--valley--|--slope--|
+         (free time)   (crunch)  (free)    (crunch)
+  </div>
+
+  <div class="insight-box">
+    <h4>Unique Insight Surfaced</h4>
+    <p class="desc">
+      Reveals the <em>gradient of urgency</em> - not just binary busy/free, but how pressure accumulates.
+      Closely-spaced contour lines (steep slopes) show where time will feel compressed. Users can identify
+      "valleys" for deep work and "ridgelines" where they're navigating between competing pressures.
+    </p>
+  </div>
+
+  <h3>Implementation Notes</h3>
+  <ul>
+    <li>Use isochronic contours: lines connecting points of equal "days until deadline"</li>
+    <li>Color gradient: cool blues in valleys, warm oranges/reds near peaks</li>
+    <li>Interactive: hover to see elevation (urgency score) at any point</li>
+    <li>3D variant: literal terrain you can rotate and explore</li>
+  </ul>
+
+  <p class="note">Source: Isochrone maps have been used in transportation planning since 1887 to show areas reachable within time thresholds.</p>
+</section>
+
+<!-- Concept 2: Gravitational Field -->
+<section class="concept-card">
+  <h2>2. Gravitational Well <span class="tag adv">physics</span></h2>
+
+  <h3>The Metaphor</h3>
+  <p class="desc">
+    Deadlines are <strong>massive objects</strong> that warp spacetime around them. The closer you get,
+    the stronger the gravitational pull. Time itself flows differently near deadline-masses - it seems to
+    accelerate as you fall toward them. Available time is the "escape velocity" you need to break free.
+  </p>
+
+  <h3>Visual Encoding</h3>
+  <table>
+    <tr><th>Data Element</th><th>Visual Representation</th></tr>
+    <tr><td>Deadline</td><td>Mass / gravitational center</td></tr>
+    <tr><td>Deadline importance</td><td>Size of mass (larger = more gravity)</td></tr>
+    <tr><td>Time to deadline</td><td>Orbital radius / distance from center</td></tr>
+    <tr><td>Today's position</td><td>Satellite/object in orbit</td></tr>
+    <tr><td>Available days</td><td>Orbital energy / altitude</td></tr>
+    <tr><td>Blocked days</td><td>Drag / orbital decay</td></tr>
+  </table>
+
+  <h3>Conceptual Sketch</h3>
+  <div class="ascii-diagram">
+           .  .  .  .  .  .  .  .  .  .
+        .                              .
+      .    (safe orbit - plenty of time) .
+     .                                    .
+    .      . . . . . . . . . .            .
+    .    .                    .           .
+   .   .    (warning zone)     .          .
+   .  .                         .         .
+   . .     +---------------+     .        .
+   ..      |   DEADLINE    |      ..      .
+   . .     |   (mass)      |     . .      .
+   .  .    +---------------+    .  .      .
+   .   .                       .   .      .
+    .    . . . . . . . . . . .    .      .
+     .        [YOU ARE HERE]     .       .
+      .           *             .       .
+        .                     .       .
+           .  .  .  .  .  .  .  .  .
+  </div>
+
+  <div class="insight-box">
+    <h4>Unique Insight Surfaced</h4>
+    <p class="desc">
+      Shows <em>interaction between multiple deadlines</em> as overlapping gravitational fields.
+      Reveals "Lagrange points" - stable spots between competing deadlines where you can pause.
+      Also shows "escape velocity" - the minimum effort needed to avoid being pulled into crunch mode.
+    </p>
+  </div>
+
+  <h3>Implementation Notes</h3>
+  <ul>
+    <li>Use the rubber-sheet metaphor: deadlines create visible "dents" in the time surface</li>
+    <li>Multiple deadlines create complex gravitational landscapes</li>
+    <li>Animate: show your trajectory over the coming weeks</li>
+    <li>Warning when trajectory leads to collision (missed deadline)</li>
+  </ul>
+
+  <p class="note">Source: Einstein's spacetime curvature visualization - "Matter tells spacetime how to curve, spacetime tells matter how to move."</p>
+</section>
+
+<!-- Concept 3: Tidal Rhythms -->
+<section class="concept-card">
+  <h2>3. Tidal Rhythm Chart <span class="tag eff">natural</span></h2>
+
+  <h3>The Metaphor</h3>
+  <p class="desc">
+    Your available time ebbs and flows like <strong>ocean tides</strong>. Some days the tide is high -
+    abundant time, full capacity. Other days it's low tide - meetings, obligations, energy depleted.
+    Deadlines are like <strong>neap and spring tides</strong> - predictable cycles of intensity governed
+    by the "lunar" rhythm of your calendar.
+  </p>
+
+  <h3>Visual Encoding</h3>
+  <table>
+    <tr><th>Data Element</th><th>Visual Representation</th></tr>
+    <tr><td>Available hours/day</td><td>Tide height (high = abundant time)</td></tr>
+    <tr><td>Day of week cycle</td><td>Daily tidal oscillation</td></tr>
+    <tr><td>Weekly rhythm</td><td>Spring/neap tide cycle</td></tr>
+    <tr><td>Deadline approach</td><td>Tide drawing out (water receding)</td></tr>
+    <tr><td>Post-deadline</td><td>Tide rushing back in</td></tr>
+    <tr><td>Blocked time</td><td>Exposed seabed / rocks</td></tr>
+  </table>
+
+  <h3>Conceptual Sketch</h3>
+  <div class="ascii-diagram">
+    HIGH  ~~~                     ~~~         ~~~
+    TIDE     ~~~               ~~~   ~~~   ~~~
+               ~~~           ~~~       ~~~
+                  ~~~     ~~~         DEADLINE
+    LOW              ~~~~~              |
+    TIDE    [rocks: meetings]           v
+          |--Mon--|--Tue--|--Wed--|--Thu--|--Fri--|
+
+    RADIAL VARIANT:
+              12am
+               |
+         ~~~~~~|~~~~~~  <- high tide (night: rest)
+        /      |      \
+    6pm|   [center]   |6am
+        \      |      /
+         ~~~~~~|~~~~~~  <- high tide
+               |
+              12pm      <- low tide (peak work hours exposed)
+  </div>
+
+  <div class="insight-box">
+    <h4>Unique Insight Surfaced</h4>
+    <p class="desc">
+      Reveals <em>rhythmic patterns</em> in your schedule that linear calendars hide. Shows when
+      "high water" (abundant time) will return after a deadline. The radial variant captures daily
+      circadian rhythms - when your energy and availability naturally ebb and flow.
+    </p>
+  </div>
+
+  <h3>Implementation Notes</h3>
+  <ul>
+    <li>Use radial layout (like tide clocks) to emphasize cyclical nature</li>
+    <li>Animate the tide moving in/out to show progression</li>
+    <li>Mark "rocks" (immovable commitments) that are exposed at low tide</li>
+    <li>Integrate with circadian rhythm data if available</li>
+  </ul>
+
+  <p class="note">Source: Tide prediction visualization by Jessica Suen - "a radial grid emphasizes the smooth wave-like nature of the tide."</p>
+</section>
+
+<!-- Concept 4: Stratigraphic Core Sample -->
+<section class="concept-card">
+  <h2>4. Stratigraphic Core Sample <span class="tag adv">geology</span></h2>
+
+  <h3>The Metaphor</h3>
+  <p class="desc">
+    Your timeline is a <strong>geological core sample</strong> - layers of sediment representing different
+    types of time. Available days are thick, nutrient-rich strata. Busy periods are compressed, dense layers.
+    Deadlines are unconformities - sharp boundaries marking transitions. Reading time becomes archaeological.
+  </p>
+
+  <h3>Visual Encoding</h3>
+  <table>
+    <tr><th>Data Element</th><th>Visual Representation</th></tr>
+    <tr><td>Time period</td><td>Horizontal stratum (layer)</td></tr>
+    <tr><td>Available time</td><td>Layer thickness</td></tr>
+    <tr><td>Time quality</td><td>Layer texture/color (rich soil vs. rock)</td></tr>
+    <tr><td>Deadline</td><td>Sharp unconformity line</td></tr>
+    <tr><td>Project type</td><td>Sediment type (sand, clay, organic)</td></tr>
+    <tr><td>Today</td><td>Core extraction point / surface</td></tr>
+  </table>
+
+  <h3>Conceptual Sketch</h3>
+  <div class="ascii-diagram">
+    SURFACE (TODAY)
+    ================================ <- NOW
+    ::::::::::::::::::::::::::::::::    <- This week: dense meetings (thin)
+    -------------------------------- <- DEADLINE: Project A
+    ################################    <- Next week: blocked (very thin)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ <- DEADLINE: Project B
+    ................................    <- Week 3: available (thick layer)
+    ................................
+    ................................
+    -------------------------------- <- DEADLINE: Project C
+    ################################    <- Week 4: holiday (blocked)
+    ================================
+
+    LEGEND:
+    :::: = compressed/busy (thin layers = less available time)
+    .... = available (thick layers = more available time)
+    #### = blocked/holiday
+    ---- = deadline boundary (unconformity)
+  </div>
+
+  <div class="insight-box">
+    <h4>Unique Insight Surfaced</h4>
+    <p class="desc">
+      Makes visible the <em>compression of time</em> near deadlines. Thick layers feel spacious;
+      thin, compressed layers feel urgent. Also shows the "fossil record" of past projects and
+      how your time was actually spent vs. planned.
+    </p>
+  </div>
+
+  <h3>Implementation Notes</h3>
+  <ul>
+    <li>Vertical orientation: today at top, future below (like reading earth history)</li>
+    <li>Or horizontal: scroll through time like reading a timeline core</li>
+    <li>Layer thickness proportional to available hours</li>
+    <li>Color-code by project or time quality</li>
+    <li>Interactive: click layers to expand details</li>
+  </ul>
+
+  <p class="note">Source: "Layers allow scientists to determine sedimentation rates by analyzing grain size, composition, and depositional patterns."</p>
+</section>
+
+<!-- Concept 5: Dendrochronology (Tree Rings) -->
+<section class="concept-card">
+  <h2>5. Tree Ring Chronology <span class="tag eff">biological</span></h2>
+
+  <h3>The Metaphor</h3>
+  <p class="desc">
+    Your year is a <strong>tree cross-section</strong>. Each week or month is a growth ring. Wide rings
+    represent periods of abundant time and growth. Narrow rings show stress periods - deadlines, crunch times,
+    scarce resources. The pattern tells the story of your year's "climate."
+  </p>
+
+  <h3>Visual Encoding</h3>
+  <table>
+    <tr><th>Data Element</th><th>Visual Representation</th></tr>
+    <tr><td>Time period (week/month)</td><td>Ring / annual band</td></tr>
+    <tr><td>Available time</td><td>Ring width (wide = abundant)</td></tr>
+    <tr><td>Time quality</td><td>Ring color/density (light = good, dark = stress)</td></tr>
+    <tr><td>Deadline</td><td>Scar / growth anomaly</td></tr>
+    <tr><td>Today</td><td>Outermost ring / bark edge</td></tr>
+    <tr><td>Historical pattern</td><td>Inner rings (past weeks/months)</td></tr>
+  </table>
+
+  <h3>Conceptual Sketch</h3>
+  <div class="ascii-diagram">
+                    N (future)
+                      |
+              .-------+-------.
+            .'  thin rings     '.     <- upcoming crunch
+           /   (busy period)     \
+          |  .---------------.    |
+          | |  wide rings    |    |   <- available time
+          | |  (free period) |    |
+    W ----|-|-------*--------|----|- E
+          | |    [center]    |    |
+          | |   (today)      |    |
+          |  '---------------'    |
+           \                     /
+            '.   SCAR: missed  .'     <- deadline marker
+              '-------+-------'
+                      |
+                    S (past)
+
+    Reading outward from center = looking into future
+    Ring width = available time in that period
+  </div>
+
+  <div class="insight-box">
+    <h4>Unique Insight Surfaced</h4>
+    <p class="desc">
+      Surfaces <em>seasonal patterns</em> in your availability - do you always have narrow rings
+      in Q4? The cross-section view creates a holistic picture of the entire year. "Scars" from
+      past deadlines remain visible, creating institutional memory.
+    </p>
+  </div>
+
+  <h3>Implementation Notes</h3>
+  <ul>
+    <li>Center = today (or project start); outer edge = deadline or year end</li>
+    <li>Alternative: center = past, edge = future (growing into time)</li>
+    <li>Ring width calculated from available hours/commitments</li>
+    <li>Color: Use "earlywood/latewood" pattern for AM/PM or weekday/weekend</li>
+    <li>Overlay multiple project timelines as separate core samples</li>
+  </ul>
+
+  <p class="note">Source: "Wide layers indicate years when trees grew more. Narrow layers indicate years when trees grew less."</p>
+</section>
+
+<!-- Concept 6: Wave Interference / Beat Patterns -->
+<section class="concept-card">
+  <h2>6. Beat Frequency Visualization <span class="tag new">musical</span></h2>
+
+  <h3>The Metaphor</h3>
+  <p class="desc">
+    Your commitments are <strong>sound waves</strong> with different frequencies. Weekly meetings are one
+    frequency, monthly deadlines another. When waves align, they create <strong>beats</strong> - moments of
+    constructive interference (chaos) or destructive interference (calm). Time availability is the
+    <strong>amplitude envelope</strong> of your combined obligations.
+  </p>
+
+  <h3>Visual Encoding</h3>
+  <table>
+    <tr><th>Data Element</th><th>Visual Representation</th></tr>
+    <tr><td>Recurring commitment</td><td>Wave with specific frequency</td></tr>
+    <tr><td>Deadline</td><td>Impulse / spike in the signal</td></tr>
+    <tr><td>Combined busyness</td><td>Superimposed waveform</td></tr>
+    <tr><td>Available time</td><td>Amplitude troughs (quiet periods)</td></tr>
+    <tr><td>Busy periods</td><td>Amplitude peaks (loud periods)</td></tr>
+    <tr><td>Beat frequency</td><td>Rhythm of busy/free oscillation</td></tr>
+  </table>
+
+  <h3>Conceptual Sketch</h3>
+  <div class="ascii-diagram">
+    INDIVIDUAL WAVES:
+    Weekly mtgs:  /\  /\  /\  /\  /\  /\  /\  /\  (high frequency)
+    Monthly DL:   /        \        /        \     (low frequency)
+
+    SUPERIMPOSED (your actual availability):
+                      BEAT            BEAT
+                       |               |
+         __    __     /\     __    __ /\
+    ____/  \__/  \___/  \___/  \__/  /  \____
+                     ^               ^
+              constructive    constructive
+              interference    interference
+              (crunch time)   (crunch time)
+
+    Troughs = available time (waves cancel out)
+    Peaks = busy time (waves reinforce)
+  </div>
+
+  <div class="insight-box">
+    <h4>Unique Insight Surfaced</h4>
+    <p class="desc">
+      Reveals <em>hidden periodicities</em> - why some weeks feel chaotic (everything aligns) and others
+      feel calm. Predicts future "resonance events" where multiple obligations will constructively
+      interfere. Could be made audible - literally hear your upcoming schedule.
+    </p>
+  </div>
+
+  <h3>Implementation Notes</h3>
+  <ul>
+    <li>Each recurring commitment = sine wave with appropriate period</li>
+    <li>Superimpose all waves to show combined amplitude</li>
+    <li>Color code: different hues for different commitment types</li>
+    <li>Audio mode: sonify the schedule (high amplitude = louder)</li>
+    <li>Identify beat frequency to predict busy/free oscillation pattern</li>
+  </ul>
+
+  <p class="note">Source: "When two waves with similar frequencies move in the same medium, a distinctive interference pattern emerges."</p>
+</section>
+
+<!-- Concept 7: Barometric Pressure System -->
+<section class="concept-card">
+  <h2>7. Pressure System Weather Map <span class="tag core">recommended</span></h2>
+
+  <h3>The Metaphor</h3>
+  <p class="desc">
+    Your schedule is a <strong>weather map</strong>. Deadlines are <strong>low-pressure systems</strong> -
+    they draw energy toward them, create turbulence, bring storms. Available time is <strong>high pressure</strong> -
+    clear skies, calm conditions. Isobars show the gradient of pressure across your timeline.
+  </p>
+
+  <h3>Visual Encoding</h3>
+  <table>
+    <tr><th>Data Element</th><th>Visual Representation</th></tr>
+    <tr><td>Deadline</td><td>L (low pressure center)</td></tr>
+    <tr><td>Free period</td><td>H (high pressure center)</td></tr>
+    <tr><td>Time pressure gradient</td><td>Isobars (closer = steeper gradient)</td></tr>
+    <tr><td>Busy period</td><td>Storm front / precipitation</td></tr>
+    <tr><td>Today's position</td><td>Weather station marker</td></tr>
+    <tr><td>Forecast</td><td>Pressure trend (rising/falling)</td></tr>
+  </table>
+
+  <h3>Conceptual Sketch</h3>
+  <div class="ascii-diagram">
+                 H                        L
+              (clear)                 (deadline)
+                 |                        |
+         .-------+-------.        .-------+-------.
+        /   1020 hPa     \      /    990 hPa      \
+       |    .-------.     |    |    .-------.      |
+       |   / 1015   \     |    |   / 995    \      |
+       |  |  .---.   |    |====|  | .---.    |     |
+       |  | |1010|   |    [NOW]   | |1000|   |     |
+       |  |  '---'   |         |  | '---'    |     |
+       |   \ 1015   /     |    |   \ 995    /      |
+       |    '-------'     |    |    '-------'      |
+        \   1020 hPa     /      \    990 hPa      /
+         '-------+-------'        '-------+-------'
+
+    FORECAST BAR:
+    [RISING] ===|========== [FALLING]
+                ^
+             (stable now, pressure dropping)
+  </div>
+
+  <div class="insight-box">
+    <h4>Unique Insight Surfaced</h4>
+    <p class="desc">
+      The <em>forecast metaphor</em> is powerful: "pressure is falling" creates anticipation of coming stress.
+      Users can see "fronts" approaching - transitions from calm to turbulent periods. The familiar weather
+      map visual vocabulary transfers understanding instantly.
+    </p>
+  </div>
+
+  <h3>Implementation Notes</h3>
+  <ul>
+    <li>Map layout: time flows left-to-right (or use actual calendar grid)</li>
+    <li>Pressure values derived from commitment density + deadline proximity</li>
+    <li>Animate fronts moving across the map over time</li>
+    <li>Include "forecast confidence" - near-term certain, far-term fuzzy</li>
+    <li>Alert system: "Storm warning for Thursday"</li>
+  </ul>
+
+  <p class="note">Source: "Low-pressure areas often bring cloudy and windy weather, while high-pressure areas are associated with clear skies."</p>
+</section>
+
+</div>
+
+<!-- Comparison Matrix -->
+<section class="full-width">
+  <h2>Concept Comparison Matrix</h2>
+  <table>
+    <tr>
+      <th>Concept</th>
+      <th>Primary Insight</th>
+      <th>Best For</th>
+      <th>Complexity</th>
+      <th>Familiarity</th>
+    </tr>
+    <tr>
+      <td>1. Topographic Map</td>
+      <td>Urgency gradient, terrain difficulty</td>
+      <td>Multiple deadlines, long-term planning</td>
+      <td class="warn">Medium</td>
+      <td class="ok">High (maps)</td>
+    </tr>
+    <tr>
+      <td>2. Gravitational Well</td>
+      <td>Deadline interactions, escape velocity</td>
+      <td>Complex projects, competing priorities</td>
+      <td class="err">High</td>
+      <td class="warn">Medium (physics)</td>
+    </tr>
+    <tr>
+      <td>3. Tidal Rhythm</td>
+      <td>Cyclical patterns, rhythmic availability</td>
+      <td>Daily/weekly planning, energy mgmt</td>
+      <td class="ok">Low</td>
+      <td class="ok">High (tides)</td>
+    </tr>
+    <tr>
+      <td>4. Stratigraphic Core</td>
+      <td>Time compression, historical patterns</td>
+      <td>Retrospective analysis, thick/thin time</td>
+      <td class="warn">Medium</td>
+      <td class="warn">Medium (geology)</td>
+    </tr>
+    <tr>
+      <td>5. Tree Rings</td>
+      <td>Seasonal patterns, growth/stress cycles</td>
+      <td>Annual planning, pattern recognition</td>
+      <td class="ok">Low</td>
+      <td class="ok">High (nature)</td>
+    </tr>
+    <tr>
+      <td>6. Beat Frequency</td>
+      <td>Interference patterns, resonance events</td>
+      <td>Recurring meetings, cycle detection</td>
+      <td class="err">High</td>
+      <td class="warn">Medium (music/physics)</td>
+    </tr>
+    <tr>
+      <td>7. Weather Pressure</td>
+      <td>Forecast/anticipation, fronts approaching</td>
+      <td>Short-term planning, urgency communication</td>
+      <td class="warn">Medium</td>
+      <td class="ok">High (weather)</td>
+    </tr>
+  </table>
+</section>
+
+<!-- Synthesis & Recommendations -->
+<section class="full-width">
+  <h2>Synthesis: Design Recommendations</h2>
+
+  <div class="grid grid-3">
+    <div>
+      <h3>For Prototyping First</h3>
+      <p class="desc">
+        <strong>Topographic Map (#1)</strong> and <strong>Weather Pressure (#7)</strong> offer the best
+        combination of insight depth and user familiarity. Both use visual languages people already understand
+        from maps and forecasts.
+      </p>
+    </div>
+    <div>
+      <h3>For Personal Use</h3>
+      <p class="desc">
+        <strong>Tidal Rhythm (#3)</strong> and <strong>Tree Rings (#5)</strong> emphasize cyclical, biological
+        patterns that resonate with personal energy management. They make time feel more natural and less mechanical.
+      </p>
+    </div>
+    <div>
+      <h3>For Advanced Users</h3>
+      <p class="desc">
+        <strong>Gravitational Well (#2)</strong> and <strong>Beat Frequency (#6)</strong> surface complex
+        interactions between deadlines and commitments but require more cognitive investment to interpret.
+      </p>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 10px;">Key Principles Across All Concepts</h3>
+  <ul>
+    <li><strong>Make gradients visible:</strong> Not binary busy/free, but continuous pressure levels</li>
+    <li><strong>Show interactions:</strong> How do multiple deadlines affect each other?</li>
+    <li><strong>Emphasize rhythm:</strong> Time is cyclical, not just linear</li>
+    <li><strong>Enable forecasting:</strong> "What's coming" matters more than "what is"</li>
+    <li><strong>Create visceral response:</strong> The visualization should make urgency <em>feel</em> urgent</li>
+  </ul>
+</section>
+
+<!-- Hybrid Concept -->
+<section class="full-width">
+  <h2>Bonus: Hybrid Concept - The Time Terrain Forecast</h2>
+  <p class="desc">
+    Combine the topographic map with weather systems: the terrain is your baseline schedule (fixed features),
+    while weather systems move across it (dynamic events, approaching deadlines). High-pressure days on flat
+    terrain = easy hiking. Low-pressure systems approaching mountain passes = danger zone.
+  </p>
+  <div class="ascii-diagram">
+              WEATHER LAYER (dynamic)
+    L -----> approaching        H (clearing)
+    (storm)
+    =========================================
+              TERRAIN LAYER (static)
+                    /\              /\
+                   /  \    ____    /  \
+          ____    /    \  /    \  /    \
+         /    \__/      \/      \/      \
+    [*NOW]
+
+    Combined view: Storm (L) approaching the mountain pass (deadline)
+    = Very difficult conditions predicted for Thursday
+  </div>
+</section>
+
+<!-- Sources -->
+<section class="bib">
+  <h2>Sources</h2>
+  <ol>
+    <li><a href="https://en.wikipedia.org/wiki/Isochrone_map">Isochrone Map</a> - Wikipedia overview of time-based mapping</li>
+    <li><a href="https://www.geoapify.com/what-is-an-isoline-map/">What is an Isoline Map?</a> - Geoapify tutorial on contour-based visualization</li>
+    <li><a href="https://www.smashingmagazine.com/2015/03/fun-with-physics-in-data-visualization/">Fun With Physics In Data Visualization</a> - Smashing Magazine, 2015</li>
+    <li><a href="https://phys.libretexts.org/Bookshelves/Astronomy__Cosmology/Supplemental_Modules_(Astronomy_and_Cosmology)/Astronomy/Gravity/1.2:_Visualizing_Gravity:_the_Gravitational_Field">Visualizing Gravity: the Gravitational Field</a> - Physics LibreTexts</li>
+    <li><a href="https://www.openculture.com/2015/11/gravity-visualized-by-high-school-teacher-in-an-elegantly-simple-way.html">Gravity Visualized</a> - Dan Burns' rubber-sheet demonstration</li>
+    <li><a href="https://www.behance.net/gallery/8638423/Data-Visualization-Tide-Predictions">Data Visualization: Tide Predictions</a> - Jessica Suen's radial tide visualization</li>
+    <li><a href="https://oceanservice.noaa.gov/education/tutorial_tides/tides07_cycles.html">Types and Causes of Tidal Cycles</a> - NOAA Ocean Service Education</li>
+    <li><a href="https://www.kirellbenzi.com/art/circadian-rhythms">Circadian Rhythms</a> - Kirell Benzi's data-driven art project</li>
+    <li><a href="https://uhlibraries.pressbooks.pub/historicalgeologylab/chapter/chapter5-stratigraphy/">Stratigraphy</a> - The Story of Earth: An Observational Guide</li>
+    <li><a href="https://scied.ucar.edu/learning-zone/how-climate-works/tree-rings-and-climate">Tree Rings and Climate</a> - UCAR Center for Science Education</li>
+    <li><a href="https://www.nps.gov/articles/archeology-dendrochronology.htm">Dendrochronology</a> - U.S. National Park Service</li>
+    <li><a href="https://academo.org/demos/wave-interference-beat-frequency/">Wave Interference and Beat Frequency</a> - Academo interactive demo</li>
+    <li><a href="https://www.physicsclassroom.com/class/sound/Lesson-3/Interference-and-Beats">Interference and Beats</a> - The Physics Classroom</li>
+    <li><a href="https://zoom.earth/maps/pressure/">Atmospheric Pressure Forecast Map</a> - Zoom Earth</li>
+    <li><a href="https://barometricpressure.app/">Barometric Pressure Forecast and History</a> - BarometricPressure.app</li>
+    <li><a href="https://cranfordteague.medium.com/temporal-design-thinking-visualizing-design-in-time-94292a42578f">Temporal Design Thinking</a> - Jason Cranford Teague, Medium</li>
+    <li><a href="https://www.maplibrary.org/1565/creative-approaches-to-temporal-data-representation-in-mapping/">Creative Ways to Show Time on Maps</a> - Map Library</li>
+    <li><a href="https://arxiv.org/pdf/0809.0884">On the role of metaphor in information visualization</a> - John S. Risch, arXiv</li>
+    <li><a href="https://chartschool.stockcharts.com/table-of-contents/chart-analysis/chart-types/candlevolume">CandleVolume</a> - StockCharts ChartSchool</li>
+    <li><a href="https://www.britannica.com/science/eclipse/Prediction-and-calculation-of-solar-and-lunar-eclipses">Eclipse Prediction</a> - Britannica</li>
+  </ol>
+</section>
+
+</body>
+</html>

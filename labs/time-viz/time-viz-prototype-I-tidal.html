@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option I: Tidal Rhythm | Time Visualization Prototype</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --paper: #FFFCF0;
+      --ink: #1C1B1A;
+      --muted: #6F6E69;
+      --line: #DAD8CE;
+      --panel: #F2F0E5;
+      --blue: #205EA6;
+      --cyan: #24837B;
+      --green: #66800B;
+      --orange: #BC5215;
+      --red: #AF3029;
+      --purple: #5E409D;
+
+      /* Tide colors */
+      --high-tide: #4A7C4E;
+      --mid-tide: #8FB339;
+      --low-tide: #D4A84B;
+      --very-low: #C65D3D;
+      --danger: #AF3029;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #100F0F;
+        --ink: #CECDC3;
+        --muted: #878580;
+        --line: #403E3C;
+        --panel: #1C1B1A;
+        --blue: #4385BE;
+        --cyan: #3AA99F;
+        --green: #879A39;
+        --orange: #DA702C;
+        --red: #D14D41;
+        --purple: #8B7EC8;
+
+        --high-tide: #5A9A5E;
+        --mid-tide: #A0C449;
+        --low-tide: #E4B85B;
+        --very-low: #D66D4D;
+        --danger: #D14D41;
+      }
+    }
+
+    body {
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .current-tide {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin: 24px 0;
+      padding: 16px 24px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .tide-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tide-level {
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    .tide-level.high { color: var(--high-tide); }
+    .tide-level.rising { color: var(--mid-tide); }
+    .tide-level.falling { color: var(--low-tide); }
+    .tide-level.low { color: var(--very-low); }
+
+    .tide-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tide-status {
+      font-size: 0.9rem;
+      color: var(--ink);
+    }
+
+    .tide-arrow {
+      font-size: 1.2rem;
+      animation: bob 2s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .chart-container {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .chart-title {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .y-axis-labels {
+      position: absolute;
+      left: 8px;
+      top: 60px;
+      bottom: 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .y-label {
+      writing-mode: horizontal-tb;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .y-label .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .y-label.high .dot { background: var(--high-tide); }
+    .y-label.low .dot { background: var(--very-low); }
+
+    .svg-container {
+      margin-left: 70px;
+      margin-right: 16px;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .wave-gradient-high { stop-color: var(--high-tide); }
+    .wave-gradient-mid { stop-color: var(--mid-tide); }
+    .wave-gradient-low { stop-color: var(--low-tide); }
+    .wave-gradient-very-low { stop-color: var(--very-low); }
+
+    .grid-line {
+      stroke: var(--line);
+      stroke-width: 1;
+      stroke-dasharray: 4 4;
+    }
+
+    .midline {
+      stroke: var(--muted);
+      stroke-width: 1;
+      stroke-dasharray: 8 4;
+    }
+
+    .wave-fill {
+      fill: url(#waveGradient);
+      opacity: 0.7;
+    }
+
+    .wave-line {
+      fill: none;
+      stroke: var(--cyan);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .daily-wave {
+      fill: none;
+      stroke: var(--blue);
+      stroke-width: 1;
+      stroke-dasharray: 3 3;
+      opacity: 0.5;
+    }
+
+    .weekly-wave {
+      fill: none;
+      stroke: var(--purple);
+      stroke-width: 1.5;
+      stroke-dasharray: 6 3;
+      opacity: 0.6;
+    }
+
+    .deadline-marker {
+      stroke: var(--red);
+      stroke-width: 2;
+    }
+
+    .deadline-dot {
+      fill: var(--red);
+    }
+
+    .deadline-label {
+      font-size: 9px;
+      fill: var(--red);
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 500;
+    }
+
+    .day-label {
+      font-size: 10px;
+      fill: var(--muted);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .day-label.weekend {
+      fill: var(--cyan);
+    }
+
+    .day-label.today {
+      fill: var(--ink);
+      font-weight: 600;
+    }
+
+    .week-label {
+      font-size: 9px;
+      fill: var(--muted);
+      font-family: 'IBM Plex Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .today-marker {
+      stroke: var(--orange);
+      stroke-width: 2;
+      stroke-dasharray: 4 2;
+    }
+
+    .today-dot {
+      fill: var(--orange);
+    }
+
+    .today-label {
+      font-size: 10px;
+      fill: var(--orange);
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .legend-line {
+      width: 24px;
+      height: 3px;
+      border-radius: 2px;
+    }
+
+    .legend-line.combined { background: var(--cyan); }
+    .legend-line.weekly {
+      background: var(--purple);
+      background: repeating-linear-gradient(90deg, var(--purple), var(--purple) 6px, transparent 6px, transparent 9px);
+    }
+    .legend-line.daily {
+      background: var(--blue);
+      background: repeating-linear-gradient(90deg, var(--blue), var(--blue) 3px, transparent 3px, transparent 6px);
+      opacity: 0.5;
+    }
+    .legend-line.deadline { background: var(--red); }
+    .legend-line.today {
+      background: var(--orange);
+      background: repeating-linear-gradient(90deg, var(--orange), var(--orange) 4px, transparent 4px, transparent 6px);
+    }
+
+    .rhythm-explanation {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    .rhythm-card {
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .rhythm-card h3 {
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rhythm-card h3::before {
+      content: '';
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .rhythm-card.daily h3::before { background: var(--blue); opacity: 0.5; }
+    .rhythm-card.weekly h3::before { background: var(--purple); }
+    .rhythm-card.monthly h3::before { background: var(--red); }
+
+    .rhythm-card p {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 16px; }
+      h1 { font-size: 1.25rem; }
+      .current-tide { flex-direction: column; gap: 8px; }
+      .svg-container { margin-left: 50px; margin-right: 8px; }
+      .y-axis-labels { left: 4px; font-size: 0.6rem; }
+      .legend { gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Option I: Tidal Rhythm</h1>
+      <p class="subtitle">Available time ebbs and flows like ocean tides</p>
+    </header>
+
+    <div class="current-tide">
+      <div class="tide-indicator">
+        <span class="tide-label">Current Tide</span>
+        <span class="tide-level rising" id="currentLevel">67%</span>
+      </div>
+      <div class="tide-status">
+        <span class="tide-arrow" id="tideArrow">&#8599;</span>
+        <span id="tideStatus">Rising toward afternoon peak</span>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <div class="chart-title">4-Week Tidal Pattern</div>
+      <div class="y-axis-labels">
+        <div class="y-label high"><span class="dot"></span> High Tide</div>
+        <div class="y-label low"><span class="dot"></span> Low Tide</div>
+      </div>
+      <div class="svg-container">
+        <svg viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet" id="tidalChart">
+          <defs>
+            <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" class="wave-gradient-high" stop-opacity="0.9"/>
+              <stop offset="35%" class="wave-gradient-mid" stop-opacity="0.7"/>
+              <stop offset="65%" class="wave-gradient-low" stop-opacity="0.5"/>
+              <stop offset="100%" class="wave-gradient-very-low" stop-opacity="0.3"/>
+            </linearGradient>
+            <clipPath id="waveClip">
+              <path id="wavePath"/>
+            </clipPath>
+          </defs>
+
+          <!-- Grid lines -->
+          <line x1="0" y1="75" x2="1000" y2="75" class="grid-line"/>
+          <line x1="0" y1="150" x2="1000" y2="150" class="midline"/>
+          <line x1="0" y1="225" x2="1000" y2="225" class="grid-line"/>
+
+          <!-- Week separators -->
+          <line x1="250" y1="20" x2="250" y2="250" class="grid-line"/>
+          <line x1="500" y1="20" x2="500" y2="250" class="grid-line"/>
+          <line x1="750" y1="20" x2="750" y2="250" class="grid-line"/>
+
+          <!-- Week labels -->
+          <text x="125" y="15" class="week-label" text-anchor="middle">Week 1</text>
+          <text x="375" y="15" class="week-label" text-anchor="middle">Week 2</text>
+          <text x="625" y="15" class="week-label" text-anchor="middle">Week 3</text>
+          <text x="875" y="15" class="week-label" text-anchor="middle">Week 4</text>
+
+          <!-- Gradient background clipped to wave -->
+          <rect x="0" y="0" width="1000" height="250" fill="url(#waveGradient)" clip-path="url(#waveClip)" class="wave-fill"/>
+
+          <!-- Wave lines will be drawn by JavaScript -->
+          <path id="dailyWavePath" class="daily-wave"/>
+          <path id="weeklyWavePath" class="weekly-wave"/>
+          <path id="combinedWavePath" class="wave-line"/>
+
+          <!-- Deadline markers (will be positioned by JS) -->
+          <g id="deadlineMarkers"></g>
+
+          <!-- Today marker -->
+          <g id="todayMarker"></g>
+
+          <!-- Day labels -->
+          <g id="dayLabels"></g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item">
+        <span class="legend-line combined"></span>
+        <span>Combined Rhythm</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-line weekly"></span>
+        <span>Weekly Cycle</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-line daily"></span>
+        <span>Daily Energy</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-line deadline"></span>
+        <span>Deadline</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-line today"></span>
+        <span>Today</span>
+      </div>
+    </div>
+
+    <div class="rhythm-explanation">
+      <div class="rhythm-card daily">
+        <h3>Daily Rhythm</h3>
+        <p>Small, fast oscillations reflecting energy levels throughout each day. Peaks in mid-morning and early afternoon, dips after lunch and evening.</p>
+      </div>
+      <div class="rhythm-card weekly">
+        <h3>Weekly Rhythm</h3>
+        <p>Medium 7-day cycle showing meeting patterns. Mid-week tends toward lower availability due to meetings, weekends offer more open time.</p>
+      </div>
+      <div class="rhythm-card monthly">
+        <h3>Deadline Rhythm</h3>
+        <p>Large undulations around project deadlines. Time becomes scarce as deadlines approach, then abundance returns after delivery.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const DAYS = 28; // 4 weeks
+    const WIDTH = 1000;
+    const HEIGHT = 250;
+    const PADDING_TOP = 30;
+    const PADDING_BOTTOM = 40;
+    const CHART_HEIGHT = HEIGHT - PADDING_TOP - PADDING_BOTTOM;
+    const MIDLINE = PADDING_TOP + CHART_HEIGHT / 2;
+
+    // Get day names starting from a reference point
+    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    // Deadlines (day index, 0-27)
+    const deadlines = [
+      { day: 4, label: 'Report' },
+      { day: 11, label: 'Review' },
+      { day: 18, label: 'Milestone' },
+      { day: 25, label: 'Final' }
+    ];
+
+    // Today's position (adjust based on current day of week)
+    const today = new Date();
+    const todayDayOfWeek = today.getDay();
+    const todayIndex = todayDayOfWeek === 0 ? 6 : todayDayOfWeek - 1; // Convert to Mon=0
+
+    // Wave generation functions
+    function dailyWave(dayIndex, phase = 0) {
+      // Two peaks per day (morning and afternoon)
+      const t = (dayIndex % 1) * Math.PI * 4;
+      return Math.sin(t + phase) * 0.15;
+    }
+
+    function weeklyWave(dayIndex) {
+      // Higher on weekends (day 5-6), lower mid-week
+      const weekDay = dayIndex % 7;
+      // Smooth sine curve with peak at weekend
+      const t = (weekDay / 7) * Math.PI * 2;
+      return Math.sin(t - Math.PI * 0.3) * 0.35;
+    }
+
+    function deadlineWave(dayIndex, deadlines) {
+      // Dips near deadlines
+      let effect = 0;
+      deadlines.forEach(dl => {
+        const distance = Math.abs(dayIndex - dl.day);
+        // Gaussian-like dip centered on deadline
+        if (distance < 3) {
+          effect -= Math.exp(-distance * distance / 2) * 0.5;
+        }
+      });
+      return effect;
+    }
+
+    function combinedWave(dayIndex) {
+      // Combine all rhythms
+      const daily = dailyWave(dayIndex, dayIndex * 0.5);
+      const weekly = weeklyWave(dayIndex);
+      const deadline = deadlineWave(dayIndex, deadlines);
+
+      // Base level + combined effects
+      return 0.5 + daily + weekly + deadline;
+    }
+
+    // Generate path data
+    function generateWavePath(waveFunc, samples = 500) {
+      const points = [];
+      for (let i = 0; i <= samples; i++) {
+        const dayIndex = (i / samples) * DAYS;
+        const x = (i / samples) * WIDTH;
+        const value = waveFunc(dayIndex);
+        // Clamp value between 0 and 1
+        const clampedValue = Math.max(0, Math.min(1, value));
+        // Invert y (high values at top)
+        const y = PADDING_TOP + CHART_HEIGHT * (1 - clampedValue);
+        points.push({ x, y });
+      }
+
+      // Create smooth path
+      let path = `M ${points[0].x} ${points[0].y}`;
+      for (let i = 1; i < points.length; i++) {
+        path += ` L ${points[i].x} ${points[i].y}`;
+      }
+
+      return path;
+    }
+
+    function generateFilledPath(waveFunc, samples = 500) {
+      const path = generateWavePath(waveFunc, samples);
+      // Close the path at the bottom
+      return path + ` L ${WIDTH} ${HEIGHT} L 0 ${HEIGHT} Z`;
+    }
+
+    // Draw the chart
+    function drawChart() {
+      // Combined wave (filled)
+      const wavePath = document.getElementById('wavePath');
+      wavePath.setAttribute('d', generateFilledPath(combinedWave));
+
+      // Combined wave (line)
+      const combinedPath = document.getElementById('combinedWavePath');
+      combinedPath.setAttribute('d', generateWavePath(combinedWave));
+
+      // Weekly wave
+      const weeklyPath = document.getElementById('weeklyWavePath');
+      weeklyPath.setAttribute('d', generateWavePath(d => 0.5 + weeklyWave(d)));
+
+      // Daily wave (subtle)
+      const dailyPath = document.getElementById('dailyWavePath');
+      dailyPath.setAttribute('d', generateWavePath(d => 0.5 + dailyWave(d, d * 0.5)));
+
+      // Deadline markers
+      const deadlineGroup = document.getElementById('deadlineMarkers');
+      deadlineGroup.innerHTML = '';
+      deadlines.forEach(dl => {
+        const x = (dl.day / DAYS) * WIDTH;
+        const waveValue = combinedWave(dl.day);
+        const y = PADDING_TOP + CHART_HEIGHT * (1 - waveValue);
+
+        // Vertical line
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x);
+        line.setAttribute('y1', y);
+        line.setAttribute('x2', x);
+        line.setAttribute('y2', HEIGHT - PADDING_BOTTOM + 5);
+        line.setAttribute('class', 'deadline-marker');
+        deadlineGroup.appendChild(line);
+
+        // Dot at wave intersection
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', x);
+        dot.setAttribute('cy', y);
+        dot.setAttribute('r', 5);
+        dot.setAttribute('class', 'deadline-dot');
+        deadlineGroup.appendChild(dot);
+
+        // Label
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', x);
+        label.setAttribute('y', y - 12);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('class', 'deadline-label');
+        label.textContent = dl.label;
+        deadlineGroup.appendChild(label);
+      });
+
+      // Today marker
+      const todayGroup = document.getElementById('todayMarker');
+      todayGroup.innerHTML = '';
+      const todayX = (todayIndex / DAYS) * WIDTH;
+      const todayWaveValue = combinedWave(todayIndex);
+      const todayY = PADDING_TOP + CHART_HEIGHT * (1 - todayWaveValue);
+
+      // Vertical dashed line
+      const todayLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      todayLine.setAttribute('x1', todayX);
+      todayLine.setAttribute('y1', PADDING_TOP);
+      todayLine.setAttribute('x2', todayX);
+      todayLine.setAttribute('y2', HEIGHT - PADDING_BOTTOM);
+      todayLine.setAttribute('class', 'today-marker');
+      todayGroup.appendChild(todayLine);
+
+      // Dot at current position
+      const todayDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      todayDot.setAttribute('cx', todayX);
+      todayDot.setAttribute('cy', todayY);
+      todayDot.setAttribute('r', 6);
+      todayDot.setAttribute('class', 'today-dot');
+      todayGroup.appendChild(todayDot);
+
+      // Today label
+      const todayLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      todayLabel.setAttribute('x', todayX);
+      todayLabel.setAttribute('y', PADDING_TOP - 5);
+      todayLabel.setAttribute('text-anchor', 'middle');
+      todayLabel.setAttribute('class', 'today-label');
+      todayLabel.textContent = 'TODAY';
+      todayGroup.appendChild(todayLabel);
+
+      // Day labels
+      const dayLabelsGroup = document.getElementById('dayLabels');
+      dayLabelsGroup.innerHTML = '';
+      for (let i = 0; i < DAYS; i++) {
+        const x = ((i + 0.5) / DAYS) * WIDTH;
+        const dayName = dayNames[i % 7];
+        const isWeekend = i % 7 >= 5;
+        const isToday = i === todayIndex;
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', x);
+        label.setAttribute('y', HEIGHT - PADDING_BOTTOM + 20);
+        label.setAttribute('text-anchor', 'middle');
+        let className = 'day-label';
+        if (isWeekend) className += ' weekend';
+        if (isToday) className += ' today';
+        label.setAttribute('class', className);
+        label.textContent = dayName.charAt(0);
+        dayLabelsGroup.appendChild(label);
+      }
+
+      // Update current tide display
+      updateCurrentTide(todayWaveValue);
+    }
+
+    function updateCurrentTide(value) {
+      const levelEl = document.getElementById('currentLevel');
+      const arrowEl = document.getElementById('tideArrow');
+      const statusEl = document.getElementById('tideStatus');
+
+      const percentage = Math.round(value * 100);
+      levelEl.textContent = percentage + '%';
+
+      // Determine tide state
+      if (value > 0.7) {
+        levelEl.className = 'tide-level high';
+        arrowEl.innerHTML = '&#8593;'; // Up arrow
+        statusEl.textContent = 'High tide - abundant availability';
+      } else if (value > 0.5) {
+        levelEl.className = 'tide-level rising';
+        arrowEl.innerHTML = '&#8599;'; // Up-right arrow
+        statusEl.textContent = 'Rising tide - good availability';
+      } else if (value > 0.35) {
+        levelEl.className = 'tide-level falling';
+        arrowEl.innerHTML = '&#8600;'; // Down-right arrow
+        statusEl.textContent = 'Falling tide - moderate availability';
+      } else {
+        levelEl.className = 'tide-level low';
+        arrowEl.innerHTML = '&#8595;'; // Down arrow
+        statusEl.textContent = 'Low tide - limited availability';
+      }
+    }
+
+    // Initialize
+    drawChart();
+
+    // Animate the current tide dot
+    let animationPhase = 0;
+    function animateTodayDot() {
+      const todayDot = document.querySelector('.today-dot');
+      if (todayDot) {
+        animationPhase += 0.05;
+        const scale = 1 + Math.sin(animationPhase) * 0.15;
+        todayDot.style.transform = `scale(${scale})`;
+        todayDot.style.transformOrigin = 'center';
+      }
+      requestAnimationFrame(animateTodayDot);
+    }
+    animateTodayDot();
+  </script>
+</body>
+</html>

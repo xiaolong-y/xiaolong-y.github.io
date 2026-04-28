@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frequency-Based Time Analysis | Working Prototype</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --paper: #FFFCF0;
+      --ink: #100F0F;
+      --muted: #6F6E69;
+      --line: #E6E4D9;
+      --panel: #F2F0E5;
+      --panel-alt: #E6E4D9;
+
+      --blue: #205EA6;
+      --purple: #5E409D;
+      --cyan: #24837B;
+      --orange: #BC5215;
+      --red: #AF3029;
+      --green: #66800B;
+      --yellow: #AD8301;
+      --magenta: #A02F6F;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #100F0F;
+        --ink: #CECDC3;
+        --muted: #878580;
+        --line: #343331;
+        --panel: #1C1B1A;
+        --panel-alt: #252422;
+
+        --blue: #4385BE;
+        --purple: #8B7EC8;
+        --cyan: #3AA99F;
+        --orange: #DA702C;
+        --red: #D14D41;
+        --green: #879A39;
+        --yellow: #D0A215;
+        --magenta: #CE5D97;
+      }
+    }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 1.5rem;
+      font-size: 13px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .dashboard {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1rem 1.25rem;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+
+    .panel-badge {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 2px;
+      background: var(--panel-alt);
+      border: 1px solid var(--line);
+    }
+
+    /* Daily Load Signal Panel */
+    .signal-container {
+      position: relative;
+      height: 150px;
+    }
+
+    .signal-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .signal-y-axis {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 30px;
+      width: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-align: right;
+      padding-right: 8px;
+    }
+
+    .signal-x-axis {
+      position: absolute;
+      bottom: 0;
+      left: 40px;
+      right: 0;
+      height: 30px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: var(--muted);
+      padding-top: 8px;
+    }
+
+    /* Frequency Spectrum Panel */
+    .spectrum-container {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .spectrum-chart {
+      flex: 1;
+      height: 140px;
+      position: relative;
+    }
+
+    .spectrum-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: calc(100% - 25px);
+      padding: 0 10px;
+    }
+
+    .spectrum-bar-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .spectrum-bar {
+      width: 30px;
+      background: var(--blue);
+      border-radius: 2px 2px 0 0;
+      transition: height 0.3s ease, background 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .spectrum-bar:hover {
+      filter: brightness(1.1);
+    }
+
+    .spectrum-bar.dominant {
+      background: var(--purple);
+    }
+
+    .spectrum-bar-label {
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .spectrum-bar-value {
+      font-size: 0.6rem;
+      color: var(--ink);
+      font-weight: 500;
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .spectrum-legend {
+      width: 180px;
+      font-size: 0.75rem;
+    }
+
+    .spectrum-legend h4 {
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .legend-item:last-child {
+      border-bottom: none;
+    }
+
+    .legend-period {
+      font-weight: 500;
+    }
+
+    .legend-strength {
+      color: var(--muted);
+    }
+
+    /* Rhythm Waves Panel */
+    .waves-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .wave-row {
+      display: flex;
+      align-items: center;
+      height: 50px;
+    }
+
+    .wave-label {
+      width: 140px;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+    }
+
+    .wave-label-name {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .wave-label-freq {
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    .wave-svg-container {
+      flex: 1;
+      height: 100%;
+    }
+
+    .wave-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .wave-separator {
+      border-top: 2px dashed var(--line);
+      margin: 0.5rem 0;
+      margin-left: 140px;
+    }
+
+    .combined-wave {
+      height: 80px;
+    }
+
+    /* Insights Panel */
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+      .insights-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .insights-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .insight-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0.75rem;
+    }
+
+    .insight-card-header {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .insight-card-value {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .insight-card-value.good {
+      color: var(--green);
+    }
+
+    .insight-card-value.warning {
+      color: var(--yellow);
+    }
+
+    .insight-card-value.danger {
+      color: var(--red);
+    }
+
+    .insight-card-value.neutral {
+      color: var(--blue);
+    }
+
+    .insight-card-detail {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .insight-card-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.7rem;
+      padding: 2px 5px;
+      border-radius: 2px;
+      margin-left: 6px;
+    }
+
+    .insight-card-trend.up {
+      background: rgba(175, 48, 41, 0.1);
+      color: var(--red);
+    }
+
+    .insight-card-trend.down {
+      background: rgba(102, 128, 11, 0.1);
+      color: var(--green);
+    }
+
+    .insight-card-trend.stable {
+      background: rgba(32, 94, 166, 0.1);
+      color: var(--blue);
+    }
+
+    /* Deadline markers */
+    .deadline-marker {
+      stroke: var(--red);
+      stroke-width: 2;
+      stroke-dasharray: 4,3;
+    }
+
+    .deadline-label {
+      font-size: 9px;
+      fill: var(--red);
+      font-weight: 500;
+    }
+
+    /* Tooltip */
+    .tooltip {
+      position: fixed;
+      background: var(--ink);
+      color: var(--paper);
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      pointer-events: none;
+      z-index: 1000;
+      max-width: 200px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      display: none;
+    }
+
+    .tooltip.visible {
+      display: block;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .control-btn {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .control-btn:hover {
+      background: var(--panel-alt);
+    }
+
+    .control-btn.active {
+      background: var(--blue);
+      color: var(--paper);
+      border-color: var(--blue);
+    }
+
+    /* Day hover highlight */
+    .day-highlight {
+      fill: var(--blue);
+      fill-opacity: 0.1;
+    }
+
+    /* Risk weeks highlight */
+    .risk-week {
+      fill: var(--red);
+      fill-opacity: 0.08;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .spectrum-container {
+        flex-direction: column;
+      }
+
+      .spectrum-legend {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Frequency-Based Time Analysis</h1>
+      <p class="subtitle">Discovering hidden rhythms and predicting overload through spectral decomposition</p>
+    </header>
+
+    <div class="dashboard">
+      <!-- Panel 1: Daily Load Signal -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">1. Daily Load Signal</span>
+          <span class="panel-badge">90 days</span>
+        </div>
+        <div class="signal-container">
+          <div class="signal-y-axis">
+            <span>12h</span>
+            <span>9h</span>
+            <span>6h</span>
+            <span>3h</span>
+            <span>0h</span>
+          </div>
+          <svg class="signal-svg" id="signalSvg" viewBox="0 0 900 120" preserveAspectRatio="none"></svg>
+          <div class="signal-x-axis" id="signalXAxis"></div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Frequency Spectrum -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">2. Frequency Spectrum (FFT)</span>
+          <span class="panel-badge">Detected Periods</span>
+        </div>
+        <div class="spectrum-container">
+          <div class="spectrum-chart">
+            <div class="spectrum-bars" id="spectrumBars"></div>
+          </div>
+          <div class="spectrum-legend" id="spectrumLegend">
+            <h4>Dominant Rhythms</h4>
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 3: Reconstructed Rhythm Waves -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">3. Reconstructed Rhythm Waves</span>
+          <span class="panel-badge">Top 3 Components</span>
+        </div>
+        <div class="waves-container" id="wavesContainer">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Panel 4: Insights -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">4. Actionable Insights</span>
+          <span class="panel-badge">Week 1 Focus</span>
+        </div>
+        <div class="insights-grid" id="insightsGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div>Frequency-Based Time Visualization Prototype</div>
+      <div class="controls">
+        <button class="control-btn active" id="btnSimulate" onclick="regenerateData()">Regenerate Data</button>
+        <button class="control-btn" id="btnAnimate" onclick="toggleAnimation()">Animate</button>
+      </div>
+    </footer>
+  </div>
+
+  <div class="tooltip" id="tooltip"></div>
+
+  <script>
+    // ============================================
+    // PART 1: SIMULATED CALENDAR DATA GENERATION
+    // ============================================
+
+    const NUM_DAYS = 90;
+    const WEEKLY_CAPACITY = 40; // hours
+
+    // Event templates
+    const eventTemplates = {
+      recurring: [
+        // Weekly recurring (Mon/Wed/Fri)
+        { name: "Team Standup", days: [1, 3, 5], time: 9, duration: 0.5, weight: 0.6, type: "meeting" },
+        { name: "Deep Work Block", days: [1, 2, 3, 4, 5], time: 14, duration: 2, weight: 0.4, type: "focus" },
+
+        // Bi-weekly (every other Tuesday and Friday)
+        { name: "1:1 with Manager", frequency: 14, startOffset: 1, time: 14, duration: 1, weight: 0.7, type: "meeting" },
+        { name: "Sprint Review", frequency: 14, startOffset: 4, time: 15, duration: 2, weight: 0.8, type: "meeting" },
+        { name: "Team Retrospective", frequency: 14, startOffset: 4, time: 10, duration: 1.5, weight: 0.7, type: "meeting" },
+
+        // Weekly but variable
+        { name: "Lunch & Learn", days: [4], time: 12, duration: 1, weight: 0.3, type: "social" },
+        { name: "Weekly Planning", days: [1], time: 10, duration: 1, weight: 0.7, type: "meeting" },
+      ],
+
+      monthly: [
+        { name: "All Hands", dayOfMonth: 1, time: 10, duration: 1.5, weight: 0.5, type: "meeting" },
+        { name: "Monthly Report", dayOfMonth: 28, duration: 4, weight: 0.9, type: "deadline" },
+        { name: "Budget Review", dayOfMonth: 15, duration: 2, weight: 0.8, type: "meeting" },
+      ],
+
+      deadlines: [
+        { name: "Paper Draft", day: 25, duration: 8, weight: 1.0, type: "deadline", buildup: 7 },
+        { name: "Grant Submission", day: 55, duration: 8, weight: 1.0, type: "deadline", buildup: 10 },
+        { name: "Conference Talk", day: 80, duration: 6, weight: 1.0, type: "deadline", buildup: 5 },
+      ],
+
+      // Random one-off events
+      randomTypes: [
+        { name: "Doctor Appointment", duration: 2, weight: 0.3, type: "personal" },
+        { name: "Client Call", duration: 1, weight: 0.7, type: "meeting" },
+        { name: "Training Session", duration: 3, weight: 0.5, type: "learning" },
+        { name: "Code Review", duration: 1.5, weight: 0.6, type: "focus" },
+        { name: "Team Social", duration: 2, weight: 0.2, type: "social" },
+        { name: "Interview", duration: 1, weight: 0.8, type: "meeting" },
+        { name: "Vendor Demo", duration: 1.5, weight: 0.5, type: "meeting" },
+        { name: "Project Kickoff", duration: 2, weight: 0.9, type: "meeting" },
+        { name: "Brainstorm Session", duration: 1.5, weight: 0.6, type: "meeting" },
+        { name: "Tech Debt Session", duration: 3, weight: 0.7, type: "focus" },
+      ]
+    };
+
+    // Generate expanded events from templates
+    function generateEvents() {
+      const events = [];
+      const startDate = new Date();
+      startDate.setHours(0, 0, 0, 0);
+
+      // Weekly recurring events
+      eventTemplates.recurring.forEach(template => {
+        for (let day = 0; day < NUM_DAYS; day++) {
+          const date = new Date(startDate);
+          date.setDate(date.getDate() + day);
+          const dayOfWeek = date.getDay();
+
+          if (template.days) {
+            // Specific days of week
+            if (template.days.includes(dayOfWeek)) {
+              events.push({
+                ...template,
+                dayIndex: day,
+                date: new Date(date)
+              });
+            }
+          } else if (template.frequency) {
+            // Bi-weekly or other frequency
+            const offset = template.startOffset || 0;
+            const startDayOfWeek = new Date(startDate).getDay();
+            const daysUntilOffset = (offset - startDayOfWeek + 7) % 7;
+
+            if ((day - daysUntilOffset) >= 0 && (day - daysUntilOffset) % template.frequency === 0) {
+              events.push({
+                ...template,
+                dayIndex: day,
+                date: new Date(date)
+              });
+            }
+          }
+        }
+      });
+
+      // Monthly events
+      eventTemplates.monthly.forEach(template => {
+        for (let day = 0; day < NUM_DAYS; day++) {
+          const date = new Date(startDate);
+          date.setDate(date.getDate() + day);
+
+          if (date.getDate() === template.dayOfMonth) {
+            events.push({
+              ...template,
+              dayIndex: day,
+              date: new Date(date)
+            });
+          }
+        }
+      });
+
+      // Major deadlines
+      eventTemplates.deadlines.forEach(template => {
+        events.push({
+          ...template,
+          dayIndex: template.day,
+          date: new Date(startDate.getTime() + template.day * 24 * 60 * 60 * 1000)
+        });
+      });
+
+      // Random one-off events (15-20)
+      const numRandom = 15 + Math.floor(Math.random() * 6);
+      for (let i = 0; i < numRandom; i++) {
+        const template = eventTemplates.randomTypes[Math.floor(Math.random() * eventTemplates.randomTypes.length)];
+        const day = Math.floor(Math.random() * NUM_DAYS);
+
+        // Avoid weekends for work events
+        const date = new Date(startDate);
+        date.setDate(date.getDate() + day);
+        const dayOfWeek = date.getDay();
+
+        if (template.type !== 'personal' && (dayOfWeek === 0 || dayOfWeek === 6)) {
+          i--; // Try again
+          continue;
+        }
+
+        events.push({
+          ...template,
+          dayIndex: day,
+          date: new Date(date)
+        });
+      }
+
+      return events;
+    }
+
+    // ============================================
+    // PART 2: EVENT -> CONTINUOUS SIGNAL
+    // ============================================
+
+    function computeDailyLoad(events, numDays) {
+      const load = new Array(numDays).fill(0);
+      const eventCounts = new Array(numDays).fill(0);
+
+      for (const event of events) {
+        const day = event.dayIndex;
+        if (day < 0 || day >= numDays) continue;
+
+        const weightedHours = event.duration * event.weight;
+        load[day] += weightedHours;
+        eventCounts[day]++;
+
+        // Add shadows for deadlines (exponential buildup)
+        if (event.type === 'deadline' && event.buildup) {
+          for (let i = 1; i <= event.buildup; i++) {
+            const buildupDay = day - i;
+            if (buildupDay >= 0) {
+              // Exponential decay: more stress closer to deadline
+              const buildupFactor = Math.exp(-i / 3) * 0.4;
+              load[buildupDay] += weightedHours * buildupFactor;
+            }
+          }
+        }
+
+        // Add context switch cost (0.25h per event transition)
+        if (eventCounts[day] > 1) {
+          load[day] += 0.25;
+        }
+      }
+
+      // Smooth the signal slightly with a moving average (3-day window)
+      const smoothed = [];
+      for (let i = 0; i < numDays; i++) {
+        const start = Math.max(0, i - 1);
+        const end = Math.min(numDays - 1, i + 1);
+        let sum = 0;
+        let count = 0;
+        for (let j = start; j <= end; j++) {
+          sum += load[j];
+          count++;
+        }
+        smoothed.push(sum / count);
+      }
+
+      return { raw: load, smoothed };
+    }
+
+    // ============================================
+    // PART 3: FFT FOR FREQUENCY DISCOVERY
+    // ============================================
+
+    function computeFFT(signal) {
+      const N = signal.length;
+      const frequencies = [];
+
+      // Remove DC component (mean)
+      const mean = signal.reduce((a, b) => a + b, 0) / N;
+      const centered = signal.map(x => x - mean);
+
+      // Compute DFT for each frequency
+      for (let k = 1; k < N / 2; k++) {
+        let real = 0, imag = 0;
+        for (let n = 0; n < N; n++) {
+          const angle = (2 * Math.PI * k * n) / N;
+          real += centered[n] * Math.cos(angle);
+          imag -= centered[n] * Math.sin(angle);
+        }
+        const magnitude = Math.sqrt(real * real + imag * imag) / N * 2;
+        const period = N / k; // period in days
+        const phase = Math.atan2(imag, real);
+
+        frequencies.push({ k, magnitude, period, phase, real: real / N, imag: imag / N });
+      }
+
+      // Sort by magnitude to find dominant frequencies
+      frequencies.sort((a, b) => b.magnitude - a.magnitude);
+
+      return frequencies;
+    }
+
+    // Reconstruct signal from top frequency components
+    function reconstructSignal(frequencies, numComponents, length) {
+      const signal = new Array(length).fill(0);
+      const components = [];
+
+      for (let c = 0; c < numComponents && c < frequencies.length; c++) {
+        const freq = frequencies[c];
+        const component = new Array(length).fill(0);
+
+        for (let n = 0; n < length; n++) {
+          const angle = (2 * Math.PI * freq.k * n) / length;
+          const value = freq.magnitude * Math.cos(angle + freq.phase);
+          signal[n] += value;
+          component[n] = value;
+        }
+
+        components.push({
+          period: freq.period,
+          magnitude: freq.magnitude,
+          values: component
+        });
+      }
+
+      return { combined: signal, components };
+    }
+
+    // ============================================
+    // PART 4: INSIGHT COMPUTATIONS
+    // ============================================
+
+    function computeInsights(load, frequencies) {
+      const currentDay = 0; // Today
+
+      // 1. Capacity remaining this week
+      const thisWeekLoad = load.slice(currentDay, currentDay + 7).reduce((a, b) => a + b, 0);
+      const slack = Math.max(0, WEEKLY_CAPACITY - thisWeekLoad);
+
+      // 2. Utilization
+      const utilization = (thisWeekLoad / WEEKLY_CAPACITY) * 100;
+
+      // 3. Trend (linear regression over past/next 4 weeks)
+      const lookAhead = load.slice(0, Math.min(28, load.length));
+      const trend = linearRegression(lookAhead);
+      const weeklyTrend = trend.slope * 7;
+
+      // 4. Rhythm strength (how periodic is the data)
+      const topFreqs = frequencies.slice(0, 3);
+      const totalMagnitude = frequencies.reduce((sum, f) => sum + f.magnitude, 0);
+      const topMagnitude = topFreqs.reduce((sum, f) => sum + f.magnitude, 0);
+      const rhythmStrength = totalMagnitude > 0 ? (topMagnitude / totalMagnitude) * 100 : 0;
+
+      // 5. Risk assessment - find weeks where load exceeds capacity
+      const riskWeeks = [];
+      for (let w = 0; w < Math.ceil(load.length / 7); w++) {
+        const weekStart = w * 7;
+        const weekEnd = Math.min(weekStart + 7, load.length);
+        const weekLoad = load.slice(weekStart, weekEnd).reduce((a, b) => a + b, 0);
+        if (weekLoad > WEEKLY_CAPACITY * 0.85) {
+          riskWeeks.push({ week: w + 1, load: weekLoad, severity: weekLoad / WEEKLY_CAPACITY });
+        }
+      }
+
+      // 6. Next beat prediction (when top frequencies align)
+      const nextBeat = predictNextBeat(frequencies.slice(0, 3), currentDay, load.length);
+
+      return {
+        slack: slack.toFixed(1),
+        utilization: Math.round(utilization),
+        weeklyTrend,
+        rhythmStrength: Math.round(rhythmStrength),
+        dominantPeriod: frequencies[0]?.period.toFixed(1) || 'N/A',
+        riskWeeks,
+        nextBeat
+      };
+    }
+
+    function linearRegression(data) {
+      const n = data.length;
+      if (n === 0) return { slope: 0, intercept: 0 };
+
+      let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+      for (let i = 0; i < n; i++) {
+        sumX += i;
+        sumY += data[i];
+        sumXY += i * data[i];
+        sumXX += i * i;
+      }
+
+      const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+      const intercept = (sumY - slope * sumX) / n;
+
+      return { slope, intercept };
+    }
+
+    function predictNextBeat(topFreqs, currentDay, maxDays) {
+      if (topFreqs.length === 0) return { day: null, type: 'unknown' };
+
+      // Simple approach: find when combined magnitude peaks
+      let maxVal = -Infinity;
+      let maxDay = currentDay;
+
+      for (let d = currentDay + 1; d < Math.min(currentDay + 60, maxDays); d++) {
+        let combined = 0;
+        for (const freq of topFreqs) {
+          const angle = (2 * Math.PI * freq.k * d) / maxDays;
+          combined += freq.magnitude * Math.cos(angle + freq.phase);
+        }
+        if (combined > maxVal) {
+          maxVal = combined;
+          maxDay = d;
+        }
+      }
+
+      return { day: maxDay, type: maxVal > 0 ? 'peak' : 'trough' };
+    }
+
+    // ============================================
+    // PART 5: VISUALIZATION RENDERING
+    // ============================================
+
+    let globalData = {
+      events: [],
+      load: { raw: [], smoothed: [] },
+      frequencies: [],
+      insights: {}
+    };
+
+    let animationFrame = null;
+    let animationRunning = false;
+
+    function initVisualization() {
+      // Generate data
+      globalData.events = generateEvents();
+      globalData.load = computeDailyLoad(globalData.events, NUM_DAYS);
+      globalData.frequencies = computeFFT(globalData.load.smoothed);
+      globalData.insights = computeInsights(globalData.load.smoothed, globalData.frequencies);
+
+      // Render all panels
+      renderSignalPanel();
+      renderSpectrumPanel();
+      renderWavesPanel();
+      renderInsightsPanel();
+    }
+
+    function renderSignalPanel() {
+      const svg = document.getElementById('signalSvg');
+      const xAxis = document.getElementById('signalXAxis');
+      svg.innerHTML = '';
+      xAxis.innerHTML = '';
+
+      const width = 900;
+      const height = 120;
+      const padding = { left: 45, right: 10, top: 10, bottom: 10 };
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+
+      const load = globalData.load.smoothed;
+      const maxLoad = Math.max(...load, 12);
+
+      // Create gradient definition
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+      gradient.setAttribute('id', 'loadGradient');
+      gradient.setAttribute('x1', '0%');
+      gradient.setAttribute('y1', '100%');
+      gradient.setAttribute('x2', '0%');
+      gradient.setAttribute('y2', '0%');
+
+      const stops = [
+        { offset: '0%', color: 'var(--green)' },
+        { offset: '40%', color: 'var(--yellow)' },
+        { offset: '70%', color: 'var(--orange)' },
+        { offset: '100%', color: 'var(--red)' }
+      ];
+
+      stops.forEach(s => {
+        const stop = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+        stop.setAttribute('offset', s.offset);
+        stop.setAttribute('stop-color', s.color);
+        gradient.appendChild(stop);
+      });
+      defs.appendChild(gradient);
+      svg.appendChild(defs);
+
+      // Mark risk weeks
+      globalData.insights.riskWeeks.forEach(risk => {
+        const weekStart = (risk.week - 1) * 7;
+        const x = padding.left + (weekStart / NUM_DAYS) * chartWidth;
+        const rectWidth = (7 / NUM_DAYS) * chartWidth;
+
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', x);
+        rect.setAttribute('y', padding.top);
+        rect.setAttribute('width', rectWidth);
+        rect.setAttribute('height', chartHeight);
+        rect.setAttribute('class', 'risk-week');
+        svg.appendChild(rect);
+      });
+
+      // Draw grid lines
+      for (let i = 0; i <= 4; i++) {
+        const y = padding.top + (i / 4) * chartHeight;
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', padding.left);
+        line.setAttribute('y1', y);
+        line.setAttribute('x2', width - padding.right);
+        line.setAttribute('y2', y);
+        line.setAttribute('stroke', 'var(--line)');
+        line.setAttribute('stroke-width', '0.5');
+        svg.appendChild(line);
+      }
+
+      // Draw area under curve
+      let areaPath = `M ${padding.left} ${height - padding.bottom}`;
+      load.forEach((val, i) => {
+        const x = padding.left + (i / (NUM_DAYS - 1)) * chartWidth;
+        const y = padding.top + chartHeight - (val / maxLoad) * chartHeight;
+        areaPath += ` L ${x} ${y}`;
+      });
+      areaPath += ` L ${padding.left + chartWidth} ${height - padding.bottom} Z`;
+
+      const area = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      area.setAttribute('d', areaPath);
+      area.setAttribute('fill', 'url(#loadGradient)');
+      area.setAttribute('fill-opacity', '0.3');
+      svg.appendChild(area);
+
+      // Draw line
+      let linePath = '';
+      load.forEach((val, i) => {
+        const x = padding.left + (i / (NUM_DAYS - 1)) * chartWidth;
+        const y = padding.top + chartHeight - (val / maxLoad) * chartHeight;
+        linePath += (i === 0 ? 'M' : 'L') + ` ${x} ${y}`;
+      });
+
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      line.setAttribute('d', linePath);
+      line.setAttribute('fill', 'none');
+      line.setAttribute('stroke', 'var(--orange)');
+      line.setAttribute('stroke-width', '2');
+      svg.appendChild(line);
+
+      // Mark deadlines
+      const deadlines = globalData.events.filter(e => e.type === 'deadline');
+      deadlines.forEach(deadline => {
+        const x = padding.left + (deadline.dayIndex / (NUM_DAYS - 1)) * chartWidth;
+
+        const marker = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        marker.setAttribute('x1', x);
+        marker.setAttribute('y1', padding.top);
+        marker.setAttribute('x2', x);
+        marker.setAttribute('y2', height - padding.bottom);
+        marker.setAttribute('class', 'deadline-marker');
+        svg.appendChild(marker);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', x);
+        label.setAttribute('y', padding.top - 3);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('class', 'deadline-label');
+        label.textContent = deadline.name.split(' ')[0];
+        svg.appendChild(label);
+      });
+
+      // X-axis labels
+      for (let week = 0; week <= Math.ceil(NUM_DAYS / 7); week += 2) {
+        const span = document.createElement('span');
+        span.textContent = week === 0 ? 'Today' : `Week ${week}`;
+        span.style.position = 'absolute';
+        span.style.left = `${(week * 7 / NUM_DAYS) * 100}%`;
+        span.style.transform = 'translateX(-50%)';
+        xAxis.appendChild(span);
+      }
+    }
+
+    function renderSpectrumPanel() {
+      const container = document.getElementById('spectrumBars');
+      const legend = document.getElementById('spectrumLegend');
+      container.innerHTML = '';
+
+      // Show frequencies for meaningful periods (2-45 days)
+      const meaningfulFreqs = globalData.frequencies.filter(f => f.period >= 2 && f.period <= 45);
+      const topFreqs = meaningfulFreqs.slice(0, 10);
+
+      if (topFreqs.length === 0) return;
+
+      const maxMag = Math.max(...topFreqs.map(f => f.magnitude));
+
+      // Sort by period for display
+      const sortedFreqs = [...topFreqs].sort((a, b) => a.period - b.period);
+
+      sortedFreqs.forEach((freq, i) => {
+        const group = document.createElement('div');
+        group.className = 'spectrum-bar-group';
+
+        const bar = document.createElement('div');
+        bar.className = 'spectrum-bar';
+        if (meaningfulFreqs.indexOf(freq) < 3) {
+          bar.classList.add('dominant');
+        }
+
+        const heightPct = (freq.magnitude / maxMag) * 100;
+        bar.style.height = `${heightPct}px`;
+
+        const value = document.createElement('span');
+        value.className = 'spectrum-bar-value';
+        value.textContent = freq.magnitude.toFixed(2);
+        bar.appendChild(value);
+
+        const label = document.createElement('div');
+        label.className = 'spectrum-bar-label';
+        label.textContent = `${Math.round(freq.period)}d`;
+
+        bar.addEventListener('mouseenter', (e) => showTooltip(e, `Period: ${freq.period.toFixed(1)} days\nMagnitude: ${freq.magnitude.toFixed(3)}\nPhase: ${(freq.phase * 180 / Math.PI).toFixed(1)}deg`));
+        bar.addEventListener('mouseleave', hideTooltip);
+
+        group.appendChild(bar);
+        group.appendChild(label);
+        container.appendChild(group);
+      });
+
+      // Update legend
+      const legendHtml = `<h4>Dominant Rhythms</h4>` +
+        meaningfulFreqs.slice(0, 5).map((f, i) => {
+          const periodName = getPeriodName(f.period);
+          return `<div class="legend-item">
+            <span class="legend-period">${periodName}</span>
+            <span class="legend-strength">${(f.magnitude * 100).toFixed(1)}%</span>
+          </div>`;
+        }).join('');
+      legend.innerHTML = legendHtml;
+    }
+
+    function getPeriodName(period) {
+      if (Math.abs(period - 7) < 1) return 'Weekly (7d)';
+      if (Math.abs(period - 14) < 1.5) return 'Bi-weekly (14d)';
+      if (Math.abs(period - 21) < 2) return 'Tri-weekly (21d)';
+      if (Math.abs(period - 30) < 3) return 'Monthly (~30d)';
+      return `${Math.round(period)}d cycle`;
+    }
+
+    function renderWavesPanel() {
+      const container = document.getElementById('wavesContainer');
+      container.innerHTML = '';
+
+      const topFreqs = globalData.frequencies.filter(f => f.period >= 2 && f.period <= 45).slice(0, 3);
+      const reconstructed = reconstructSignal(topFreqs, 3, NUM_DAYS);
+
+      const colors = ['var(--blue)', 'var(--purple)', 'var(--cyan)'];
+
+      // Individual component waves
+      reconstructed.components.forEach((comp, i) => {
+        const row = document.createElement('div');
+        row.className = 'wave-row';
+
+        const label = document.createElement('div');
+        label.className = 'wave-label';
+        label.innerHTML = `
+          <div class="wave-label-name" style="color: ${colors[i]}">${getPeriodName(comp.period)}</div>
+          <div class="wave-label-freq">Magnitude: ${comp.magnitude.toFixed(2)}</div>
+        `;
+
+        const svgContainer = document.createElement('div');
+        svgContainer.className = 'wave-svg-container';
+
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('class', 'wave-svg');
+        svg.setAttribute('viewBox', '0 0 800 50');
+        svg.setAttribute('preserveAspectRatio', 'none');
+
+        // Center line
+        const centerLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        centerLine.setAttribute('x1', '0');
+        centerLine.setAttribute('y1', '25');
+        centerLine.setAttribute('x2', '800');
+        centerLine.setAttribute('y2', '25');
+        centerLine.setAttribute('stroke', 'var(--line)');
+        centerLine.setAttribute('stroke-width', '1');
+        centerLine.setAttribute('stroke-dasharray', '4,4');
+        svg.appendChild(centerLine);
+
+        // Wave path
+        const maxAmp = Math.max(...comp.values.map(Math.abs));
+        let path = '';
+        comp.values.forEach((val, j) => {
+          const x = (j / (NUM_DAYS - 1)) * 800;
+          const y = 25 - (val / (maxAmp || 1)) * 20;
+          path += (j === 0 ? 'M' : 'L') + ` ${x} ${y}`;
+        });
+
+        const wavePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        wavePath.setAttribute('d', path);
+        wavePath.setAttribute('fill', 'none');
+        wavePath.setAttribute('stroke', colors[i]);
+        wavePath.setAttribute('stroke-width', '2');
+        svg.appendChild(wavePath);
+
+        svgContainer.appendChild(svg);
+        row.appendChild(label);
+        row.appendChild(svgContainer);
+        container.appendChild(row);
+      });
+
+      // Separator
+      const sep = document.createElement('div');
+      sep.className = 'wave-separator';
+      container.appendChild(sep);
+
+      // Combined wave
+      const combinedRow = document.createElement('div');
+      combinedRow.className = 'wave-row combined-wave';
+
+      const combinedLabel = document.createElement('div');
+      combinedLabel.className = 'wave-label';
+      combinedLabel.innerHTML = `
+        <div class="wave-label-name" style="color: var(--ink)">Combined</div>
+        <div class="wave-label-freq">Interference pattern</div>
+      `;
+
+      const combinedSvgContainer = document.createElement('div');
+      combinedSvgContainer.className = 'wave-svg-container';
+
+      const combinedSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      combinedSvg.setAttribute('class', 'wave-svg');
+      combinedSvg.setAttribute('viewBox', '0 0 800 70');
+      combinedSvg.setAttribute('preserveAspectRatio', 'none');
+
+      // Center line for combined
+      const combinedCenter = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      combinedCenter.setAttribute('x1', '0');
+      combinedCenter.setAttribute('y1', '35');
+      combinedCenter.setAttribute('x2', '800');
+      combinedCenter.setAttribute('y2', '35');
+      combinedCenter.setAttribute('stroke', 'var(--line)');
+      combinedCenter.setAttribute('stroke-width', '1');
+      combinedCenter.setAttribute('stroke-dasharray', '4,4');
+      combinedSvg.appendChild(combinedCenter);
+
+      // Combined area fill with color based on intensity
+      const maxCombined = Math.max(...reconstructed.combined.map(Math.abs));
+
+      // Create gradient for combined
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+      gradient.setAttribute('id', 'combinedGradient');
+      gradient.setAttribute('x1', '0%');
+      gradient.setAttribute('y1', '100%');
+      gradient.setAttribute('x2', '0%');
+      gradient.setAttribute('y2', '0%');
+
+      const gradStops = [
+        { offset: '0%', color: 'var(--green)' },
+        { offset: '50%', color: 'var(--yellow)' },
+        { offset: '100%', color: 'var(--red)' }
+      ];
+      gradStops.forEach(s => {
+        const stop = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+        stop.setAttribute('offset', s.offset);
+        stop.setAttribute('stop-color', s.color);
+        gradient.appendChild(stop);
+      });
+      defs.appendChild(gradient);
+      combinedSvg.appendChild(defs);
+
+      // Area path
+      let areaPath = 'M 0 35';
+      reconstructed.combined.forEach((val, j) => {
+        const x = (j / (NUM_DAYS - 1)) * 800;
+        const y = 35 - (val / (maxCombined || 1)) * 30;
+        areaPath += ` L ${x} ${y}`;
+      });
+      areaPath += ' L 800 35 Z';
+
+      const areaFill = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      areaFill.setAttribute('d', areaPath);
+      areaFill.setAttribute('fill', 'url(#combinedGradient)');
+      areaFill.setAttribute('fill-opacity', '0.4');
+      combinedSvg.appendChild(areaFill);
+
+      // Combined line
+      let combinedPath = '';
+      reconstructed.combined.forEach((val, j) => {
+        const x = (j / (NUM_DAYS - 1)) * 800;
+        const y = 35 - (val / (maxCombined || 1)) * 30;
+        combinedPath += (j === 0 ? 'M' : 'L') + ` ${x} ${y}`;
+      });
+
+      const combinedLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      combinedLine.setAttribute('d', combinedPath);
+      combinedLine.setAttribute('fill', 'none');
+      combinedLine.setAttribute('stroke', 'var(--ink)');
+      combinedLine.setAttribute('stroke-width', '2.5');
+      combinedSvg.appendChild(combinedLine);
+
+      // Mark beat peaks
+      for (let i = 1; i < reconstructed.combined.length - 1; i++) {
+        const prev = reconstructed.combined[i - 1];
+        const curr = reconstructed.combined[i];
+        const next = reconstructed.combined[i + 1];
+
+        if (curr > prev && curr > next && curr > maxCombined * 0.7) {
+          const x = (i / (NUM_DAYS - 1)) * 800;
+          const y = 35 - (curr / maxCombined) * 30;
+
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', x);
+          circle.setAttribute('cy', y);
+          circle.setAttribute('r', '4');
+          circle.setAttribute('fill', 'var(--red)');
+          combinedSvg.appendChild(circle);
+        }
+      }
+
+      combinedSvgContainer.appendChild(combinedSvg);
+      combinedRow.appendChild(combinedLabel);
+      combinedRow.appendChild(combinedSvgContainer);
+      container.appendChild(combinedRow);
+    }
+
+    function renderInsightsPanel() {
+      const grid = document.getElementById('insightsGrid');
+      const insights = globalData.insights;
+
+      const cards = [
+        {
+          header: 'Capacity',
+          value: `${insights.slack}h`,
+          valueClass: parseFloat(insights.slack) > 10 ? 'good' : (parseFloat(insights.slack) > 5 ? 'warning' : 'danger'),
+          detail: 'slack this week'
+        },
+        {
+          header: 'Utilization',
+          value: `${insights.utilization}%`,
+          valueClass: insights.utilization < 75 ? 'good' : (insights.utilization < 90 ? 'warning' : 'danger'),
+          detail: 'of weekly capacity'
+        },
+        {
+          header: 'Trend',
+          value: insights.weeklyTrend > 0 ? `+${insights.weeklyTrend.toFixed(1)}h` : `${insights.weeklyTrend.toFixed(1)}h`,
+          valueClass: 'neutral',
+          detail: 'per week',
+          trend: insights.weeklyTrend > 0.5 ? 'up' : (insights.weeklyTrend < -0.5 ? 'down' : 'stable'),
+          trendLabel: insights.weeklyTrend > 0.5 ? 'increasing' : (insights.weeklyTrend < -0.5 ? 'decreasing' : 'stable')
+        },
+        {
+          header: 'Rhythm Strength',
+          value: `${insights.rhythmStrength}%`,
+          valueClass: insights.rhythmStrength > 50 ? 'good' : 'warning',
+          detail: 'pattern regularity'
+        },
+        {
+          header: 'Next Beat',
+          value: insights.nextBeat.day ? `Day ${insights.nextBeat.day}` : 'N/A',
+          valueClass: 'neutral',
+          detail: insights.nextBeat.type === 'peak' ? 'peak alignment' : 'cycle trough'
+        },
+        {
+          header: 'Risk Alert',
+          value: insights.riskWeeks.length > 0 ? `Week ${insights.riskWeeks[0].week}` : 'None',
+          valueClass: insights.riskWeeks.length > 0 ? 'danger' : 'good',
+          detail: insights.riskWeeks.length > 0 ? `${Math.round(insights.riskWeeks[0].severity * 100)}% capacity` : 'no overload detected'
+        }
+      ];
+
+      grid.innerHTML = cards.map(card => `
+        <div class="insight-card">
+          <div class="insight-card-header">${card.header}</div>
+          <div class="insight-card-value ${card.valueClass}">${card.value}
+            ${card.trend ? `<span class="insight-card-trend ${card.trend}">${card.trendLabel}</span>` : ''}
+          </div>
+          <div class="insight-card-detail">${card.detail}</div>
+        </div>
+      `).join('');
+    }
+
+    // ============================================
+    // UTILITY FUNCTIONS
+    // ============================================
+
+    function showTooltip(e, text) {
+      const tooltip = document.getElementById('tooltip');
+      tooltip.textContent = text;
+      tooltip.style.left = `${e.clientX + 10}px`;
+      tooltip.style.top = `${e.clientY + 10}px`;
+      tooltip.classList.add('visible');
+    }
+
+    function hideTooltip() {
+      document.getElementById('tooltip').classList.remove('visible');
+    }
+
+    function regenerateData() {
+      initVisualization();
+    }
+
+    function toggleAnimation() {
+      const btn = document.getElementById('btnAnimate');
+      animationRunning = !animationRunning;
+
+      if (animationRunning) {
+        btn.classList.add('active');
+        animate();
+      } else {
+        btn.classList.remove('active');
+        if (animationFrame) {
+          cancelAnimationFrame(animationFrame);
+        }
+      }
+    }
+
+    let animationOffset = 0;
+    function animate() {
+      if (!animationRunning) return;
+
+      animationOffset = (animationOffset + 1) % NUM_DAYS;
+
+      // Shift the load data
+      const shiftedLoad = [
+        ...globalData.load.smoothed.slice(animationOffset),
+        ...globalData.load.smoothed.slice(0, animationOffset)
+      ];
+
+      // Re-render signal with shifted data
+      const tempLoad = globalData.load.smoothed;
+      globalData.load.smoothed = shiftedLoad;
+      renderSignalPanel();
+      globalData.load.smoothed = tempLoad;
+
+      animationFrame = requestAnimationFrame(() => {
+        setTimeout(animate, 100);
+      });
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', initVisualization);
+  </script>
+</body>
+</html>

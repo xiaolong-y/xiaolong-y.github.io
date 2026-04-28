@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option A: GitHub-Style Grid | Time Visualization</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --paper: #FFFCF0;
+      --ink: #2D2B28;
+      --muted: #6F6E69;
+      --line: #DAD8CE;
+      --panel: #F2F0E5;
+
+      --deep-green: #66800B;
+      --light-green: #879A39;
+      --yellow: #D0A215;
+      --orange: #DA702C;
+      --red: #D14D41;
+      --purple: #8B7EC8;
+      --gray: #878580;
+
+      --cell-size: 48px;
+      --cell-gap: 3px;
+      --radius: 3px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #100F0F;
+        --ink: #CECDC3;
+        --muted: #878580;
+        --line: #403E3C;
+        --panel: #1C1B1A;
+      }
+    }
+
+    body {
+      font: 12px/1.4 'IBM Plex Mono', ui-monospace, monospace;
+      background: var(--paper);
+      color: var(--ink);
+      padding: 32px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 24px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .calendar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--cell-gap);
+    }
+
+    .week-labels {
+      display: flex;
+      gap: var(--cell-gap);
+      margin-left: 36px;
+      margin-bottom: 4px;
+    }
+
+    .week-label {
+      width: var(--cell-size);
+      text-align: center;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: var(--cell-gap);
+    }
+
+    .day-label {
+      width: 32px;
+      font-size: 10px;
+      color: var(--muted);
+      text-align: right;
+      padding-right: 4px;
+    }
+
+    .day-cell {
+      width: var(--cell-size);
+      height: 28px;
+      display: flex;
+      gap: 2px;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .half-day {
+      flex: 1;
+      border-radius: 2px;
+    }
+
+    .empty {
+      background: transparent;
+    }
+
+    /* Availability colors */
+    .deep-green { background: var(--deep-green); }
+    .light-green { background: var(--light-green); }
+    .yellow { background: var(--yellow); }
+    .orange { background: var(--orange); }
+    .red { background: var(--red); }
+    .purple { background: var(--purple); }
+    .gray { background: var(--gray); opacity: 0.4; }
+
+    /* AM/PM labels */
+    .ampm-labels {
+      display: flex;
+      gap: var(--cell-gap);
+      margin-left: 36px;
+      margin-top: 8px;
+      margin-bottom: 24px;
+    }
+
+    .ampm-label {
+      width: var(--cell-size);
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: var(--muted);
+      padding: 0 4px;
+    }
+
+    /* Legend */
+    .legend {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .legend-title {
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+    }
+
+    .month-title {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Option A: GitHub-Style Grid</h1>
+
+    <div class="month-title">January 2025</div>
+
+    <div class="calendar">
+      <!-- Week labels -->
+      <div class="week-labels">
+        <div class="week-label">W1</div>
+        <div class="week-label">W2</div>
+        <div class="week-label">W3</div>
+        <div class="week-label">W4</div>
+        <div class="week-label">W5</div>
+      </div>
+
+      <!-- Monday -->
+      <div class="row">
+        <div class="day-label">Mon</div>
+        <div class="day-cell">
+          <div class="half-day empty"></div>
+          <div class="half-day empty"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day gray"></div>
+          <div class="half-day gray"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day orange"></div>
+          <div class="half-day yellow"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day red"></div>
+          <div class="half-day orange"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day light-green"></div>
+          <div class="half-day yellow"></div>
+        </div>
+      </div>
+
+      <!-- Tuesday -->
+      <div class="row">
+        <div class="day-label">Tue</div>
+        <div class="day-cell">
+          <div class="half-day empty"></div>
+          <div class="half-day empty"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day gray"></div>
+          <div class="half-day gray"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day purple"></div>
+          <div class="half-day purple"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day yellow"></div>
+          <div class="half-day light-green"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day orange"></div>
+          <div class="half-day orange"></div>
+        </div>
+      </div>
+
+      <!-- Wednesday -->
+      <div class="row">
+        <div class="day-label">Wed</div>
+        <div class="day-cell">
+          <div class="half-day deep-green"></div>
+          <div class="half-day light-green"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day gray"></div>
+          <div class="half-day gray"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day light-green"></div>
+          <div class="half-day orange"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day deep-green"></div>
+          <div class="half-day light-green"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day yellow"></div>
+          <div class="half-day light-green"></div>
+        </div>
+      </div>
+
+      <!-- Thursday -->
+      <div class="row">
+        <div class="day-label">Thu</div>
+        <div class="day-cell">
+          <div class="half-day light-green"></div>
+          <div class="half-day yellow"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day gray"></div>
+          <div class="half-day gray"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day orange"></div>
+          <div class="half-day red"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day purple"></div>
+          <div class="half-day light-green"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day deep-green"></div>
+          <div class="half-day deep-green"></div>
+        </div>
+      </div>
+
+      <!-- Friday -->
+      <div class="row">
+        <div class="day-label">Fri</div>
+        <div class="day-cell">
+          <div class="half-day yellow"></div>
+          <div class="half-day orange"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day gray"></div>
+          <div class="half-day gray"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day red"></div>
+          <div class="half-day red"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day yellow"></div>
+          <div class="half-day yellow"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day light-green"></div>
+          <div class="half-day purple"></div>
+        </div>
+      </div>
+
+      <!-- Saturday -->
+      <div class="row">
+        <div class="day-label">Sat</div>
+        <div class="day-cell">
+          <div class="half-day deep-green"></div>
+          <div class="half-day deep-green"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day gray"></div>
+          <div class="half-day gray"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day deep-green"></div>
+          <div class="half-day light-green"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day deep-green"></div>
+          <div class="half-day deep-green"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day empty"></div>
+          <div class="half-day empty"></div>
+        </div>
+      </div>
+
+      <!-- Sunday -->
+      <div class="row">
+        <div class="day-label">Sun</div>
+        <div class="day-cell">
+          <div class="half-day deep-green"></div>
+          <div class="half-day deep-green"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day gray"></div>
+          <div class="half-day gray"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day deep-green"></div>
+          <div class="half-day deep-green"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day light-green"></div>
+          <div class="half-day deep-green"></div>
+        </div>
+        <div class="day-cell">
+          <div class="half-day empty"></div>
+          <div class="half-day empty"></div>
+        </div>
+      </div>
+
+      <!-- AM/PM indicator -->
+      <div class="ampm-labels">
+        <div class="ampm-label"><span>am</span><span>pm</span></div>
+        <div class="ampm-label"><span>am</span><span>pm</span></div>
+        <div class="ampm-label"><span>am</span><span>pm</span></div>
+        <div class="ampm-label"><span>am</span><span>pm</span></div>
+        <div class="ampm-label"><span>am</span><span>pm</span></div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-title">Availability</div>
+      <div class="legend-items">
+        <div class="legend-item">
+          <div class="legend-swatch deep-green"></div>
+          <span>4h+ deep work</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch light-green"></div>
+          <span>2-4h free</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch yellow"></div>
+          <span>1-2h fragmented</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch orange"></div>
+          <span>&lt;1h free</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch red"></div>
+          <span>Deadline/blocked</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch purple"></div>
+          <span>Admin/social</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch gray"></div>
+          <span>Past</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

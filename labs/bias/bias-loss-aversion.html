@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loss Aversion</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --fx-magenta: #A02F6F;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
+        --fx-magenta: #CE5D97;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-magenta);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .canvas-container {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 420px;
+    }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .add-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85em;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .add-btn.gain {
+      background: var(--fx-green);
+      color: var(--fx-paper);
+    }
+    .add-btn.gain:hover { filter: brightness(1.1); }
+
+    .add-btn.loss {
+      background: var(--fx-red);
+      color: var(--fx-paper);
+    }
+    .add-btn.loss:hover { filter: brightness(1.1); }
+
+    .add-btn.both {
+      background: var(--fx-purple);
+      color: var(--fx-paper);
+    }
+    .add-btn.both:hover { filter: brightness(1.1); }
+
+    .reset-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8em;
+      padding: 10px 16px;
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 3px;
+      color: var(--fx-base-700);
+      cursor: pointer;
+    }
+    .reset-btn:hover {
+      border-color: var(--fx-blue);
+      color: var(--fx-blue);
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-magenta);
+    }
+
+    @media (max-width: 600px) {
+      canvas { height: 380px; }
+      h1 { font-size: 1.2em; }
+      .add-btn {
+        padding: 12px 16px;
+        font-size: 0.8em;
+        min-width: 44px;
+        min-height: 44px;
+      }
+      .reset-btn {
+        padding: 12px 20px;
+        min-width: 44px;
+        min-height: 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../../cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Loss Aversion</h1>
+    <p class="description">
+      Losses hurt roughly twice as much as equivalent gains feel good. Losing $100 stings more than finding $100 pleases. Add equal amounts to both sides—watch the psychological scale tip dramatically toward loss.
+    </p>
+
+    <div class="canvas-container">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <p class="instruction">Add equal weights to both sides. The amounts are identical, but losses feel 2x heavier psychologically.</p>
+      <div class="button-row">
+        <button class="add-btn gain" id="addGain">+ $50 Gain</button>
+        <button class="add-btn loss" id="addLoss">+ $50 Loss</button>
+        <button class="add-btn both" id="addBoth">+ $50 to Both</button>
+        <button class="reset-btn" id="resetBtn">Reset Scale</button>
+      </div>
+      <p class="insight" id="insight">The scale is balanced. Add equal amounts to both sides to see loss aversion in action.</p>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
+
+    // State
+    let gainAmount = 0;
+    let lossAmount = 0;
+    const lossMultiplier = 2.0; // Kahneman-Tversky ratio
+
+    let scaleAngle = 0;
+    let targetAngle = 0;
+    let fallingWeights = [];
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function addWeight(side, amount) {
+      const startX = side === 'gain' ? width * 0.25 : width * 0.75;
+      fallingWeights.push({
+        x: startX + (Math.random() - 0.5) * 40,
+        y: 30,
+        vy: 0,
+        side: side,
+        amount: amount,
+        size: side === 'loss' ? 18 : 12, // Losses appear larger
+        alpha: 1,
+        settled: false
+      });
+
+      if (side === 'gain') {
+        gainAmount += amount;
+      } else {
+        lossAmount += amount;
+      }
+
+      updateScale();
+    }
+
+    function updateScale() {
+      // Calculate psychological weight
+      const psychGain = gainAmount;
+      const psychLoss = lossAmount * lossMultiplier;
+
+      // Calculate angle based on weight difference
+      const diff = psychLoss - psychGain;
+      targetAngle = Math.atan2(diff, 200) * 0.6; // Max tilt ~30 degrees
+      targetAngle = Math.max(-0.5, Math.min(0.5, targetAngle));
+
+      updateInsight();
+    }
+
+    function updateInsight() {
+      const insight = document.getElementById('insight');
+      const psychGain = gainAmount;
+      const psychLoss = lossAmount * lossMultiplier;
+
+      if (gainAmount === 0 && lossAmount === 0) {
+        insight.textContent = 'The scale is balanced. Add equal amounts to both sides to see loss aversion in action.';
+      } else if (gainAmount === lossAmount && gainAmount > 0) {
+        insight.textContent = `Both sides have $${gainAmount}, but the loss FEELS like $${Math.round(lossAmount * lossMultiplier)}. Equal money, unequal emotion.`;
+      } else if (psychLoss > psychGain) {
+        insight.textContent = `Loss ($${lossAmount}) feels like $${Math.round(psychLoss)} psychologically. That's ${lossMultiplier}x the emotional weight of gains.`;
+      } else if (psychGain > psychLoss) {
+        insight.textContent = `Gains ($${gainAmount}) currently outweigh losses ($${lossAmount}), but add more loss to see the asymmetry.`;
+      }
+    }
+
+    function reset() {
+      gainAmount = 0;
+      lossAmount = 0;
+      targetAngle = 0;
+      fallingWeights = [];
+      updateInsight();
+    }
+
+    function drawValueCurve() {
+      // Kahneman-Tversky value function in corner
+      const curveX = width - 120;
+      const curveY = 80;
+      const curveSize = 80;
+
+      ctx.strokeStyle = getColor('base-200');
+      ctx.lineWidth = 1;
+
+      // Axes
+      ctx.beginPath();
+      ctx.moveTo(curveX - curveSize, curveY);
+      ctx.lineTo(curveX + curveSize, curveY);
+      ctx.moveTo(curveX, curveY - curveSize);
+      ctx.lineTo(curveX, curveY + curveSize);
+      ctx.stroke();
+
+      // Labels
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '8px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('Gains', curveX + curveSize - 15, curveY - 5);
+      ctx.fillText('Losses', curveX - curveSize + 18, curveY - 5);
+      ctx.textAlign = 'right';
+      ctx.fillText('Value', curveX - 5, curveY - curveSize + 12);
+
+      // S-curve (asymmetric)
+      ctx.strokeStyle = getColor('magenta');
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = -curveSize; i <= curveSize; i++) {
+        const x = i / curveSize; // -1 to 1
+        let y;
+        if (x >= 0) {
+          // Gains: concave, less steep
+          y = Math.pow(x, 0.88) * 0.5;
+        } else {
+          // Losses: convex, steeper (2x)
+          y = -Math.pow(-x, 0.88) * 1.0;
+        }
+        const px = curveX + i;
+        const py = curveY - y * curveSize;
+        if (i === -curveSize) {
+          ctx.moveTo(px, py);
+        } else {
+          ctx.lineTo(px, py);
+        }
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = getColor('green');
+      ctx.font = '7px IBM Plex Mono';
+      ctx.textAlign = 'left';
+      ctx.fillText('Gain', curveX + 5, curveY - 25);
+
+      ctx.fillStyle = getColor('red');
+      ctx.fillText('Loss', curveX - 35, curveY + 40);
+
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '7px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('(steeper)', curveX - 20, curveY + 50);
+    }
+
+    function draw() {
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(0, 0, width, height);
+
+      // Animate scale angle
+      scaleAngle += (targetAngle - scaleAngle) * 0.08;
+
+      const centerX = width / 2;
+      const centerY = height / 2 - 20;
+      const beamLength = Math.min(180, width * 0.35);
+
+      // Draw fulcrum/stand
+      ctx.fillStyle = getColor('base-700');
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY + 20);
+      ctx.lineTo(centerX - 25, centerY + 100);
+      ctx.lineTo(centerX + 25, centerY + 100);
+      ctx.closePath();
+      ctx.fill();
+
+      // Draw scale beam
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(scaleAngle);
+
+      ctx.strokeStyle = getColor('base-900');
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(-beamLength, 0);
+      ctx.lineTo(beamLength, 0);
+      ctx.stroke();
+
+      // Fulcrum triangle
+      ctx.fillStyle = getColor('base-900');
+      ctx.beginPath();
+      ctx.moveTo(0, -12);
+      ctx.lineTo(-10, 8);
+      ctx.lineTo(10, 8);
+      ctx.closePath();
+      ctx.fill();
+
+      // Pans
+      const panWidth = 80;
+      const panHeight = 15;
+      const chainLength = 50;
+
+      // Left pan (gains)
+      ctx.strokeStyle = getColor('base-700');
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(-beamLength, 0);
+      ctx.lineTo(-beamLength, chainLength);
+      ctx.stroke();
+
+      ctx.fillStyle = getColor('green');
+      ctx.fillRect(-beamLength - panWidth/2, chainLength, panWidth, panHeight);
+
+      ctx.fillStyle = getColor('paper');
+      ctx.font = 'bold 11px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText(`$${gainAmount}`, -beamLength, chainLength + 12);
+
+      // Stack of gain weights
+      const gainStack = Math.floor(gainAmount / 50);
+      for (let i = 0; i < gainStack && i < 8; i++) {
+        ctx.fillStyle = getColor('green');
+        ctx.beginPath();
+        ctx.arc(-beamLength + (i % 3 - 1) * 15, chainLength - 15 - Math.floor(i/3) * 20, 10, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Right pan (losses)
+      ctx.strokeStyle = getColor('base-700');
+      ctx.beginPath();
+      ctx.moveTo(beamLength, 0);
+      ctx.lineTo(beamLength, chainLength);
+      ctx.stroke();
+
+      ctx.fillStyle = getColor('red');
+      ctx.fillRect(beamLength - panWidth/2, chainLength, panWidth, panHeight);
+
+      ctx.fillStyle = getColor('paper');
+      ctx.fillText(`$${lossAmount}`, beamLength, chainLength + 12);
+
+      // Stack of loss weights (bigger)
+      const lossStack = Math.floor(lossAmount / 50);
+      for (let i = 0; i < lossStack && i < 8; i++) {
+        ctx.fillStyle = getColor('red');
+        ctx.beginPath();
+        ctx.arc(beamLength + (i % 3 - 1) * 18, chainLength - 18 - Math.floor(i/3) * 25, 14, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+
+      // Labels for pans
+      ctx.fillStyle = getColor('green');
+      ctx.font = '12px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('GAINS', centerX - beamLength, centerY + 130);
+      ctx.font = '9px IBM Plex Mono';
+      ctx.fillStyle = getColor('base-700');
+      ctx.fillText('Feels: Normal', centerX - beamLength, centerY + 145);
+
+      ctx.fillStyle = getColor('red');
+      ctx.font = '12px IBM Plex Mono';
+      ctx.fillText('LOSSES', centerX + beamLength, centerY + 130);
+      ctx.font = '9px IBM Plex Mono';
+      ctx.fillStyle = getColor('base-700');
+      ctx.fillText(`Feels: 2x heavier`, centerX + beamLength, centerY + 145);
+
+      // Psychological weight indicator
+      if (lossAmount > 0 || gainAmount > 0) {
+        ctx.fillStyle = getColor('base-700');
+        ctx.font = '10px IBM Plex Mono';
+        ctx.textAlign = 'left';
+        ctx.fillText(`Psychological weights:`, 20, 35);
+
+        ctx.fillStyle = getColor('green');
+        ctx.fillText(`Gain: $${gainAmount} = ${gainAmount} units`, 20, 52);
+
+        ctx.fillStyle = getColor('red');
+        ctx.fillText(`Loss: $${lossAmount} × 2 = ${lossAmount * 2} units`, 20, 69);
+      }
+
+      // Draw value curve
+      drawValueCurve();
+
+      // Update and draw falling weights
+      fallingWeights = fallingWeights.filter(w => {
+        if (!w.settled) {
+          w.vy += 0.5;
+          w.y += w.vy;
+
+          // Calculate pan position
+          const panY = centerY + Math.sin(scaleAngle) * (w.side === 'gain' ? -beamLength : beamLength) + 50;
+
+          if (w.y > panY) {
+            w.y = panY;
+            w.settled = true;
+          }
+        }
+
+        if (w.settled) {
+          w.alpha -= 0.02;
+        }
+
+        if (w.alpha > 0) {
+          ctx.fillStyle = w.side === 'gain' ? getColor('green') : getColor('red');
+          ctx.globalAlpha = w.alpha;
+          ctx.beginPath();
+          ctx.arc(w.x, w.y, w.size, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = getColor('paper');
+          ctx.font = `${w.size * 0.6}px IBM Plex Mono`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('$', w.x, w.y);
+
+          ctx.globalAlpha = 1;
+        }
+
+        return w.alpha > 0;
+      });
+
+      // Title
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '11px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.globalAlpha = 1;
+      ctx.fillText('Same dollars. Different emotional weight.', width / 2, height - 20);
+
+      requestAnimationFrame(draw);
+    }
+
+    document.getElementById('addGain').addEventListener('click', () => addWeight('gain', 50));
+    document.getElementById('addLoss').addEventListener('click', () => addWeight('loss', 50));
+    document.getElementById('addBoth').addEventListener('click', () => {
+      addWeight('gain', 50);
+      setTimeout(() => addWeight('loss', 50), 200);
+    });
+    document.getElementById('resetBtn').addEventListener('click', reset);
+
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+  </script>
+</body>
+</html>

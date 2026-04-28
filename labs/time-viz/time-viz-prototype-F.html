@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option F: Runway Counter</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --paper: #FFFCF0;
+      --ink: #100F0F;
+      --muted: #6F6E69;
+      --line: #E6E4D9;
+      --available: #66800B;
+      --occupied: #E6E4D9;
+      --deadline: #D14D41;
+      --panel: #F2F0E5;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #100F0F;
+        --ink: #CECDC3;
+        --muted: #878580;
+        --line: #403E3C;
+        --available: #879A39;
+        --occupied: #282726;
+        --deadline: #D14D41;
+        --panel: #1C1B1A;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 48px 24px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .page-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 48px;
+    }
+
+    .runway {
+      margin-bottom: 56px;
+    }
+
+    .runway-label {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .runway-count {
+      font-size: 32px;
+      font-weight: 300;
+      color: var(--ink);
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+
+    .runway-count strong {
+      font-weight: 600;
+    }
+
+    .runway-count .total {
+      color: var(--muted);
+      font-size: 24px;
+    }
+
+    .timeline-container {
+      position: relative;
+    }
+
+    .timeline-markers {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .timeline-strip {
+      display: flex;
+      gap: 2px;
+      align-items: center;
+    }
+
+    .week-group {
+      display: flex;
+      gap: 2px;
+    }
+
+    .week-separator {
+      width: 6px;
+    }
+
+    .day {
+      width: 16px;
+      height: 24px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .day.available {
+      background: var(--available);
+    }
+
+    .day.occupied {
+      background: var(--occupied);
+      border: 1px solid var(--line);
+    }
+
+    .day.deadline {
+      background: var(--deadline);
+      width: 20px;
+      border-radius: 2px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 700px) {
+      .day {
+        width: 10px;
+        height: 18px;
+      }
+
+      .day.deadline {
+        width: 14px;
+      }
+
+      .week-separator {
+        width: 4px;
+      }
+
+      .runway-count {
+        font-size: 26px;
+      }
+
+      .runway-count .total {
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .day {
+        width: 6px;
+        height: 14px;
+      }
+
+      .day.deadline {
+        width: 10px;
+      }
+
+      .week-separator {
+        width: 3px;
+      }
+
+      .timeline-strip {
+        gap: 1px;
+      }
+
+      .week-group {
+        gap: 1px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="page-title">Option F: Runway Counter</div>
+
+    <!-- Runway 1: Paper Deadline - 28 days, 18 available -->
+    <div class="runway">
+      <div class="runway-label">Paper Deadline</div>
+      <div class="runway-count">
+        <strong>18</strong> available days <span class="total">in 28-day runway</span>
+      </div>
+      <div class="timeline-container">
+        <div class="timeline-markers">
+          <span>Today</span>
+          <span>DDL</span>
+        </div>
+        <div class="timeline-strip">
+          <!-- Week 1: days 1-7 -->
+          <div class="week-group">
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+          </div>
+          <div class="week-separator"></div>
+          <!-- Week 2: days 8-14 -->
+          <div class="week-group">
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day occupied"></div>
+          </div>
+          <div class="week-separator"></div>
+          <!-- Week 3: days 15-21 -->
+          <div class="week-group">
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+          </div>
+          <div class="week-separator"></div>
+          <!-- Week 4: days 22-28 -->
+          <div class="week-group">
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day deadline"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Runway 2: Grant Proposal - 18 days, 12 available -->
+    <div class="runway">
+      <div class="runway-label">Grant Proposal</div>
+      <div class="runway-count">
+        <strong>12</strong> available days <span class="total">in 18-day runway</span>
+      </div>
+      <div class="timeline-container">
+        <div class="timeline-markers">
+          <span>Today</span>
+          <span>DDL</span>
+        </div>
+        <div class="timeline-strip">
+          <!-- Week 1: days 1-7 -->
+          <div class="week-group">
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+          </div>
+          <div class="week-separator"></div>
+          <!-- Week 2: days 8-14 -->
+          <div class="week-group">
+            <div class="day occupied"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+          </div>
+          <div class="week-separator"></div>
+          <!-- Week 3: days 15-18 -->
+          <div class="week-group">
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day deadline"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Runway 3: Dissertation Chapter - 45 days, 30 available -->
+    <div class="runway">
+      <div class="runway-label">Dissertation Chapter</div>
+      <div class="runway-count">
+        <strong>30</strong> available days <span class="total">in 45-day runway</span>
+      </div>
+      <div class="timeline-container">
+        <div class="timeline-markers">
+          <span>Today</span>
+          <span>DDL</span>
+        </div>
+        <div class="timeline-strip">
+          <!-- Week 1: days 1-7 -->
+          <div class="week-group">
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+          </div>
+          <div class="week-separator"></div>
+          <!-- Week 2: days 8-14 -->
+          <div class="week-group">
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day occupied"></div>
+          </div>
+          <div class="week-separator"></div>
+          <!-- Week 3: days 15-21 -->
+          <div class="week-group">
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+          </div>
+          <div class="week-separator"></div>
+          <!-- Week 4: days 22-28 -->
+          <div class="week-group">
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+          </div>
+          <div class="week-separator"></div>
+          <!-- Week 5: days 29-35 -->
+          <div class="week-group">
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day occupied"></div>
+          </div>
+          <div class="week-separator"></div>
+          <!-- Week 6: days 36-42 -->
+          <div class="week-group">
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day available"></div>
+            <div class="day occupied"></div>
+          </div>
+          <div class="week-separator"></div>
+          <!-- Week 7: days 43-45 -->
+          <div class="week-group">
+            <div class="day occupied"></div>
+            <div class="day available"></div>
+            <div class="day deadline"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

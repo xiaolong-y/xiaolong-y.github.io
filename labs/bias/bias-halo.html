@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halo Effect</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-yellow);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .canvas-container {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 420px;
+      cursor: pointer;
+    }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+    }
+
+    .reset-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8em;
+      padding: 8px 16px;
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 3px;
+      color: var(--fx-base-700);
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    .reset-btn:hover {
+      border-color: var(--fx-blue);
+      color: var(--fx-blue);
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-yellow);
+    }
+
+    @media (max-width: 600px) {
+      canvas { height: 480px; }
+      h1 { font-size: 1.2em; }
+      .reset-btn {
+        padding: 12px 20px;
+        min-width: 44px;
+        min-height: 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../../cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Halo Effect</h1>
+    <p class="description">
+      One positive trait creates a "halo" that colors our perception of completely unrelated traits. Attractive people seem smarter, kinder, more competent—with no evidence. Drag the attractiveness slider up and watch other traits rise automatically.
+    </p>
+
+    <div class="canvas-container">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <p class="instruction">Drag the Attractiveness slider. Watch how unrelated traits drift upward without any evidence—that's the halo at work.</p>
+      <button class="reset-btn" id="resetBtn">Reset All Traits</button>
+      <p class="insight" id="insight">All trait sliders start at 50% (neutral). Drag Attractiveness to see the halo effect in action.</p>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
+
+    // Traits
+    const haloTrait = { name: 'Attractiveness', value: 50, targetValue: 50, isHalo: true };
+
+    const affectedTraits = [
+      { name: 'Intelligence', value: 50, targetValue: 50, baseValue: 50, influence: 0.7 },
+      { name: 'Kindness', value: 50, targetValue: 50, baseValue: 50, influence: 0.8 },
+      { name: 'Competence', value: 50, targetValue: 50, baseValue: 50, influence: 0.65 },
+      { name: 'Trustworthiness', value: 50, targetValue: 50, baseValue: 50, influence: 0.75 },
+      { name: 'Leadership', value: 50, targetValue: 50, baseValue: 50, influence: 0.6 },
+    ];
+
+    let dragging = null;
+    let haloGlow = 0;
+    let glowParticles = [];
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function getSliderLayout() {
+      const sliderWidth = Math.min(200, width * 0.35);
+      const sliderHeight = 12;
+      const startY = 80;
+      const spacing = 55;
+
+      // Halo trait on left
+      const haloX = width * 0.25;
+      const haloY = height / 2;
+
+      // Affected traits on right
+      const affectedX = width * 0.7;
+      const affectedStartY = startY;
+
+      return { sliderWidth, sliderHeight, haloX, haloY, affectedX, affectedStartY, spacing };
+    }
+
+    function drawSlider(x, y, w, h, value, label, isHalo, glowAmount) {
+      const knobX = x - w/2 + (value / 100) * w;
+      const knobRadius = 10;
+
+      // Glow behind slider for halo trait
+      if (isHalo && glowAmount > 0.1) {
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, 100 * glowAmount);
+        gradient.addColorStop(0, getColor('yellow') + '60');
+        gradient.addColorStop(0.5, getColor('yellow') + '30');
+        gradient.addColorStop(1, getColor('yellow') + '00');
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(x, y, 100 * glowAmount, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Slider track
+      ctx.fillStyle = getColor('base-200');
+      ctx.beginPath();
+      ctx.roundRect(x - w/2, y - h/2, w, h, h/2);
+      ctx.fill();
+
+      // Filled portion
+      const fillColor = isHalo ? getColor('yellow') : getColor('blue');
+      ctx.fillStyle = fillColor;
+      ctx.beginPath();
+      ctx.roundRect(x - w/2, y - h/2, (value / 100) * w, h, h/2);
+      ctx.fill();
+
+      // Knob
+      ctx.fillStyle = isHalo ? getColor('yellow') : getColor('blue');
+      ctx.beginPath();
+      ctx.arc(knobX, y, knobRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Knob highlight
+      ctx.fillStyle = getColor('paper');
+      ctx.beginPath();
+      ctx.arc(knobX - 2, y - 2, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Label
+      ctx.fillStyle = getColor('base-900');
+      ctx.font = isHalo ? 'bold 12px IBM Plex Mono' : '11px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x, y - 22);
+
+      // Value
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '10px IBM Plex Mono';
+      ctx.fillText(`${Math.round(value)}%`, x, y + 28);
+
+      return { x: knobX, y, radius: knobRadius };
+    }
+
+    function drawConnectionLines() {
+      const layout = getSliderLayout();
+      const haloKnobX = layout.haloX - layout.sliderWidth/2 + (haloTrait.value / 100) * layout.sliderWidth;
+
+      ctx.strokeStyle = getColor('yellow') + Math.floor(haloGlow * 80).toString(16).padStart(2, '0');
+      ctx.lineWidth = 1 + haloGlow * 2;
+
+      affectedTraits.forEach((trait, i) => {
+        const y = layout.affectedStartY + i * layout.spacing;
+        const targetX = layout.affectedX - layout.sliderWidth/2;
+
+        ctx.beginPath();
+        ctx.moveTo(haloKnobX + 15, layout.haloY);
+        ctx.bezierCurveTo(
+          width / 2, layout.haloY,
+          width / 2, y,
+          targetX - 10, y
+        );
+        ctx.stroke();
+
+        // Flowing particle effect
+        if (haloGlow > 0.2) {
+          const particleProgress = (Date.now() * 0.001 + i * 0.3) % 1;
+          const px = haloKnobX + 15 + (targetX - 10 - haloKnobX - 15) * particleProgress;
+          const py = layout.haloY + (y - layout.haloY) * particleProgress;
+
+          ctx.fillStyle = getColor('yellow');
+          ctx.globalAlpha = haloGlow * (1 - Math.abs(particleProgress - 0.5) * 2);
+          ctx.beginPath();
+          ctx.arc(px, py, 3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+      });
+    }
+
+    function draw() {
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(0, 0, width, height);
+
+      const layout = getSliderLayout();
+
+      // Calculate halo effect
+      const haloDelta = (haloTrait.value - 50) / 50; // -1 to 1
+      haloGlow += ((Math.abs(haloDelta) * 0.8) - haloGlow) * 0.1;
+
+      // Update affected traits based on halo
+      affectedTraits.forEach(trait => {
+        trait.targetValue = trait.baseValue + haloDelta * 40 * trait.influence;
+        trait.targetValue = Math.max(0, Math.min(100, trait.targetValue));
+        trait.value += (trait.targetValue - trait.value) * 0.08;
+      });
+
+      // Animate halo trait
+      haloTrait.value += (haloTrait.targetValue - haloTrait.value) * 0.1;
+
+      // Draw connection lines
+      drawConnectionLines();
+
+      // Draw halo trait (left side)
+      ctx.fillStyle = getColor('yellow');
+      ctx.font = 'bold 13px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('HALO SOURCE', layout.haloX, layout.haloY - 60);
+
+      const haloKnob = drawSlider(
+        layout.haloX, layout.haloY, layout.sliderWidth, layout.sliderHeight,
+        haloTrait.value, haloTrait.name, true, haloGlow
+      );
+
+      // Draw affected traits (right side)
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '11px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('PERCEIVED TRAITS', layout.affectedX, layout.affectedStartY - 30);
+      ctx.font = '9px IBM Plex Mono';
+      ctx.fillText('(no actual evidence)', layout.affectedX, layout.affectedStartY - 15);
+
+      affectedTraits.forEach((trait, i) => {
+        const y = layout.affectedStartY + i * layout.spacing;
+        drawSlider(
+          layout.affectedX, y, layout.sliderWidth, layout.sliderHeight,
+          trait.value, trait.name, false, 0
+        );
+      });
+
+      // Title
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '11px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('Drag the attractiveness slider. Other traits follow with zero evidence.', width / 2, 30);
+
+      // Update insight
+      const insight = document.getElementById('insight');
+      if (haloTrait.value > 70) {
+        insight.textContent = `Attractiveness at ${Math.round(haloTrait.value)}%: You automatically assume this person is smarter, kinder, and more competent—despite knowing nothing about them.`;
+      } else if (haloTrait.value < 30) {
+        insight.textContent = `Attractiveness at ${Math.round(haloTrait.value)}%: Negative halos exist too. Less attractive people are often perceived as less intelligent or competent—equally unfairly.`;
+      } else {
+        insight.textContent = 'All trait sliders start at 50% (neutral). Drag Attractiveness to see the halo effect in action.';
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    function getMousePos(e) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
+
+    function hitTest(mx, my) {
+      const layout = getSliderLayout();
+      const knobRadius = 15; // Slightly larger hit area
+
+      // Test halo slider
+      const haloKnobX = layout.haloX - layout.sliderWidth/2 + (haloTrait.value / 100) * layout.sliderWidth;
+      if (Math.hypot(mx - haloKnobX, my - layout.haloY) < knobRadius) {
+        return { trait: haloTrait, layout, baseX: layout.haloX };
+      }
+
+      // Test if click is on halo slider track
+      if (mx > layout.haloX - layout.sliderWidth/2 - 10 &&
+          mx < layout.haloX + layout.sliderWidth/2 + 10 &&
+          my > layout.haloY - 20 && my < layout.haloY + 20) {
+        return { trait: haloTrait, layout, baseX: layout.haloX };
+      }
+
+      return null;
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      const pos = getMousePos(e);
+      const hit = hitTest(pos.x, pos.y);
+      if (hit) {
+        dragging = hit;
+        updateSliderFromMouse(pos.x);
+      }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (dragging) {
+        const pos = getMousePos(e);
+        updateSliderFromMouse(pos.x);
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => { dragging = null; });
+    canvas.addEventListener('mouseleave', () => { dragging = null; });
+
+    // Touch support
+    canvas.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      const pos = { x: touch.clientX - canvas.getBoundingClientRect().left,
+                    y: touch.clientY - canvas.getBoundingClientRect().top };
+      const hit = hitTest(pos.x, pos.y);
+      if (hit) {
+        dragging = hit;
+        updateSliderFromMouse(pos.x);
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      if (dragging) {
+        const touch = e.touches[0];
+        const pos = { x: touch.clientX - canvas.getBoundingClientRect().left };
+        updateSliderFromMouse(pos.x);
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', () => { dragging = null; });
+
+    function updateSliderFromMouse(mx) {
+      if (!dragging) return;
+      const layout = getSliderLayout();
+      const sliderLeft = dragging.baseX - layout.sliderWidth / 2;
+      const sliderRight = dragging.baseX + layout.sliderWidth / 2;
+      const newValue = ((mx - sliderLeft) / layout.sliderWidth) * 100;
+      dragging.trait.targetValue = Math.max(0, Math.min(100, newValue));
+    }
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      haloTrait.targetValue = 50;
+      affectedTraits.forEach(t => {
+        t.baseValue = 50;
+        t.targetValue = 50;
+      });
+    });
+
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+  </script>
+</body>
+</html>

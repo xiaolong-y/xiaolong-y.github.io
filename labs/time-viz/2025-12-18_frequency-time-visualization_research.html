@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frequency-Based Time Visualization Mechanics | Research Report | 2025-12-18</title>
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --paper: #FFFCF0; --ink: #2D2B28; --muted: #6F6E69;
+    --line: #DAD8CE; --panel: #F2F0E5;
+    --blue: #205EA6; --cyan: #24837B; --green: #66800B;
+    --orange: #BC5215; --red: #AF3029; --purple: #5E409D;
+    --yellow: #AD8301; --magenta: #A02F6F;
+    --base: 11px; --lh: 1.45; --sp: 8px; --radius: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #100F0F; --ink: #CECDC3; --muted: #878580;
+      --line: #403E3C; --panel: #1C1B1A;
+      --blue: #4385BE; --cyan: #3AA99F; --green: #879A39;
+      --orange: #DA702C; --red: #D14D41; --purple: #8B7EC8;
+      --yellow: #D0A215; --magenta: #CE5D97;
+    }
+  }
+
+  body {
+    font: var(--base)/var(--lh) 'IBM Plex Mono', ui-monospace, monospace;
+    background: var(--paper); color: var(--ink);
+    padding: var(--sp); max-width: 2400px; margin: 0 auto;
+  }
+
+  h1 { font-size: 1.15em; font-weight: 500; border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: var(--sp); }
+  h2 { font-size: 1em; font-weight: 500; border-left: 3px solid var(--blue); padding-left: 6px; margin: var(--sp) 0 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  h3 { font-size: 0.9em; font-weight: 500; color: var(--muted); margin: 6px 0 3px; }
+
+  section { margin-bottom: var(--sp); padding: var(--sp); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: var(--sp); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 900px) { .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .grid, .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.9em; margin: 4px 0; }
+  th { text-align: left; padding: 3px 5px; border-bottom: 2px solid var(--line); color: var(--blue); font-weight: 400; }
+  td { padding: 3px 5px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: none; }
+
+  pre { font-size: 0.82em; background: var(--paper); padding: 4px 6px; border: 1px solid var(--line); border-radius: var(--radius); overflow-x: auto; margin: 4px 0; white-space: pre-wrap; }
+  code { font-family: inherit; background: var(--paper); padding: 1px 3px; border-radius: var(--radius); }
+  .math { background: var(--paper); padding: 5px 8px; margin: 4px 0; border-left: 2px solid var(--blue); font-size: 0.9em; overflow-x: auto; }
+
+  figure { margin: 4px 0; }
+  figure img { max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+  figure.viz { background: var(--paper); padding: 4px; border: 1px solid var(--line); border-radius: var(--radius); text-align: center; }
+  figure.viz img, figure.viz svg { border: none; display: block; margin: 0 auto; }
+  figcaption { font-size: 0.8em; color: var(--muted); margin-top: 4px; text-align: center; }
+
+  .note { color: var(--muted); font-size: 0.82em; margin: 3px 0; }
+  .desc { font-size: 0.82em; margin: 4px 0; line-height: 1.35; }
+  .warn { color: var(--orange); } .err { color: var(--red); } .ok { color: var(--green); }
+
+  .tag { display: inline-block; padding: 1px 4px; border-radius: var(--radius); font-size: 0.73em; font-weight: 500; margin-left: 4px; border: 1px solid; vertical-align: middle; }
+  .tag.core { border-color: var(--blue); color: var(--blue); }
+  .tag.adv { border-color: var(--purple); color: var(--purple); }
+  .tag.eff { border-color: var(--green); color: var(--green); }
+  .tag.warn { border-color: var(--orange); color: var(--orange); }
+  .tag.new { border-color: var(--cyan); color: var(--cyan); }
+
+  ul, ol { margin: 3px 0 3px 16px; font-size: 0.9em; }
+  li { margin: 2px 0; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { color: var(--cyan); text-decoration: underline; }
+
+  .bib { font-size: 0.82em; background: var(--paper); padding: var(--sp); border: 1px solid var(--line); margin-top: 10px; }
+  .bib h2 { border-left-color: var(--purple); }
+  .bib ol { margin-left: 20px; }
+
+  .full-width { grid-column: 1 / -1; }
+
+  @media print {
+    body { font-size: 9pt; padding: 0; }
+    section { break-inside: avoid; }
+    .grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  </style>
+</head>
+<body>
+
+<h1>Frequency-Based Time Visualization: A Rigorous Mechanics Specification <span class="tag adv">research</span></h1>
+
+<section class="full-width">
+  <h2>Executive Summary</h2>
+  <p class="desc">
+    This report proposes a mathematically rigorous system for converting discrete calendar events into continuous frequency-domain representations, enabling "beat frequency" visualization of temporal patterns. The core insight is that calendar data can be treated analogously to neural spike trains—discrete point events that can be convolved with kernels to produce continuous intensity functions, then decomposed via spectral analysis to discover natural rhythms. The system combines <strong>kernel density estimation</strong> for signal construction, <strong>FFT/wavelet analysis</strong> for frequency discovery, <strong>queuing theory</strong> for capacity modeling, and <strong>chronobiology-inspired rhythm hierarchies</strong> for meaningful interpretation.
+  </p>
+</section>
+
+<div class="grid grid-2">
+
+<section>
+  <h2>1. Problem Formulation</h2>
+  <h3>The Naive Approach (Current State)</h3>
+  <p class="desc">
+    Current prototype ASSIGNS frequencies arbitrarily (weekly = 7-day sine wave). This ignores actual event patterns and creates meaningless visualizations.
+  </p>
+
+  <h3>The Correct Approach</h3>
+  <p class="desc">
+    <strong>DISCOVER</strong> frequencies from actual calendar data using signal processing techniques. Transform: <code>Calendar Events -> Continuous Signal -> Frequency Spectrum -> Meaningful Insights</code>
+  </p>
+
+  <h3>Core Questions Answered</h3>
+  <ul>
+    <li>How does a 3-hour meeting translate to a signal?</li>
+    <li>What does "interference" mean for time?</li>
+    <li>How do we detect hidden rhythms?</li>
+    <li>What insights are meaningful?</li>
+  </ul>
+</section>
+
+<section>
+  <h2>2. Biological Rhythm Hierarchy</h2>
+  <p class="desc">
+    Chronobiology provides the conceptual framework for understanding human temporal patterns. Three rhythm classes exist:
+  </p>
+
+  <table>
+    <tr><th>Type</th><th>Period</th><th>Calendar Analog</th></tr>
+    <tr><td class="ok">Ultradian</td><td>&lt;24h</td><td>Meeting blocks, focus sessions, breaks</td></tr>
+    <tr><td class="ok">Circadian</td><td>~24h</td><td>Daily work pattern, sleep/wake</td></tr>
+    <tr><td class="ok">Infradian</td><td>&gt;24h</td><td>Weekly sprints, monthly reviews, quarterly planning</td></tr>
+  </table>
+
+  <p class="note">
+    These rhythms interact hierarchically—circadian clocks regulate ultradian oscillations, and infradian cycles modulate circadian patterns.
+  </p>
+</section>
+
+</div>
+
+<section class="full-width">
+  <h2>3. Data Model: Calendar to Signal Transformation</h2>
+
+  <div class="grid grid-3">
+    <div>
+      <h3>Stage 1: Event Representation</h3>
+      <p class="desc">Each calendar event becomes a structured object:</p>
+      <pre>{
+  id: string,
+  start: timestamp,
+  end: timestamp,
+  duration: minutes,
+  type: EventType,
+  energy_cost: 0-1,    // cognitive load
+  flexibility: 0-1,    // can it move?
+  recurrence: Pattern | null
+}</pre>
+    </div>
+
+    <div>
+      <h3>Stage 2: Event Types & Signatures</h3>
+      <p class="desc">Different events have different "shapes":</p>
+      <table>
+        <tr><th>Type</th><th>Shape</th></tr>
+        <tr><td>Meeting</td><td>Rectangular pulse</td></tr>
+        <tr><td>Deep Work</td><td>Trapezoidal (ramp up/down)</td></tr>
+        <tr><td>Deadline</td><td>Exponential buildup</td></tr>
+        <tr><td>Admin</td><td>Low-amplitude uniform</td></tr>
+        <tr><td>Travel</td><td>Fixed buffer (shadow)</td></tr>
+      </table>
+    </div>
+
+    <div>
+      <h3>Stage 3: Shadow Events</h3>
+      <p class="desc">Events have temporal "shadows"—implicit time costs:</p>
+      <ul>
+        <li><strong>Pre-shadow:</strong> Prep time, context loading</li>
+        <li><strong>Post-shadow:</strong> Recovery, context switching</li>
+        <li><strong>Travel shadow:</strong> Transit between locations</li>
+      </ul>
+      <p class="note">Shadow duration scales with event energy cost and type.</p>
+    </div>
+  </div>
+</section>
+
+<section class="full-width">
+  <h2>4. Signal Construction: Kernel Density Estimation</h2>
+
+  <p class="desc">
+    Calendar events are analogous to neural spike trains—discrete point events in time. We use kernel density estimation (KDE) to convert them into continuous intensity functions.
+  </p>
+
+  <div class="grid grid-2">
+    <div>
+      <h3>The Core Formula</h3>
+      <div class="math">
+        $$\lambda(t) = \sum_{i=1}^{N} w_i \cdot K_{\sigma}(t - t_i) \cdot D_i(t)$$
+      </div>
+      <p class="desc">Where:</p>
+      <ul>
+        <li>$\lambda(t)$ = load intensity at time $t$</li>
+        <li>$w_i$ = event weight (energy cost)</li>
+        <li>$K_{\sigma}$ = kernel function with bandwidth $\sigma$</li>
+        <li>$t_i$ = event center time</li>
+        <li>$D_i(t)$ = duration mask function</li>
+      </ul>
+    </div>
+
+    <div>
+      <h3>Kernel Selection</h3>
+      <table>
+        <tr><th>Kernel</th><th>Use Case</th><th>Properties</th></tr>
+        <tr><td>Rectangular</td><td>Meetings, fixed blocks</td><td>Sharp boundaries, no spillover</td></tr>
+        <tr><td>Gaussian</td><td>Flexible events, deadlines</td><td>Smooth, captures uncertainty</td></tr>
+        <tr><td>Trapezoidal</td><td>Deep work sessions</td><td>Ramp-up and ramp-down</td></tr>
+        <tr><td>Exponential</td><td>Deadlines</td><td>Asymmetric, builds pressure</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>Duration Handling</h3>
+  <p class="desc">
+    For events with duration (not point events), we use a convolution of the kernel with a rectangular pulse:
+  </p>
+  <div class="math">
+    $$D_i(t) = \begin{cases} 1 & \text{if } t_{\text{start},i} \leq t \leq t_{\text{end},i} \\ 0 & \text{otherwise} \end{cases}$$
+  </div>
+  <p class="desc">
+    The amplitude represents "energy cost per unit time." A 3-hour meeting with energy_cost=0.8 contributes $0.8$ to the load intensity for its entire duration, plus shadow contributions before and after.
+  </p>
+</section>
+
+<section class="full-width">
+  <h2>5. What the Y-Axis Represents</h2>
+
+  <div class="grid grid-3">
+    <div>
+      <h3>Option A: Time Commitment <span class="tag core">basic</span></h3>
+      <p class="desc">Y = hours committed per unit time (density). Simple but ignores cognitive variation.</p>
+      <div class="math">$$\lambda(t) = \sum_i D_i(t)$$</div>
+      <p class="note">Max theoretical = 1.0 (100% scheduled)</p>
+    </div>
+
+    <div>
+      <h3>Option B: Cognitive Load <span class="tag adv">recommended</span></h3>
+      <p class="desc">Y = weighted cognitive demand. Accounts for event intensity and type.</p>
+      <div class="math">$$\lambda(t) = \sum_i w_i \cdot D_i(t)$$</div>
+      <p class="note">Allows "overload" &gt; 1.0 for high-demand periods</p>
+    </div>
+
+    <div>
+      <h3>Option C: Capacity Remaining <span class="tag eff">actionable</span></h3>
+      <p class="desc">Y = available capacity after scheduled load.</p>
+      <div class="math">$$C(t) = C_{\max}(t) - \lambda(t)$$</div>
+      <p class="note">Where $C_{\max}(t)$ varies by time of day (circadian rhythm)</p>
+    </div>
+  </div>
+</section>
+
+<section class="full-width">
+  <h2>6. Frequency Discovery via Spectral Analysis</h2>
+
+  <div class="grid grid-2">
+    <div>
+      <h3>Fourier Transform Approach</h3>
+      <p class="desc">
+        Apply FFT to the continuous load signal to extract frequency components:
+      </p>
+      <div class="math">
+        $$\hat{\lambda}(f) = \int_{-\infty}^{\infty} \lambda(t) \cdot e^{-2\pi i f t} \, dt$$
+      </div>
+      <p class="desc">
+        Peaks in $|\hat{\lambda}(f)|$ reveal dominant periodicities. Expected discoveries:
+      </p>
+      <ul>
+        <li>$f = 1/7$ days$^{-1}$ — weekly cycle</li>
+        <li>$f = 1/1$ days$^{-1}$ — daily cycle</li>
+        <li>$f = 1/14$ days$^{-1}$ — biweekly patterns</li>
+        <li>$f = 1/30$ days$^{-1}$ — monthly rhythms</li>
+      </ul>
+    </div>
+
+    <div>
+      <h3>Wavelet Transform Approach <span class="tag adv">advanced</span></h3>
+      <p class="desc">
+        For non-stationary patterns (rhythms that change over time), use wavelet analysis:
+      </p>
+      <div class="math">
+        $$W(a, b) = \frac{1}{\sqrt{a}} \int \lambda(t) \cdot \psi^*\left(\frac{t-b}{a}\right) dt$$
+      </div>
+      <p class="desc">
+        Provides time-frequency localization. Can detect:
+      </p>
+      <ul>
+        <li>When patterns emerge or disappear</li>
+        <li>Seasonal variations in workload</li>
+        <li>Transient stress periods</li>
+        <li>Phase shifts in daily rhythms</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Autocorrelation for Hidden Cycles</h3>
+  <p class="desc">
+    Autocorrelation reveals periodicities even in noisy data by measuring signal similarity at different time lags:
+  </p>
+  <div class="math">
+    $$R(\tau) = \frac{1}{T} \int_0^T \lambda(t) \cdot \lambda(t + \tau) \, dt$$
+  </div>
+  <p class="desc">
+    Peaks in $R(\tau)$ indicate cycle lengths. Useful for discovering patterns you didn't know existed (e.g., "your stress peaks every 11 days").
+  </p>
+</section>
+
+<section class="full-width">
+  <h2>7. The Interference Model: What Happens When Rhythms Collide</h2>
+
+  <div class="grid grid-2">
+    <div>
+      <h3>Beat Frequency Mathematics</h3>
+      <p class="desc">
+        When two periodic patterns with frequencies $f_1$ and $f_2$ combine:
+      </p>
+      <div class="math">
+        $$f_{\text{beat}} = |f_1 - f_2|$$
+      </div>
+      <p class="desc">
+        For calendar rhythms, this predicts "alignment moments"—when multiple cycles constructively interfere:
+      </p>
+      <ul>
+        <li>Weekly meeting + monthly review = beat every ~5 weeks</li>
+        <li>Biweekly sprint + quarterly deadline = alignment points</li>
+      </ul>
+      <p class="note">
+        Constructive interference = overload. Destructive = cancellation (rare in calendars since events don't "cancel" each other).
+      </p>
+    </div>
+
+    <div>
+      <h3>Superposition vs. Saturation</h3>
+      <p class="desc">
+        Pure superposition: $\lambda_{\text{total}}(t) = \sum_i \lambda_i(t)$
+      </p>
+      <p class="desc">
+        But humans have capacity limits. Use a saturation function:
+      </p>
+      <div class="math">
+        $$\lambda_{\text{effective}}(t) = C_{\max} \cdot \tanh\left(\frac{\lambda_{\text{total}}(t)}{C_{\max}}\right)$$
+      </div>
+      <p class="desc">
+        Or apply queuing theory: when load approaches capacity, "queue depth" (backlog) grows nonlinearly. Response time degrades according to:
+      </p>
+      <div class="math">
+        $$W = \frac{\rho}{1 - \rho}$$
+      </div>
+      <p class="desc">where $\rho = \lambda / \mu$ (utilization). At 90% utilization, wait time explodes.</p>
+    </div>
+  </div>
+</section>
+
+<section class="full-width">
+  <h2>8. Capacity Modeling: Queuing Theory Integration</h2>
+
+  <div class="grid grid-3">
+    <div>
+      <h3>Little's Law</h3>
+      <div class="math">$$L = \lambda \cdot W$$</div>
+      <p class="desc">
+        Average items in system = arrival rate x time in system. For calendars: Backlog = Task arrival rate x Time to complete.
+      </p>
+    </div>
+
+    <div>
+      <h3>Utilization</h3>
+      <div class="math">$$\rho = \frac{\lambda}{\mu}$$</div>
+      <p class="desc">
+        Load divided by capacity. $\rho > 1$ means unsustainable—queue grows without bound.
+      </p>
+    </div>
+
+    <div>
+      <h3>Response Time</h3>
+      <div class="math">$$R = S \cdot \frac{1}{1 - \rho}$$</div>
+      <p class="desc">
+        Service time scaled by utilization factor. Explains why everything feels harder when overloaded.
+      </p>
+    </div>
+  </div>
+
+  <h3>Practical Capacity Model</h3>
+  <pre>
+capacity_model = {
+  // Daily capacity varies by circadian rhythm
+  base_capacity: 8,  // hours of productive work
+
+  // Circadian multiplier (0-1) by hour of day
+  circadian_curve: [0.2, 0.1, 0.05, ...],  // midnight-6am low
+
+  // Cognitive load degradation over time
+  fatigue_factor: t => 1 - 0.02 * hours_worked(t),
+
+  // Recovery rate during breaks
+  recovery_rate: 0.15  // per 15-min break
+}</pre>
+</section>
+
+<section class="full-width">
+  <h2>9. Meaningful Outputs & Insights</h2>
+
+  <div class="grid grid-2">
+    <div>
+      <h3>Beat Prediction <span class="tag warn">warning</span></h3>
+      <p class="desc">"All your major cycles align in 3 weeks."</p>
+      <p class="desc">Algorithm: Find LCM of detected periods, predict next alignment. Score by combined amplitude.</p>
+
+      <h3>Trend Detection <span class="tag core">core</span></h3>
+      <p class="desc">"Your weekly load has increased 15% over past month."</p>
+      <p class="desc">Algorithm: Linear regression on weekly load averages. Alert on significant slopes.</p>
+
+      <h3>Pattern Discovery <span class="tag new">discovery</span></h3>
+      <p class="desc">"You have a hidden 14-day stress cycle."</p>
+      <p class="desc">Algorithm: Autocorrelation peaks + spectral analysis. Surface unexpected periodicities.</p>
+    </div>
+
+    <div>
+      <h3>Capacity Forecast <span class="tag eff">actionable</span></h3>
+      <p class="desc">"18 hours of slack before overload this week."</p>
+      <p class="desc">Algorithm: Integrate $(C_{\max}(t) - \lambda(t))$ over forecast window.</p>
+
+      <h3>Rhythm Health Score <span class="tag adv">advanced</span></h3>
+      <p class="desc">"Weekly pattern regularity: 72% (high variance)."</p>
+      <p class="desc">Algorithm: Measure phase consistency of weekly signal. High variance = irregular schedule.</p>
+
+      <h3>Burnout Risk <span class="tag warn">warning</span></h3>
+      <p class="desc">"Utilization has exceeded 85% for 3 consecutive weeks."</p>
+      <p class="desc">Algorithm: Track rolling utilization. Alert when sustained high load detected.</p>
+    </div>
+  </div>
+</section>
+
+<section class="full-width">
+  <h2>10. Implementation Algorithm</h2>
+
+  <pre>
+// STEP 1: Ingest calendar events
+function ingestCalendar(events: CalendarEvent[]): LoadSignal {
+  const resolution = 15 * 60 * 1000;  // 15-minute bins
+  const signal = new Float32Array(timeRange / resolution);
+
+  for (const event of events) {
+    const weight = computeWeight(event);
+    const kernel = selectKernel(event.type);
+    const shadows = computeShadows(event);
+
+    // Add main event
+    applyKernel(signal, event.start, event.end, weight, kernel);
+
+    // Add shadows
+    for (const shadow of shadows) {
+      applyKernel(signal, shadow.start, shadow.end, shadow.weight, kernel);
+    }
+  }
+
+  return signal;
+}
+
+// STEP 2: Frequency analysis
+function analyzeFrequencies(signal: LoadSignal): FrequencySpectrum {
+  // Apply FFT
+  const fft = new FFT(signal.length);
+  const spectrum = fft.forward(signal);
+
+  // Find peaks
+  const peaks = findPeaks(spectrum, {
+    minHeight: 0.1,
+    minDistance: 1  // at least 1 day apart
+  });
+
+  // Identify known rhythms
+  const rhythms = peaks.map(peak => ({
+    frequency: peak.frequency,
+    amplitude: peak.amplitude,
+    period: 1 / peak.frequency,
+    type: classifyRhythm(1 / peak.frequency)  // daily, weekly, etc.
+  }));
+
+  return { raw: spectrum, rhythms };
+}
+
+// STEP 3: Compute interference
+function predictInterference(rhythms: Rhythm[]): BeatPrediction[] {
+  const beats = [];
+
+  for (let i = 0; i < rhythms.length; i++) {
+    for (let j = i + 1; j < rhythms.length; j++) {
+      const beatFreq = Math.abs(rhythms[i].frequency - rhythms[j].frequency);
+      const beatPeriod = 1 / beatFreq;
+      const amplitude = rhythms[i].amplitude * rhythms[j].amplitude;
+
+      beats.push({
+        sources: [rhythms[i], rhythms[j]],
+        period: beatPeriod,
+        nextPeak: findNextPeak(beatPeriod),
+        severity: amplitude
+      });
+    }
+  }
+
+  return beats.sort((a, b) => b.severity - a.severity);
+}
+
+// STEP 4: Capacity analysis
+function analyzeCapacity(signal: LoadSignal, capacity: CapacityModel): CapacityReport {
+  const utilization = [];
+  const slack = [];
+
+  for (let t = 0; t < signal.length; t++) {
+    const cap = capacity.atTime(t);
+    const load = signal[t];
+
+    utilization.push(load / cap);
+    slack.push(Math.max(0, cap - load));
+  }
+
+  return {
+    avgUtilization: mean(utilization),
+    peakUtilization: max(utilization),
+    totalSlack: sum(slack),
+    burnoutRisk: utilization.filter(u => u > 0.85).length / utilization.length
+  };
+}</pre>
+</section>
+
+<section class="full-width">
+  <h2>11. Edge Cases & Handling</h2>
+
+  <table>
+    <tr><th>Edge Case</th><th>Problem</th><th>Solution</th></tr>
+    <tr><td>Recurring events with exceptions</td><td>Base pattern vs actual</td><td>Expand recurrence, apply exceptions, then analyze</td></tr>
+    <tr><td>All-day events</td><td>Duration ambiguous</td><td>Classify as "background load" with low weight, spread over working hours</td></tr>
+    <tr><td>Tentative vs confirmed</td><td>Uncertainty in schedule</td><td>Weight tentative at 0.5x; use probabilistic model</td></tr>
+    <tr><td>Travel time</td><td>Implicit time cost</td><td>Add shadow events based on location delta or explicit travel blocks</td></tr>
+    <tr><td>Energy vs time</td><td>1hr meeting != 1hr deep work</td><td>Energy multipliers by event type (meetings = 1.2x, admin = 0.6x)</td></tr>
+    <tr><td>Context switching</td><td>Fragmentation cost</td><td>Add 10-min shadow between different-type events</td></tr>
+    <tr><td>Empty calendar</td><td>No signal to analyze</td><td>Return baseline rhythms from historical data or defaults</td></tr>
+    <tr><td>Sparse data</td><td>FFT needs density</td><td>Use wavelet analysis; interpolate gaps</td></tr>
+  </table>
+</section>
+
+<section class="full-width">
+  <h2>12. Visualization Strategy</h2>
+
+  <div class="grid grid-2">
+    <div>
+      <h3>Time Domain View</h3>
+      <p class="desc">
+        X-axis: Time (hours/days/weeks). Y-axis: Load intensity. Show:
+      </p>
+      <ul>
+        <li>Raw signal as filled area</li>
+        <li>Capacity line as overlay</li>
+        <li>Slack as inverse fill</li>
+        <li>Event types as color layers</li>
+      </ul>
+    </div>
+
+    <div>
+      <h3>Frequency Domain View</h3>
+      <p class="desc">
+        X-axis: Period (log scale). Y-axis: Amplitude. Show:
+      </p>
+      <ul>
+        <li>Power spectrum as bar/line chart</li>
+        <li>Annotated peaks with period labels</li>
+        <li>Reference lines for common rhythms</li>
+        <li>Beat frequencies as secondary markers</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>The 3D Interference Visualization</h3>
+  <p class="desc">
+    The original "beat frequency" concept as a 3D surface: X = time, Y = frequency component, Z = amplitude. Interference patterns appear as ridge lines where multiple frequencies constructively combine. This is essentially a spectrogram or scalogram visualization.
+  </p>
+</section>
+
+<section class="full-width">
+  <h2>13. Prior Art & References</h2>
+
+  <div class="grid grid-3">
+    <div>
+      <h3>Time Tracking Tools</h3>
+      <p class="desc">
+        <strong>RescueTime:</strong> Automatic tracking, classifies apps as productive/distracting. No frequency analysis.
+      </p>
+      <p class="desc">
+        <strong>Toggl:</strong> Manual tracking, project-based. Good for billing, not pattern discovery.
+      </p>
+      <p class="desc">
+        <strong>Microsoft Viva:</strong> Calendar analytics for burnout detection. Uses simple heuristics (overtime, meeting hours).
+      </p>
+    </div>
+
+    <div>
+      <h3>Academic Research</h3>
+      <p class="desc">
+        <strong>Chronobiology:</strong> Mathematical models of circadian rhythms using ODEs and coupled oscillators.
+      </p>
+      <p class="desc">
+        <strong>Spike Train Analysis:</strong> Kernel density estimation for neural firing rates—directly applicable methodology.
+      </p>
+      <p class="desc">
+        <strong>Queuing Theory:</strong> Well-established capacity planning frameworks from operations research.
+      </p>
+    </div>
+
+    <div>
+      <h3>Signal Processing</h3>
+      <p class="desc">
+        <strong>FFT:</strong> O(n log n) frequency decomposition. Standard in DSP libraries.
+      </p>
+      <p class="desc">
+        <strong>Wavelets:</strong> Time-frequency localization. Good for non-stationary calendar patterns.
+      </p>
+      <p class="desc">
+        <strong>Autocorrelation:</strong> Hidden periodicity detection. Robust to noise.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="bib">
+  <h2>Sources</h2>
+  <ol>
+    <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6375788/">Mathematical modeling of circadian rhythms</a> — PMC/NIH, 2019</li>
+    <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2940025/">Kernel bandwidth optimization in spike rate estimation</a> — PMC/NIH, 2010</li>
+    <li><a href="https://www.frontiersin.org/journals/integrative-neuroscience/articles/10.3389/fnint.2018.00010/full">The Times of Our Lives: Interaction Among Different Biological Periodicities</a> — Frontiers in Integrative Neuroscience, 2018</li>
+    <li><a href="https://en.wikipedia.org/wiki/Little's_law">Little's Law</a> — Wikipedia</li>
+    <li><a href="https://en.wikipedia.org/wiki/Beat_(acoustics)">Beat (acoustics)</a> — Wikipedia</li>
+    <li><a href="https://medium.com/hackernoon/why-capacity-planning-needs-queueing-theory-without-the-hard-math-342a851e215c">Why Capacity Planning Needs Queueing Theory</a> — HackerNoon</li>
+    <li><a href="https://letsdatascience.com/periodicity-detecting-rhythms-in-data/">Periodicity: Detecting Rhythms in Data</a> — Let's Data Science</li>
+    <li><a href="https://www.mathworks.com/help/signal/ug/find-periodicity-using-autocorrelation.html">Find Periodicity Using Autocorrelation</a> — MATLAB Documentation</li>
+    <li><a href="https://medium.com/pythoneers/wavelet-transform-a-practical-approach-to-time-frequency-analysis-662bdadeb08b">Wavelet Transform: A Practical Approach to Time-Frequency Analysis</a> — Medium</li>
+    <li><a href="https://www.nature.com/articles/s41598-024-68889-4">Unraveling the interplay between mental workload, occupational fatigue, physiological responses and cognitive performance</a> — Nature Scientific Reports, 2024</li>
+    <li><a href="https://www.worklytics.co/blog/outlook-calendar-analytics-the-hidden-driver-of-productivity-in-the-modern-workplace">Outlook Calendar Analytics: The Hidden Driver of Productivity</a> — Worklytics</li>
+    <li><a href="https://www.researchgate.net/publication/387089791_Leveraging_Machine_Learning_for_Predictive_Workload_Management_to_Combat_Employee_Burnout_in_Tech_Companies">Leveraging Machine Learning for Predictive Workload Management to Combat Employee Burnout</a> — ResearchGate</li>
+    <li><a href="https://courses.lumenlearning.com/suny-physics/chapter/16-10-superposition-and-interference/">Superposition and Interference</a> — Lumen Physics</li>
+    <li><a href="https://matthew-brett.github.io/teaching/smoothing_intro.html">An introduction to smoothing</a> — Matthew Brett Tutorial</li>
+  </ol>
+</section>
+
+<section class="full-width">
+  <h2>14. Next Steps for Implementation</h2>
+
+  <ol>
+    <li><strong>Build signal construction module</strong> — Implement KDE with multiple kernel types</li>
+    <li><strong>Integrate FFT library</strong> — Use fft.js or similar for browser-based analysis</li>
+    <li><strong>Create capacity model</strong> — Define circadian curves and fatigue factors</li>
+    <li><strong>Design visualization layer</strong> — Time domain, frequency domain, and 3D spectrogram views</li>
+    <li><strong>Connect to calendar API</strong> — Google Calendar, Outlook, iCal import</li>
+    <li><strong>Build insight engine</strong> — Implement beat prediction, trend detection, burnout risk algorithms</li>
+    <li><strong>User testing</strong> — Validate that discovered patterns match user intuition</li>
+  </ol>
+</section>
+
+</body>
+</html>

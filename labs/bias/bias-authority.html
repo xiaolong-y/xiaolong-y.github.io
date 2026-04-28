@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authority Bias</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-blue);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .experiment-area {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .scenario-label {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .quote-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .quote-card {
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .quote-card.revealed {
+      border-color: var(--fx-orange);
+    }
+
+    .avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--fx-base-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .quote-content {
+      flex-grow: 1;
+    }
+
+    .quote-author {
+      font-size: 0.9em;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .quote-credential {
+      font-size: 0.75em;
+      color: var(--fx-blue);
+      margin-bottom: 8px;
+    }
+
+    .quote-credential.irrelevant {
+      color: var(--fx-orange);
+    }
+
+    .quote-text {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      font-style: italic;
+      margin-bottom: 12px;
+    }
+
+    .trust-rating {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .trust-label {
+      font-size: 0.7em;
+      color: var(--fx-base-700);
+    }
+
+    .trust-slider {
+      flex-grow: 1;
+      max-width: 200px;
+      -webkit-appearance: none;
+      height: 6px;
+      background: var(--fx-base-200);
+      border-radius: 3px;
+    }
+
+    .trust-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: var(--fx-blue);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .trust-value {
+      font-size: 0.8em;
+      font-weight: 500;
+      width: 30px;
+    }
+
+    .same-badge {
+      display: none;
+      font-size: 0.7em;
+      background: var(--fx-orange);
+      color: var(--fx-paper);
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-left: 8px;
+    }
+
+    .revealed .same-badge {
+      display: inline;
+    }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      justify-content: center;
+    }
+
+    button {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8em;
+      padding: 10px 16px;
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--fx-base-900);
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+
+    button:hover {
+      border-color: var(--fx-blue);
+      color: var(--fx-blue);
+    }
+
+    button.primary {
+      background: var(--fx-blue);
+      border-color: var(--fx-blue);
+      color: var(--fx-paper);
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-blue);
+    }
+
+    .results-chart {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      background: var(--fx-paper);
+      border-radius: 4px;
+    }
+
+    .results-chart.visible {
+      display: block;
+    }
+
+    .chart-title {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .bar-label {
+      font-size: 0.7em;
+      width: 100px;
+      color: var(--fx-base-700);
+    }
+
+    .bar-container {
+      flex-grow: 1;
+      height: 20px;
+      background: var(--fx-base-200);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--fx-blue);
+      transition: width 0.5s ease;
+    }
+
+    .bar-value {
+      font-size: 0.75em;
+      width: 40px;
+      text-align: right;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.2em; }
+      .quote-card { flex-direction: column; }
+      .avatar { align-self: center; }
+
+      /* Mobile button fixes - ensure 44x44px touch targets */
+      button {
+        font-size: 14px;
+        padding: 14px 20px;
+        min-height: 44px;
+      }
+
+      /* Mobile text size fixes - minimum 14px */
+      .trust-label {
+        font-size: 14px;
+      }
+
+      .bar-label {
+        font-size: 14px;
+      }
+
+      .quote-credential {
+        font-size: 14px;
+      }
+
+      .bar-value {
+        font-size: 14px;
+      }
+
+      .scenario-label {
+        font-size: 14px;
+      }
+
+      .chart-title {
+        font-size: 14px;
+      }
+
+      .same-badge {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../../cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Authority Bias</h1>
+    <p class="description">
+      We trust people with titles, credentials, and uniforms—even when their expertise is irrelevant to the topic. A Nobel physicist's investment advice isn't more valid than anyone else's, yet we treat it that way. Rate how trustworthy each piece of advice seems.
+    </p>
+
+    <div class="experiment-area" id="experimentArea">
+      <p class="scenario-label">FINANCIAL ADVICE: "Diversify your portfolio across multiple asset classes."</p>
+
+      <div class="quote-cards" id="quoteCards">
+        <div class="quote-card" data-id="1">
+          <div class="avatar">👤</div>
+          <div class="quote-content">
+            <div class="quote-author">John Smith <span class="same-badge">SAME</span></div>
+            <div class="quote-credential">No credentials listed</div>
+            <div class="quote-text">"Diversify your portfolio across multiple asset classes to reduce risk and improve long-term returns."</div>
+            <div class="trust-rating">
+              <span class="trust-label">Trust:</span>
+              <input type="range" class="trust-slider" min="0" max="100" value="50" data-id="1">
+              <span class="trust-value" id="trustValue1">50</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="quote-card" data-id="2">
+          <div class="avatar">🎓</div>
+          <div class="quote-content">
+            <div class="quote-author">Dr. Sarah Chen, PhD <span class="same-badge">SAME</span></div>
+            <div class="quote-credential irrelevant">Professor of Quantum Physics, MIT</div>
+            <div class="quote-text">"Diversify your portfolio across multiple asset classes to reduce risk and improve long-term returns."</div>
+            <div class="trust-rating">
+              <span class="trust-label">Trust:</span>
+              <input type="range" class="trust-slider" min="0" max="100" value="50" data-id="2">
+              <span class="trust-value" id="trustValue2">50</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="quote-card" data-id="3">
+          <div class="avatar">💼</div>
+          <div class="quote-content">
+            <div class="quote-author">Michael Roberts, CFA <span class="same-badge">SAME</span></div>
+            <div class="quote-credential">Certified Financial Analyst, Goldman Sachs</div>
+            <div class="quote-text">"Diversify your portfolio across multiple asset classes to reduce risk and improve long-term returns."</div>
+            <div class="trust-rating">
+              <span class="trust-label">Trust:</span>
+              <input type="range" class="trust-slider" min="0" max="100" value="50" data-id="3">
+              <span class="trust-value" id="trustValue3">50</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-chart" id="resultsChart">
+        <div class="chart-title">Your Trust Ratings (same advice, different sources)</div>
+        <div class="bar-row">
+          <span class="bar-label">No credentials</span>
+          <div class="bar-container"><div class="bar-fill" id="bar1" style="width: 0%"></div></div>
+          <span class="bar-value" id="barVal1">-</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Physics PhD</span>
+          <div class="bar-container"><div class="bar-fill" id="bar2" style="width: 0%; background: var(--fx-orange)"></div></div>
+          <span class="bar-value" id="barVal2">-</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Finance expert</span>
+          <div class="bar-container"><div class="bar-fill" id="bar3" style="width: 0%"></div></div>
+          <span class="bar-value" id="barVal3">-</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="button-row">
+        <button class="primary" onclick="revealTruth()">Reveal Truth</button>
+        <button onclick="tryNewScenario()">New Scenario</button>
+        <button onclick="resetRatings()">Reset Ratings</button>
+      </div>
+      <p class="insight" id="insight">Rate how trustworthy each piece of advice seems. Don't overthink it—go with your gut reaction.</p>
+    </div>
+  </div>
+
+  <script>
+    const scenarios = [
+      {
+        topic: 'FINANCIAL ADVICE',
+        advice: 'Diversify your portfolio across multiple asset classes to reduce risk and improve long-term returns.',
+        sources: [
+          { name: 'John Smith', credential: 'No credentials listed', relevant: false, avatar: '👤' },
+          { name: 'Dr. Sarah Chen, PhD', credential: 'Professor of Quantum Physics, MIT', relevant: false, avatar: '🎓' },
+          { name: 'Michael Roberts, CFA', credential: 'Certified Financial Analyst, Goldman Sachs', relevant: true, avatar: '💼' }
+        ]
+      },
+      {
+        topic: 'HEALTH ADVICE',
+        advice: 'Get 7-9 hours of sleep per night and maintain a consistent sleep schedule.',
+        sources: [
+          { name: 'Emma Wilson', credential: 'No credentials listed', relevant: false, avatar: '👤' },
+          { name: 'Dr. James Park, MD', credential: 'Orthopedic Surgeon, Mayo Clinic', relevant: false, avatar: '🩺' },
+          { name: 'Dr. Lisa Chen, MD', credential: 'Sleep Medicine Specialist, Stanford', relevant: true, avatar: '😴' }
+        ]
+      },
+      {
+        topic: 'CAREER ADVICE',
+        advice: 'Focus on developing transferable skills rather than chasing job titles.',
+        sources: [
+          { name: 'Alex Rivera', credential: 'No credentials listed', relevant: false, avatar: '👤' },
+          { name: 'Prof. David Kim', credential: 'Nobel Laureate in Chemistry', relevant: false, avatar: '🏆' },
+          { name: 'Jennifer Walsh', credential: 'VP of Talent, Google', relevant: true, avatar: '💼' }
+        ]
+      }
+    ];
+
+    let currentScenario = 0;
+    let revealed = false;
+    let ratings = { 1: 50, 2: 50, 3: 50 };
+
+    function loadScenario(index) {
+      const scenario = scenarios[index];
+      document.querySelector('.scenario-label').textContent = `${scenario.topic}: "${scenario.advice}"`;
+
+      const cards = document.querySelectorAll('.quote-card');
+      scenario.sources.forEach((source, i) => {
+        const card = cards[i];
+        card.querySelector('.avatar').textContent = source.avatar;
+        card.querySelector('.quote-author').innerHTML = source.name + ' <span class="same-badge">SAME</span>';
+        card.querySelector('.quote-credential').textContent = source.credential;
+        card.querySelector('.quote-credential').className = 'quote-credential' + (source.relevant ? '' : ' irrelevant');
+        card.querySelector('.quote-text').textContent = '"' + scenario.advice + '"';
+      });
+    }
+
+    function tryNewScenario() {
+      currentScenario = (currentScenario + 1) % scenarios.length;
+      loadScenario(currentScenario);
+      resetRatings();
+      revealed = false;
+      document.getElementById('experimentArea').classList.remove('show-revealed');
+      document.querySelectorAll('.quote-card').forEach(c => c.classList.remove('revealed'));
+      document.getElementById('resultsChart').classList.remove('visible');
+      updateInsight('new');
+    }
+
+    function resetRatings() {
+      ratings = { 1: 50, 2: 50, 3: 50 };
+      document.querySelectorAll('.trust-slider').forEach(slider => {
+        slider.value = 50;
+      });
+      document.querySelectorAll('.trust-value').forEach(el => {
+        el.textContent = '50';
+      });
+      updateInsight('reset');
+    }
+
+    function revealTruth() {
+      revealed = true;
+      document.querySelectorAll('.quote-card').forEach(c => c.classList.add('revealed'));
+      document.getElementById('resultsChart').classList.add('visible');
+
+      // Update chart
+      document.getElementById('bar1').style.width = ratings[1] + '%';
+      document.getElementById('bar2').style.width = ratings[2] + '%';
+      document.getElementById('bar3').style.width = ratings[3] + '%';
+      document.getElementById('barVal1').textContent = ratings[1];
+      document.getElementById('barVal2').textContent = ratings[2];
+      document.getElementById('barVal3').textContent = ratings[3];
+
+      updateInsight('revealed');
+    }
+
+    function updateInsight(type) {
+      const insight = document.getElementById('insight');
+      const scenario = scenarios[currentScenario];
+
+      if (type === 'revealed') {
+        const credentialBoost = ratings[2] - ratings[1];
+        const relevantBoost = ratings[3] - ratings[1];
+
+        if (credentialBoost > 10) {
+          insight.textContent = `You rated the irrelevant credential (Physics PhD) ${credentialBoost} points higher than no credential—for identical advice! Authority bias: credentials impress us even when irrelevant.`;
+        } else if (relevantBoost > credentialBoost) {
+          insight.textContent = `Good news: You weighted relevant expertise (${ratings[3]}) higher than irrelevant credentials (${ratings[2]}). But even irrelevant titles often boost perceived credibility.`;
+        } else {
+          insight.textContent = `All three sources gave IDENTICAL advice. Yet credentials changed how trustworthy it felt. The advice's validity doesn't change based on who says it.`;
+        }
+      } else if (type === 'new') {
+        insight.textContent = `New scenario: ${scenario.topic}. Rate how trustworthy each version of the same advice seems.`;
+      } else {
+        insight.textContent = 'Rate how trustworthy each piece of advice seems. Don\'t overthink it—go with your gut reaction.';
+      }
+    }
+
+    // Slider event listeners
+    document.querySelectorAll('.trust-slider').forEach(slider => {
+      slider.addEventListener('input', (e) => {
+        const id = e.target.dataset.id;
+        const value = e.target.value;
+        ratings[id] = parseInt(value);
+        document.getElementById('trustValue' + id).textContent = value;
+      });
+    });
+
+    // Initialize
+    loadScenario(0);
+  </script>
+</body>
+</html>

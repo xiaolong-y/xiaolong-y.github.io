@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option G: Topographic Pressure Map</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --paper: #FFFCF0;
+      --ink: #100F0F;
+      --muted: #6F6E69;
+      --line: #DAD8CE;
+
+      /* Elevation colors - valley to peak */
+      --valley: #66800B;
+      --valley-light: #879A39;
+      --mid: #D0A215;
+      --high: #DA702C;
+      --peak: #D14D41;
+
+      /* Contour line colors with opacity */
+      --contour-valley: rgba(102, 128, 11, 0.6);
+      --contour-valley-light: rgba(135, 154, 57, 0.5);
+      --contour-mid: rgba(208, 162, 21, 0.5);
+      --contour-high: rgba(218, 112, 44, 0.4);
+      --contour-peak: rgba(209, 77, 65, 0.3);
+    }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .map-container {
+      position: relative;
+      background: linear-gradient(
+        135deg,
+        rgba(102, 128, 11, 0.15) 0%,
+        rgba(135, 154, 57, 0.1) 30%,
+        rgba(208, 162, 21, 0.08) 60%,
+        rgba(218, 112, 44, 0.05) 100%
+      );
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      height: 500px;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    /* Grid lines for map effect */
+    .map-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 50px 50px;
+      opacity: 0.3;
+    }
+
+    /* Deadline peaks */
+    .peak {
+      position: absolute;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Concentric contour rings */
+    .contour {
+      position: absolute;
+      border-radius: 50%;
+      border: 2px solid;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Peak 1 - Large deadline, closer */
+    .peak-1 {
+      top: 35%;
+      left: 55%;
+    }
+
+    .peak-1 .contour-1 {
+      width: 320px;
+      height: 280px;
+      border-color: var(--contour-valley);
+      border-width: 1.5px;
+    }
+
+    .peak-1 .contour-2 {
+      width: 260px;
+      height: 220px;
+      border-color: var(--contour-valley-light);
+      border-width: 1.5px;
+    }
+
+    .peak-1 .contour-3 {
+      width: 200px;
+      height: 170px;
+      border-color: var(--contour-mid);
+      border-width: 2px;
+    }
+
+    .peak-1 .contour-4 {
+      width: 140px;
+      height: 120px;
+      border-color: var(--contour-high);
+      border-width: 2px;
+    }
+
+    .peak-1 .contour-5 {
+      width: 80px;
+      height: 70px;
+      border-color: var(--peak);
+      border-width: 2.5px;
+    }
+
+    .peak-1 .summit {
+      width: 36px;
+      height: 36px;
+      background: radial-gradient(circle, var(--peak) 0%, rgba(209, 77, 65, 0.7) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: white;
+      box-shadow: 0 0 20px rgba(209, 77, 65, 0.5);
+    }
+
+    /* Peak 2 - Smaller deadline, further */
+    .peak-2 {
+      top: 60%;
+      left: 80%;
+    }
+
+    .peak-2 .contour-1 {
+      width: 200px;
+      height: 180px;
+      border-color: var(--contour-valley);
+      border-width: 1.5px;
+    }
+
+    .peak-2 .contour-2 {
+      width: 150px;
+      height: 135px;
+      border-color: var(--contour-valley-light);
+      border-width: 1.5px;
+    }
+
+    .peak-2 .contour-3 {
+      width: 100px;
+      height: 90px;
+      border-color: var(--contour-mid);
+      border-width: 2px;
+    }
+
+    .peak-2 .contour-4 {
+      width: 50px;
+      height: 45px;
+      border-color: var(--contour-high);
+      border-width: 2px;
+    }
+
+    .peak-2 .summit {
+      width: 28px;
+      height: 28px;
+      background: radial-gradient(circle, var(--peak) 0%, rgba(209, 77, 65, 0.7) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: white;
+      box-shadow: 0 0 15px rgba(209, 77, 65, 0.4);
+    }
+
+    /* Peak 3 - Steep deadline (tightly packed contours) */
+    .peak-3 {
+      top: 25%;
+      left: 85%;
+    }
+
+    .peak-3 .contour-1 {
+      width: 120px;
+      height: 110px;
+      border-color: var(--contour-valley-light);
+      border-width: 1.5px;
+    }
+
+    .peak-3 .contour-2 {
+      width: 95px;
+      height: 88px;
+      border-color: var(--contour-mid);
+      border-width: 1.5px;
+    }
+
+    .peak-3 .contour-3 {
+      width: 70px;
+      height: 65px;
+      border-color: var(--contour-high);
+      border-width: 2px;
+    }
+
+    .peak-3 .contour-4 {
+      width: 45px;
+      height: 42px;
+      border-color: var(--peak);
+      border-width: 2px;
+    }
+
+    .peak-3 .summit {
+      width: 24px;
+      height: 24px;
+      background: radial-gradient(circle, var(--peak) 0%, rgba(209, 77, 65, 0.7) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.55rem;
+      font-weight: 600;
+      color: white;
+      box-shadow: 0 0 12px rgba(209, 77, 65, 0.4);
+    }
+
+    /* Valley area - low pressure zone */
+    .valley {
+      position: absolute;
+      top: 65%;
+      left: 25%;
+      width: 180px;
+      height: 140px;
+      background: radial-gradient(ellipse, rgba(102, 128, 11, 0.25) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .valley-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.7rem;
+      color: var(--valley);
+      font-weight: 500;
+      text-align: center;
+      background: rgba(255, 252, 240, 0.8);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    /* Today marker */
+    .today-marker {
+      position: absolute;
+      top: 50%;
+      left: 8%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .today-pin {
+      width: 20px;
+      height: 20px;
+      background: var(--ink);
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      position: relative;
+    }
+
+    .today-pin::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background: var(--paper);
+      border-radius: 50%;
+    }
+
+    .today-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--ink);
+      background: var(--paper);
+      padding: 2px 6px;
+      border-radius: 3px;
+      border: 1px solid var(--ink);
+    }
+
+    /* Deadline labels */
+    .deadline-label {
+      position: absolute;
+      font-size: 0.65rem;
+      color: var(--muted);
+      background: rgba(255, 252, 240, 0.9);
+      padding: 2px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .peak-1-label {
+      top: 10%;
+      left: 48%;
+    }
+
+    .peak-2-label {
+      top: 82%;
+      left: 75%;
+    }
+
+    .peak-3-label {
+      top: 8%;
+      left: 80%;
+    }
+
+    /* Time axis */
+    .time-axis {
+      position: absolute;
+      bottom: 20px;
+      left: 8%;
+      right: 5%;
+      height: 2px;
+      background: var(--muted);
+    }
+
+    .time-tick {
+      position: absolute;
+      bottom: -8px;
+      width: 1px;
+      height: 8px;
+      background: var(--muted);
+    }
+
+    .time-label {
+      position: absolute;
+      bottom: -25px;
+      font-size: 0.6rem;
+      color: var(--muted);
+      transform: translateX(-50%);
+    }
+
+    .tick-0 { left: 0; }
+    .tick-1 { left: 25%; }
+    .tick-2 { left: 50%; }
+    .tick-3 { left: 75%; }
+    .tick-4 { left: 100%; }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    .legend-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .legend-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .legend-color {
+      width: 20px;
+      height: 12px;
+      border-radius: 2px;
+    }
+
+    .color-valley { background: var(--valley); }
+    .color-valley-light { background: var(--valley-light); }
+    .color-mid { background: var(--mid); }
+    .color-high { background: var(--high); }
+    .color-peak { background: var(--peak); }
+
+    .legend-contour {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .contour-sample {
+      display: flex;
+      gap: 2px;
+    }
+
+    .contour-line {
+      width: 16px;
+      height: 2px;
+      border-radius: 1px;
+    }
+
+    .contour-wide .contour-line { margin-right: 6px; }
+    .contour-tight .contour-line { margin-right: 1px; }
+
+    /* Insight box */
+    .insight {
+      background: rgba(102, 128, 11, 0.1);
+      border: 1px solid var(--valley);
+      border-radius: 6px;
+      padding: 16px 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .insight-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--valley);
+      margin-bottom: 8px;
+    }
+
+    .insight-text {
+      font-size: 0.75rem;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .map-container {
+        height: 400px;
+      }
+
+      .peak-1 .contour-1 { width: 240px; height: 210px; }
+      .peak-1 .contour-2 { width: 195px; height: 165px; }
+      .peak-1 .contour-3 { width: 150px; height: 128px; }
+      .peak-1 .contour-4 { width: 105px; height: 90px; }
+      .peak-1 .contour-5 { width: 60px; height: 52px; }
+
+      .peak-2 .contour-1 { width: 150px; height: 135px; }
+      .peak-2 .contour-2 { width: 112px; height: 101px; }
+      .peak-2 .contour-3 { width: 75px; height: 68px; }
+      .peak-2 .contour-4 { width: 38px; height: 34px; }
+
+      .valley {
+        width: 120px;
+        height: 100px;
+      }
+
+      .legend {
+        gap: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Option G: Topographic Pressure Map</h1>
+      <p class="subtitle">Deadlines as mountain peaks. Elevation = pressure. Contour density = urgency gradient.</p>
+    </header>
+
+    <div class="map-container">
+      <div class="map-grid"></div>
+
+      <!-- Valley (low pressure zone) -->
+      <div class="valley">
+        <span class="valley-label">Free Time<br>Valley</span>
+      </div>
+
+      <!-- Peak 1 - Major deadline -->
+      <div class="peak peak-1">
+        <div class="contour contour-1"></div>
+        <div class="contour contour-2"></div>
+        <div class="contour contour-3"></div>
+        <div class="contour contour-4"></div>
+        <div class="contour contour-5"></div>
+        <div class="summit">DDL</div>
+      </div>
+      <span class="deadline-label peak-1-label">Paper Submission<br>Day 18</span>
+
+      <!-- Peak 2 - Secondary deadline -->
+      <div class="peak peak-2">
+        <div class="contour contour-1"></div>
+        <div class="contour contour-2"></div>
+        <div class="contour contour-3"></div>
+        <div class="contour contour-4"></div>
+        <div class="summit">DDL</div>
+      </div>
+      <span class="deadline-label peak-2-label">Grant Report | Day 35</span>
+
+      <!-- Peak 3 - Steep deadline (tightly packed) -->
+      <div class="peak peak-3">
+        <div class="contour contour-1"></div>
+        <div class="contour contour-2"></div>
+        <div class="contour contour-3"></div>
+        <div class="contour contour-4"></div>
+        <div class="summit">DDL</div>
+      </div>
+      <span class="deadline-label peak-3-label">Review Due | Day 28</span>
+
+      <!-- Today marker -->
+      <div class="today-marker">
+        <div class="today-pin"></div>
+        <span class="today-label">TODAY</span>
+      </div>
+
+      <!-- Time axis -->
+      <div class="time-axis">
+        <div class="time-tick tick-0"><span class="time-label">Day 0</span></div>
+        <div class="time-tick tick-1"><span class="time-label">Day 15</span></div>
+        <div class="time-tick tick-2"><span class="time-label">Day 30</span></div>
+        <div class="time-tick tick-3"><span class="time-label">Day 45</span></div>
+        <div class="time-tick tick-4"><span class="time-label">Day 60</span></div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-section">
+        <span class="legend-title">Elevation (Pressure)</span>
+        <div class="legend-item">
+          <span class="legend-color color-valley"></span>
+          Valley floor - breathing room
+        </div>
+        <div class="legend-item">
+          <span class="legend-color color-valley-light"></span>
+          Low hills - moderate availability
+        </div>
+        <div class="legend-item">
+          <span class="legend-color color-mid"></span>
+          Mid elevation - getting busy
+        </div>
+        <div class="legend-item">
+          <span class="legend-color color-high"></span>
+          High slopes - pressure building
+        </div>
+        <div class="legend-item">
+          <span class="legend-color color-peak"></span>
+          Peak - deadline
+        </div>
+      </div>
+
+      <div class="legend-section">
+        <span class="legend-title">Contour Spacing</span>
+        <div class="legend-item">
+          <div class="contour-sample contour-wide">
+            <span class="contour-line" style="background: var(--muted);"></span>
+            <span class="contour-line" style="background: var(--muted);"></span>
+            <span class="contour-line" style="background: var(--muted);"></span>
+          </div>
+          Wide = gradual pressure
+        </div>
+        <div class="legend-item">
+          <div class="contour-sample contour-tight">
+            <span class="contour-line" style="background: var(--peak);"></span>
+            <span class="contour-line" style="background: var(--peak);"></span>
+            <span class="contour-line" style="background: var(--peak);"></span>
+          </div>
+          Tight = rapid pressure increase
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-title">Reading the Map</div>
+      <p class="insight-text">
+        Just like reading a topographic map: closely spaced contour lines indicate steep terrain.
+        Here, tight contours mean pressure escalates rapidly as you approach the deadline.
+        The "Review Due" peak (Day 28) has the steepest gradient - a cliff of urgency.
+        Plan your route through the valleys, and start climbing early for the steep peaks.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

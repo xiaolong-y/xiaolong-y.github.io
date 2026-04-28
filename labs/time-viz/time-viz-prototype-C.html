@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option C: Vertical Day Strips</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --paper: #FFFCF0;
+      --ink: #100F0F;
+      --muted: #878580;
+      --line: #E6E4D9;
+      --panel: #F2F0E5;
+      --orange: #DA702C;
+      --purple: #8B7EC8;
+      --red: #D14D41;
+      --red-tint: rgba(209, 77, 65, 0.08);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--ink);
+    }
+
+    .legend {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      font-size: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+    }
+
+    .legend-swatch.meetings { background: var(--orange); }
+    .legend-swatch.admin { background: var(--purple); }
+    .legend-swatch.available { background: var(--paper); border: 1px solid var(--line); }
+    .legend-swatch.deadline { background: var(--red-tint); border-bottom: 2px solid var(--red); }
+    .legend-swatch.past { background: var(--muted); opacity: 0.4; }
+
+    .calendar {
+      display: flex;
+      gap: 2px;
+      align-items: flex-end;
+    }
+
+    .week-separator {
+      width: 1px;
+      height: 260px;
+      background: var(--line);
+      margin: 0 4px;
+    }
+
+    .day-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 28px;
+    }
+
+    .day-strip {
+      width: 24px;
+      height: 240px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      overflow: hidden;
+      background: var(--paper);
+    }
+
+    .day-column.weekend .day-strip {
+      background: var(--panel);
+    }
+
+    .day-column.past .day-strip {
+      opacity: 0.5;
+    }
+
+    .day-column.past .day-strip::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--muted);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .day-column.past {
+      position: relative;
+    }
+
+    .day-column.deadline .day-strip {
+      background: var(--red-tint);
+      border-color: var(--red);
+      border-width: 1px 1px 3px 1px;
+    }
+
+    .block {
+      flex: 1;
+      min-height: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .block:last-child {
+      border-bottom: none;
+    }
+
+    .block.meeting { background: var(--orange); }
+    .block.admin { background: var(--purple); }
+    .block.empty { background: transparent; }
+
+    .day-label {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    .day-column.deadline .day-label {
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    .day-column.today .day-label {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .day-column.today .day-strip {
+      border-color: var(--ink);
+      border-width: 2px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Option C: Vertical Day Strips</h1>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-swatch meetings"></div>
+      <span>Meetings</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch admin"></div>
+      <span>Admin/Social</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch available"></div>
+      <span>Available</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch deadline"></div>
+      <span>Deadline</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch past"></div>
+      <span>Past</span>
+    </div>
+  </div>
+
+  <div class="calendar">
+    <!-- Week 1 (Past) -->
+    <div class="day-column past">
+      <div class="day-strip">
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block admin"></div>
+        <div class="block empty"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">Mon</div>
+    </div>
+    <div class="day-column past">
+      <div class="day-strip">
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block admin"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">Tue</div>
+    </div>
+    <div class="day-column past">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block admin"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">Wed</div>
+    </div>
+    <div class="day-column past">
+      <div class="day-strip">
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">Thu</div>
+    </div>
+    <div class="day-column past">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block meeting"></div>
+        <div class="block admin"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">Fri</div>
+    </div>
+    <div class="day-column past weekend">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">Sat</div>
+    </div>
+    <div class="day-column past weekend">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">Sun</div>
+    </div>
+
+    <div class="week-separator"></div>
+
+    <!-- Week 2 (Current) -->
+    <div class="day-column past">
+      <div class="day-strip">
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block admin"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">9</div>
+    </div>
+    <div class="day-column past">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block admin"></div>
+        <div class="block admin"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">10</div>
+    </div>
+    <div class="day-column past">
+      <div class="day-strip">
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">11</div>
+    </div>
+    <div class="day-column today">
+      <div class="day-strip">
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">12</div>
+    </div>
+    <div class="day-column deadline">
+      <div class="day-strip">
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block admin"></div>
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">13</div>
+    </div>
+    <div class="day-column weekend">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block admin"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">Sat</div>
+    </div>
+    <div class="day-column weekend">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">Sun</div>
+    </div>
+
+    <div class="week-separator"></div>
+
+    <!-- Week 3 -->
+    <div class="day-column">
+      <div class="day-strip">
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">16</div>
+    </div>
+    <div class="day-column">
+      <div class="day-strip">
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block admin"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">17</div>
+    </div>
+    <div class="day-column">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">18</div>
+    </div>
+    <div class="day-column">
+      <div class="day-strip">
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block admin"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">19</div>
+    </div>
+    <div class="day-column deadline">
+      <div class="day-strip">
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block admin"></div>
+        <div class="block admin"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">20</div>
+    </div>
+    <div class="day-column weekend">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">Sat</div>
+    </div>
+    <div class="day-column weekend">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">Sun</div>
+    </div>
+
+    <div class="week-separator"></div>
+
+    <!-- Week 4 -->
+    <div class="day-column">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">23</div>
+    </div>
+    <div class="day-column">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block admin"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">24</div>
+    </div>
+    <div class="day-column weekend">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">25</div>
+    </div>
+    <div class="day-column">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">26</div>
+    </div>
+    <div class="day-column">
+      <div class="day-strip">
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block admin"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">27</div>
+    </div>
+    <div class="day-column weekend">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">Sat</div>
+    </div>
+    <div class="day-column weekend">
+      <div class="day-strip">
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">Sun</div>
+    </div>
+
+    <div class="week-separator"></div>
+
+    <!-- Week 5 (partial) -->
+    <div class="day-column">
+      <div class="day-strip">
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block meeting"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+        <div class="block empty"></div>
+      </div>
+      <div class="day-label">30</div>
+    </div>
+    <div class="day-column deadline">
+      <div class="day-strip">
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block admin"></div>
+        <div class="block meeting"></div>
+        <div class="block meeting"></div>
+        <div class="block admin"></div>
+        <div class="block meeting"></div>
+      </div>
+      <div class="day-label">31</div>
+    </div>
+  </div>
+</body>
+</html>

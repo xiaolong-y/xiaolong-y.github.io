@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option M: Pressure Systems | Time Visualization Prototype</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --paper: #FFFCF0;
+      --ink: #2D2B28;
+      --muted: #6F6E69;
+      --line: #DAD8CE;
+      --panel: #F2F0E5;
+
+      /* Weather colors */
+      --high-pressure: #24837B;
+      --high-light: #3AA99F;
+      --low-pressure: #D14D41;
+      --low-light: #E86B5E;
+      --neutral: #878681;
+      --isobar: #B7B5AC;
+      --front-warm: #DA702C;
+      --front-cold: #4385BE;
+
+      /* Map colors */
+      --land: #E8E6DB;
+      --water: #D4E6E3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #1C1B18;
+        --ink: #CECDC3;
+        --muted: #9F9D94;
+        --line: #403E3C;
+        --panel: #2D2B28;
+
+        --high-pressure: #3AA99F;
+        --high-light: #5DBDB3;
+        --low-pressure: #E86B5E;
+        --low-light: #F08B80;
+        --neutral: #9F9D94;
+        --isobar: #575653;
+        --front-warm: #F0934D;
+        --front-cold: #5A9DD0;
+
+        --land: #2D2B28;
+        --water: #1E2A28;
+      }
+    }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* Weather Map Container */
+    .weather-map {
+      background: var(--land);
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .map-title {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .map-date {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* SVG Map */
+    .pressure-map {
+      width: 100%;
+      height: 400px;
+      display: block;
+    }
+
+    /* Timeline */
+    .timeline {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 40px;
+      border-top: 2px solid var(--line);
+      background: var(--panel);
+      margin: -20px -20px 0 -20px;
+      margin-top: 0;
+    }
+
+    .timeline-marker {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .timeline-marker.current {
+      color: var(--high-pressure);
+      font-weight: 500;
+    }
+
+    .timeline-marker.storm {
+      color: var(--low-pressure);
+      font-weight: 500;
+    }
+
+    /* Forecast Panel */
+    .forecast-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+
+    .forecast-header {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .forecast-text {
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .forecast-text .warning {
+      color: var(--low-pressure);
+      font-weight: 500;
+    }
+
+    .forecast-text .calm {
+      color: var(--high-pressure);
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      padding: 16px 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .legend-symbol {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: 50%;
+    }
+
+    .legend-symbol.high {
+      background: var(--high-pressure);
+      color: var(--paper);
+    }
+
+    .legend-symbol.low {
+      background: var(--low-pressure);
+      color: var(--paper);
+    }
+
+    .legend-line {
+      width: 40px;
+      height: 3px;
+      border-radius: 2px;
+    }
+
+    .legend-line.warm-front {
+      background: var(--front-warm);
+      position: relative;
+    }
+
+    .legend-line.warm-front::after {
+      content: '';
+      position: absolute;
+      top: -3px;
+      right: 0;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--front-warm);
+    }
+
+    .legend-line.cold-front {
+      background: var(--front-cold);
+      position: relative;
+    }
+
+    .legend-line.cold-front::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 8px solid var(--front-cold);
+    }
+
+    .legend-line.isobar {
+      background: var(--isobar);
+      height: 2px;
+    }
+
+    /* Pressure readings */
+    .pressure-readings {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .reading-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 16px;
+    }
+
+    .reading-card.high {
+      border-left: 4px solid var(--high-pressure);
+    }
+
+    .reading-card.low {
+      border-left: 4px solid var(--low-pressure);
+    }
+
+    .reading-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .reading-value {
+      font-size: 1.5rem;
+      font-weight: 500;
+    }
+
+    .reading-card.high .reading-value {
+      color: var(--high-pressure);
+    }
+
+    .reading-card.low .reading-value {
+      color: var(--low-pressure);
+    }
+
+    .reading-detail {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Description */
+    .description {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.7;
+      padding: 16px 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .description p {
+      margin-bottom: 12px;
+    }
+
+    .description p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      body {
+        padding: 16px;
+      }
+
+      .pressure-map {
+        height: 300px;
+      }
+
+      .legend {
+        gap: 16px;
+      }
+
+      .timeline {
+        padding: 12px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Option M: Pressure Systems</h1>
+      <p class="subtitle">Weather map metaphor for deadline visualization</p>
+    </header>
+
+    <!-- Main Weather Map -->
+    <div class="weather-map">
+      <span class="map-title">Productivity Pressure Map</span>
+      <span class="map-date">4-Week Forecast</span>
+
+      <svg class="pressure-map" viewBox="0 0 800 350" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <!-- Gradients for pressure zones -->
+          <radialGradient id="highPressureGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" style="stop-color: var(--high-light); stop-opacity: 0.4" />
+            <stop offset="100%" style="stop-color: var(--high-light); stop-opacity: 0" />
+          </radialGradient>
+
+          <radialGradient id="lowPressureGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" style="stop-color: var(--low-light); stop-opacity: 0.5" />
+            <stop offset="100%" style="stop-color: var(--low-light); stop-opacity: 0" />
+          </radialGradient>
+
+          <radialGradient id="lowPressureGrad2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" style="stop-color: var(--low-light); stop-opacity: 0.6" />
+            <stop offset="100%" style="stop-color: var(--low-light); stop-opacity: 0" />
+          </radialGradient>
+
+          <!-- Arrow marker -->
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="var(--muted)" />
+          </marker>
+
+          <!-- Warm front semicircles -->
+          <marker id="warmFront" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+            <circle cx="4" cy="4" r="3" fill="var(--front-warm)" />
+          </marker>
+
+          <!-- Cold front triangles -->
+          <marker id="coldFront" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+            <polygon points="5,0 10,10 0,10" fill="var(--front-cold)" />
+          </marker>
+        </defs>
+
+        <!-- Background water areas (decorative) -->
+        <ellipse cx="100" cy="300" rx="80" ry="40" fill="var(--water)" opacity="0.5" />
+        <ellipse cx="700" cy="80" rx="60" ry="30" fill="var(--water)" opacity="0.5" />
+
+        <!-- High Pressure Zone 1 (Current - clear skies) -->
+        <circle cx="120" cy="150" r="100" fill="url(#highPressureGrad)" />
+
+        <!-- High Pressure Zone 2 (Week 2) -->
+        <circle cx="350" cy="220" r="70" fill="url(#highPressureGrad)" />
+
+        <!-- Low Pressure Zone 1 (Storm approaching - Week 3) -->
+        <circle cx="550" cy="140" r="90" fill="url(#lowPressureGrad)" />
+
+        <!-- Low Pressure Zone 2 (Major storm - Week 4) -->
+        <circle cx="720" cy="200" r="110" fill="url(#lowPressureGrad2)" />
+
+        <!-- Isobar lines - outermost to innermost around H1 -->
+        <path d="M 40,150 Q 40,60 120,60 Q 200,60 200,150 Q 200,240 120,240 Q 40,240 40,150"
+              fill="none" stroke="var(--isobar)" stroke-width="1" stroke-dasharray="4,4" opacity="0.6" />
+        <path d="M 60,150 Q 60,85 120,85 Q 180,85 180,150 Q 180,215 120,215 Q 60,215 60,150"
+              fill="none" stroke="var(--isobar)" stroke-width="1" stroke-dasharray="4,4" opacity="0.7" />
+        <path d="M 80,150 Q 80,110 120,110 Q 160,110 160,150 Q 160,190 120,190 Q 80,190 80,150"
+              fill="none" stroke="var(--isobar)" stroke-width="1" opacity="0.8" />
+
+        <!-- Isobar lines around H2 -->
+        <ellipse cx="350" cy="220" rx="55" ry="45" fill="none" stroke="var(--isobar)" stroke-width="1" stroke-dasharray="4,4" opacity="0.6" />
+        <ellipse cx="350" cy="220" rx="40" ry="32" fill="none" stroke="var(--isobar)" stroke-width="1" opacity="0.7" />
+
+        <!-- Isobar lines around L1 -->
+        <path d="M 470,140 Q 470,60 550,60 Q 630,60 630,140 Q 630,220 550,220 Q 470,220 470,140"
+              fill="none" stroke="var(--isobar)" stroke-width="1" stroke-dasharray="4,4" opacity="0.6" />
+        <ellipse cx="550" cy="140" rx="60" ry="55" fill="none" stroke="var(--isobar)" stroke-width="1" opacity="0.7" />
+
+        <!-- Isobar lines around L2 (major storm) -->
+        <ellipse cx="720" cy="200" rx="95" ry="85" fill="none" stroke="var(--isobar)" stroke-width="1" stroke-dasharray="4,4" opacity="0.5" />
+        <ellipse cx="720" cy="200" rx="75" ry="65" fill="none" stroke="var(--isobar)" stroke-width="1" stroke-dasharray="4,4" opacity="0.6" />
+        <ellipse cx="720" cy="200" rx="55" ry="45" fill="none" stroke="var(--isobar)" stroke-width="1" opacity="0.7" />
+        <ellipse cx="720" cy="200" rx="35" ry="28" fill="none" stroke="var(--isobar)" stroke-width="1.5" opacity="0.9" />
+
+        <!-- Warm Front (H1 to L1) -->
+        <path d="M 180,170 Q 280,180 350,165 Q 420,150 480,145"
+              fill="none" stroke="var(--front-warm)" stroke-width="3"
+              stroke-linecap="round" />
+        <!-- Warm front semicircles -->
+        <circle cx="230" cy="175" r="6" fill="var(--front-warm)" />
+        <circle cx="300" cy="172" r="6" fill="var(--front-warm)" />
+        <circle cx="370" cy="160" r="6" fill="var(--front-warm)" />
+        <circle cx="430" cy="150" r="6" fill="var(--front-warm)" />
+
+        <!-- Cold Front (L1 to L2) -->
+        <path d="M 610,170 Q 650,190 680,200"
+              fill="none" stroke="var(--front-cold)" stroke-width="3"
+              stroke-linecap="round" />
+        <!-- Cold front triangles -->
+        <polygon points="630,178 625,188 635,188" fill="var(--front-cold)" />
+        <polygon points="660,192 655,202 665,202" fill="var(--front-cold)" />
+
+        <!-- Flow arrows showing pressure movement -->
+        <path d="M 160,120 Q 220,100 280,110" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.6" />
+        <path d="M 160,180 Q 240,200 310,195" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.6" />
+        <path d="M 400,200 Q 450,180 490,160" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.6" />
+        <path d="M 390,250 Q 500,280 620,250" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.6" />
+
+        <!-- High Pressure Markers -->
+        <g class="pressure-marker high">
+          <circle cx="120" cy="150" r="22" fill="var(--high-pressure)" />
+          <text x="120" y="157" text-anchor="middle" fill="var(--paper)" font-size="20" font-weight="600">H</text>
+          <text x="120" y="185" text-anchor="middle" fill="var(--high-pressure)" font-size="11" font-weight="500">1024</text>
+        </g>
+
+        <g class="pressure-marker high">
+          <circle cx="350" cy="220" r="18" fill="var(--high-pressure)" />
+          <text x="350" y="226" text-anchor="middle" fill="var(--paper)" font-size="16" font-weight="600">H</text>
+          <text x="350" y="250" text-anchor="middle" fill="var(--high-pressure)" font-size="10" font-weight="500">1018</text>
+        </g>
+
+        <!-- Low Pressure Markers -->
+        <g class="pressure-marker low">
+          <circle cx="550" cy="140" r="20" fill="var(--low-pressure)" />
+          <text x="550" y="147" text-anchor="middle" fill="var(--paper)" font-size="18" font-weight="600">L</text>
+          <text x="550" y="172" text-anchor="middle" fill="var(--low-pressure)" font-size="11" font-weight="500">998</text>
+        </g>
+
+        <g class="pressure-marker low">
+          <circle cx="720" cy="200" r="24" fill="var(--low-pressure)" />
+          <text x="720" y="208" text-anchor="middle" fill="var(--paper)" font-size="22" font-weight="600">L</text>
+          <text x="720" y="238" text-anchor="middle" fill="var(--low-pressure)" font-size="12" font-weight="600">985</text>
+        </g>
+
+        <!-- Labels for deadlines -->
+        <text x="550" y="90" text-anchor="middle" fill="var(--low-pressure)" font-size="10" font-weight="500">Paper Draft</text>
+        <text x="720" y="135" text-anchor="middle" fill="var(--low-pressure)" font-size="11" font-weight="600">FINAL</text>
+        <text x="720" y="148" text-anchor="middle" fill="var(--low-pressure)" font-size="10">SUBMISSION</text>
+
+        <!-- Labels for calm periods -->
+        <text x="120" y="115" text-anchor="middle" fill="var(--high-pressure)" font-size="10" font-weight="500">Clear Skies</text>
+        <text x="350" y="185" text-anchor="middle" fill="var(--high-pressure)" font-size="9">Window</text>
+
+        <!-- Decorative storm symbols near L2 -->
+        <text x="680" cy="170" fill="var(--low-pressure)" font-size="14" opacity="0.7">*</text>
+        <text x="750" cy="165" fill="var(--low-pressure)" font-size="12" opacity="0.6">*</text>
+        <text x="765" cy="230" fill="var(--low-pressure)" font-size="16" opacity="0.5">*</text>
+      </svg>
+
+      <!-- Timeline -->
+      <div class="timeline">
+        <div class="timeline-marker current">
+          <div style="font-weight: 500;">Today</div>
+          <div>Dec 18</div>
+        </div>
+        <div class="timeline-marker">
+          <div>Week 1</div>
+          <div>Dec 25</div>
+        </div>
+        <div class="timeline-marker">
+          <div>Week 2</div>
+          <div>Jan 1</div>
+        </div>
+        <div class="timeline-marker storm">
+          <div>Week 3</div>
+          <div>Jan 8</div>
+        </div>
+        <div class="timeline-marker storm">
+          <div style="font-weight: 600;">Week 4</div>
+          <div>Jan 15</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Forecast Panel -->
+    <div class="forecast-panel">
+      <div class="forecast-header">Extended Forecast</div>
+      <p class="forecast-text">
+        <span class="calm">Currently under high pressure (1024 mb) - optimal working conditions.</span>
+        A warm front is advancing from the west, bringing a <span class="warning">low-pressure system (998 mb)</span>
+        with the paper draft deadline on Jan 8. Pressure continues falling toward a
+        <span class="warning">severe low (985 mb)</span> for final submission on Jan 15.
+        <strong>Recommendation:</strong> Use current clear window to build momentum before storms arrive.
+      </p>
+    </div>
+
+    <!-- Pressure Readings -->
+    <div class="pressure-readings">
+      <div class="reading-card high">
+        <div class="reading-label">Current Pressure</div>
+        <div class="reading-value">1024 mb</div>
+        <div class="reading-detail">Clear skies, calm conditions</div>
+      </div>
+      <div class="reading-card low">
+        <div class="reading-label">Storm 1 (Jan 8)</div>
+        <div class="reading-value">998 mb</div>
+        <div class="reading-detail">Paper draft due</div>
+      </div>
+      <div class="reading-card low">
+        <div class="reading-label">Storm 2 (Jan 15)</div>
+        <div class="reading-value">985 mb</div>
+        <div class="reading-detail">Final submission - severe</div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item">
+        <span class="legend-symbol high">H</span>
+        <span>High Pressure (calm, available time)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-symbol low">L</span>
+        <span>Low Pressure (deadline storm)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-line warm-front"></span>
+        <span>Warm Front (pressure falling)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-line cold-front"></span>
+        <span>Cold Front (rapid change)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-line isobar"></span>
+        <span>Isobars (pressure gradient)</span>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="description">
+      <p>
+        <strong>The Weather Map Metaphor:</strong> Deadlines create "low-pressure systems" that pull
+        your energy and attention toward them, like storms drawing in air. Available time appears
+        as "high-pressure zones" - calm, clear periods for focused work.
+      </p>
+      <p>
+        The pressure gradient shows how urgency increases as deadlines approach. Warm fronts indicate
+        gradually building pressure, while cold fronts mark sudden transitions. Isobars reveal the
+        intensity - tighter spacing means steeper pressure drops and more turbulent conditions ahead.
+      </p>
+      <p>
+        <strong>Reading the Map:</strong> Look for high-pressure windows to schedule deep work.
+        Watch fronts approaching to anticipate when calm periods will end. The lower the pressure
+        number, the more intense the deadline "storm."
+      </p>
+    </div>
+  </div>
+</body>
+</html>

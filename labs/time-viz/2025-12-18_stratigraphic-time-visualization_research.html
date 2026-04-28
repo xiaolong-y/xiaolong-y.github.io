@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stratigraphic Time Visualization | Research Report | 2025-12-18</title>
+
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --paper: #FFFCF0; --ink: #2D2B28; --muted: #6F6E69;
+    --line: #DAD8CE; --panel: #F2F0E5;
+    --blue: #205EA6; --cyan: #24837B; --green: #66800B;
+    --orange: #BC5215; --red: #AF3029; --purple: #5E409D;
+    --yellow: #AD8301; --magenta: #A02F6F;
+    --base: 11px; --lh: 1.45; --sp: 8px; --radius: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #100F0F; --ink: #CECDC3; --muted: #878580;
+      --line: #403E3C; --panel: #1C1B1A;
+      --blue: #4385BE; --cyan: #3AA99F; --green: #879A39;
+      --orange: #DA702C; --red: #D14D41; --purple: #8B7EC8;
+      --yellow: #D0A215; --magenta: #CE5D97;
+    }
+  }
+
+  body {
+    font: var(--base)/var(--lh) 'IBM Plex Mono', ui-monospace, monospace;
+    background: var(--paper); color: var(--ink);
+    padding: var(--sp); max-width: 2400px; margin: 0 auto;
+  }
+
+  h1 { font-size: 1.15em; font-weight: 500; border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: var(--sp); }
+  h2 { font-size: 1em; font-weight: 500; border-left: 3px solid var(--blue); padding-left: 6px; margin: var(--sp) 0 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  h3 { font-size: 0.9em; font-weight: 500; color: var(--muted); margin: 6px 0 3px; }
+
+  section { margin-bottom: var(--sp); padding: var(--sp); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: var(--sp); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 900px) { .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .grid, .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.9em; margin: 4px 0; }
+  th { text-align: left; padding: 3px 5px; border-bottom: 2px solid var(--line); color: var(--blue); font-weight: 400; }
+  td { padding: 3px 5px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: none; }
+
+  pre { font-size: 0.82em; background: var(--paper); padding: 4px 6px; border: 1px solid var(--line); border-radius: var(--radius); overflow-x: auto; margin: 4px 0; white-space: pre-wrap; }
+  code { font-family: inherit; background: var(--paper); padding: 1px 3px; border-radius: var(--radius); }
+
+  figure { margin: 4px 0; }
+  figure img { max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+  figure.viz { background: var(--paper); padding: 4px; border: 1px solid var(--line); border-radius: var(--radius); text-align: center; }
+  figure.viz img, figure.viz svg { border: none; display: block; margin: 0 auto; }
+  figcaption { font-size: 0.8em; color: var(--muted); margin-top: 4px; text-align: center; }
+
+  .note { color: var(--muted); font-size: 0.82em; margin: 3px 0; }
+  .desc { font-size: 0.82em; margin: 4px 0; line-height: 1.35; }
+  .warn { color: var(--orange); } .err { color: var(--red); } .ok { color: var(--green); }
+
+  .tag { display: inline-block; padding: 1px 4px; border-radius: var(--radius); font-size: 0.73em; font-weight: 500; margin-left: 4px; border: 1px solid; vertical-align: middle; }
+  .tag.core { border-color: var(--blue); color: var(--blue); }
+  .tag.adv { border-color: var(--purple); color: var(--purple); }
+  .tag.eff { border-color: var(--green); color: var(--green); }
+  .tag.warn { border-color: var(--orange); color: var(--orange); }
+  .tag.new { border-color: var(--cyan); color: var(--cyan); }
+
+  ul, ol { margin: 3px 0 3px 16px; font-size: 0.9em; }
+  li { margin: 2px 0; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { color: var(--cyan); text-decoration: underline; }
+
+  .bib { font-size: 0.82em; background: var(--paper); padding: var(--sp); border: 1px solid var(--line); margin-top: 10px; }
+  .bib h2 { border-left-color: var(--purple); }
+  .bib ol { margin-left: 20px; }
+
+  .full-width { grid-column: 1 / -1; }
+
+  .encoding-demo { display: flex; gap: 8px; align-items: flex-end; margin: 8px 0; }
+  .stratum-sample { width: 60px; border-radius: 2px; }
+  .stratum-spacious { height: 40px; background: linear-gradient(180deg, #D4CDB8, #BEB59C); }
+  .stratum-moderate { height: 24px; background: linear-gradient(180deg, #A89E88, #928868); }
+  .stratum-compressed { height: 12px; background: linear-gradient(180deg, #7A7060, #625A44); }
+  .stratum-unconformity { height: 4px; background: var(--red); width: 60px; }
+
+  @media print {
+    body { font-size: 9pt; padding: 0; }
+    section { break-inside: avoid; }
+    .grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  </style>
+</head>
+<body>
+
+<h1>Stratigraphic Time Visualization: Research and Design Recommendations <span class="tag core">research</span></h1>
+
+<!-- Executive Summary -->
+<section class="full-width">
+  <h2>Executive Summary</h2>
+  <p class="desc">This research report analyzes how geological stratigraphy principles can be applied to time and task visualization, examining the effectiveness of the sediment/core sample metaphor for representing temporal pressure and workload. The research synthesizes findings from geological science, temporal visualization research, cognitive psychology, and UX design to provide actionable recommendations for enhancing the stratigraphic core visualization prototype.</p>
+  <p class="desc" style="margin-top: 6px;"><strong>Key Finding:</strong> The geological stratigraphy metaphor is cognitively powerful because it leverages familiar physical concepts (depth = age, thickness = deposition rate, unconformities = disruptions) that map intuitively to temporal task management (depth = past, thickness = available time, unconformities = deadlines). However, accessibility and additional encoding dimensions require careful attention.</p>
+</section>
+
+<div class="grid grid-3">
+
+<!-- Section 1: Geological Stratigraphy Principles -->
+<section>
+  <h2>1. Geological Stratigraphy Principles <span class="tag core">foundation</span></h2>
+
+  <h3>Core Laws of Stratigraphy</h3>
+  <p class="desc">Four fundamental principles from geology directly apply to time visualization:</p>
+  <ul>
+    <li><strong>Superposition:</strong> Oldest layers at bottom, youngest at top - maps directly to "now at top, past at bottom"</li>
+    <li><strong>Original Horizontality:</strong> Layers deposited horizontally - consistent layer width maintains readability</li>
+    <li><strong>Lateral Continuity:</strong> Strata extend until terminated - layers should span the full visualization width</li>
+    <li><strong>Cross-Cutting:</strong> Features that cut across are younger - unconformities represent later events (deadlines)</li>
+  </ul>
+
+  <h3>Stratigraphic Log Conventions</h3>
+  <p class="desc">Geologists use standardized visual conventions:</p>
+  <ul>
+    <li>Vertical scale shows depth/elevation</li>
+    <li>Grain size plotted horizontally (coarse = high energy, fine = calm)</li>
+    <li>Color/pattern indicates lithology type</li>
+    <li>Fining-upward sequences show environmental change</li>
+  </ul>
+  <p class="note">Source: <a href="https://pressbooks.bccampus.ca/earthhistorylab/chapter/part-ii-interpreting-stratigraphy-in-a-stratigraphic-log/">Laboratory Manual for Earth History</a></p>
+</section>
+
+<section>
+  <h2>Unconformities: A Key Metaphor <span class="tag adv">advanced</span></h2>
+
+  <h3>Types of Unconformities</h3>
+  <p class="desc">Understanding unconformity types enriches the deadline metaphor:</p>
+  <table>
+    <tr><th>Type</th><th>Geological Meaning</th><th>Task Metaphor</th></tr>
+    <tr><td>Angular</td><td>Tilted layers below, horizontal above</td><td>Major pivot/restructure</td></tr>
+    <tr><td>Disconformity</td><td>Parallel layers with erosion gap</td><td>Standard deadline</td></tr>
+    <tr><td>Nonconformity</td><td>Sediment on igneous/metamorphic rock</td><td>New project start</td></tr>
+    <tr><td>Paraconformity</td><td>Hidden gap, no visible erosion</td><td>Invisible pressure point</td></tr>
+  </table>
+
+  <h3>Visual Significance</h3>
+  <p class="desc">Unconformities represent "missing time" - periods of erosion or non-deposition. In task visualization, this maps to deadline boundaries where normal workflow is interrupted. The current red line encoding is effective but could be enhanced with varied styles for different deadline types.</p>
+  <p class="note">Source: <a href="https://geo.libretexts.org/Sandboxes/ajones124_at_sierracollege.edu/Geology_of_California_(DRAFT)/05:_Geologic_Time/5.02:_Unconformities">Geosciences LibreTexts</a></p>
+</section>
+
+<section>
+  <h2>Core Sample Interpretation <span class="tag core">foundation</span></h2>
+
+  <h3>Visual Cues Geologists Use</h3>
+  <p class="desc">Key visual indicators in sediment cores that can inform the design:</p>
+  <ul>
+    <li><strong>Color:</strong> Darker = more organic matter or different minerals; lighter = carbonate-rich or oxidized</li>
+    <li><strong>Grain Size:</strong> Coarse = high energy/rapid deposition; fine = calm/slow</li>
+    <li><strong>Layering:</strong> Distinct boundaries = environmental changes</li>
+    <li><strong>Texture:</strong> Laminated vs. bioturbated (disturbed by organisms)</li>
+    <li><strong>Fossils/Inclusions:</strong> Markers of specific time periods</li>
+  </ul>
+
+  <h3>Interpretation Workflow</h3>
+  <p class="desc">Scientists first describe lithology visually, then analyze with instruments. The transparent tube allows immediate observation before detailed analysis - a principle that applies to dashboard visualization.</p>
+  <p class="note">Source: <a href="https://serc.carleton.edu/eet/cores/part_1.html">SERC Carleton</a></p>
+</section>
+
+<!-- Section 2: Time Visualization Research -->
+<section>
+  <h2>2. Time Visualization Research <span class="tag core">foundation</span></h2>
+
+  <h3>Timeline Shape Effectiveness</h3>
+  <p class="desc">Research on timeline shapes shows:</p>
+  <ul>
+    <li><strong>Horizontal:</strong> Most common, aligns with left-to-right reading</li>
+    <li><strong>Vertical:</strong> Better for dialogue data, reading text in sequence</li>
+    <li><strong>Circular/Spiral:</strong> Best for cyclical/periodic data (seasons, schedules)</li>
+  </ul>
+  <p class="desc">The vertical orientation in the prototype is well-suited for the "depth = time" geological metaphor and allows natural reading of annotations.</p>
+
+  <h3>Key Finding</h3>
+  <p class="desc">"Timelines are commonly represented on a horizontal line, which is not necessarily the most effective way to visualize temporal event sequences." Vertical layouts excel when showing hierarchical or sequential relationships.</p>
+  <p class="note">Source: <a href="https://par.nsf.gov/servlets/purl/10157010">NSF Research Paper</a></p>
+</section>
+
+<section>
+  <h2>Layer-Based Perception <span class="tag adv">advanced</span></h2>
+
+  <h3>Stacked Visualization Challenges</h3>
+  <p class="desc">Research on stacked/layered visualizations reveals:</p>
+  <ul>
+    <li>Stream graphs distort perception - value appears at right angles to flow direction</li>
+    <li>Order of stacking affects perceived importance</li>
+    <li>Separate charts (small multiples) better for comparison across large visual spans</li>
+    <li>Shared-space techniques work for smaller spans with less clutter</li>
+  </ul>
+
+  <h3>Gestalt Principles Apply</h3>
+  <p class="desc">Effective temporal visualization leverages:</p>
+  <ul>
+    <li><strong>Proximity:</strong> Related items grouped together</li>
+    <li><strong>Continuity:</strong> Smooth transitions between states</li>
+    <li><strong>Common Fate:</strong> Elements that change together are perceived as related</li>
+  </ul>
+  <p class="note">Source: <a href="https://dl.acm.org/doi/10.1109/TVCG.2010.162">IEEE TVCG</a></p>
+</section>
+
+<section>
+  <h2>Visual Sedimentation <span class="tag new">precedent</span></h2>
+
+  <h3>A Related Technique</h3>
+  <p class="desc">"Visual Sedimentation" is a data visualization technique that uses the physical sedimentation metaphor for streaming data:</p>
+  <ul>
+    <li>New elements fall like sediment due to gravity</li>
+    <li>Objects aggregate into strata over time</li>
+    <li>Designed for monitoring data streams (tweets, email, network traffic)</li>
+    <li>Accommodates unpredictable data frequencies</li>
+  </ul>
+
+  <h3>Key Insight</h3>
+  <p class="desc">The technique clearly expresses chronological order while keeping aging data visible - directly applicable to task/time visualization.</p>
+  <p class="note">Source: <a href="https://www.aviz.fr/Research/VisualSedimentation">AVIZ INRIA</a></p>
+</section>
+
+<!-- Section 3: Workload Visualization -->
+<section>
+  <h2>3. Workload Visualization <span class="tag core">foundation</span></h2>
+
+  <h3>Resource Heat Maps</h3>
+  <p class="desc">Modern resource management uses heat maps to show:</p>
+  <ul>
+    <li>Overloaded vs. under-utilized resources</li>
+    <li>Color intensity = utilization level</li>
+    <li>Quick identification of workload imbalances</li>
+    <li>Proactive burnout prevention</li>
+  </ul>
+
+  <h3>Burnout Prevention Tools</h3>
+  <p class="desc">Apps like BurnoutGuard analyze:</p>
+  <ul>
+    <li>Stress levels and energy</li>
+    <li>Meeting load patterns</li>
+    <li>Work-life balance indicators</li>
+    <li>Combined calendar + stress visualization</li>
+  </ul>
+  <p class="desc">Research shows work stress contributes ~22% to burnout, workload ~21%, with 44% of workers citing high volume as primary cause.</p>
+  <p class="note">Source: <a href="https://burnoutguard.app/">BurnoutGuard</a></p>
+</section>
+
+<section>
+  <h2>GitHub Contribution Graph <span class="tag new">precedent</span></h2>
+
+  <h3>Design Elements</h3>
+  <p class="desc">The GitHub contribution graph is a widely recognized density/time visualization:</p>
+  <ul>
+    <li>Day-by-day breakdown in grid layout</li>
+    <li>Color intensity = contribution volume</li>
+    <li>Immediate pattern recognition</li>
+    <li>12-month rolling window</li>
+  </ul>
+
+  <h3>Lessons Learned</h3>
+  <ul>
+    <li><span class="ok">Strengths:</span> Intuitive, recognizable, compact</li>
+    <li><span class="err">Weaknesses:</span> Originally poor accessibility (contrast), small hit areas, keyboard inaccessibility</li>
+    <li><span class="ok">Improvements:</span> HTML table with ARIA roles, effort at keyboard access</li>
+  </ul>
+  <p class="note">Source: <a href="https://adrianroselli.com/2018/02/github-contributions-chart.html">Adrian Roselli</a></p>
+</section>
+
+<section>
+  <h2>Mood Tracking Apps <span class="tag new">precedent</span></h2>
+
+  <h3>Visualization Approaches</h3>
+  <p class="desc">Mood tracking apps use multiple visualization modalities:</p>
+  <ul>
+    <li><strong>Calendar View:</strong> Day-by-day mood colors ("year in pixels")</li>
+    <li><strong>Line Graphs:</strong> Mood trends over time</li>
+    <li><strong>Pie Charts:</strong> Overall mood distribution</li>
+    <li><strong>Correlation Charts:</strong> Mood vs. activities</li>
+  </ul>
+
+  <h3>Design Principles</h3>
+  <p class="desc">Effective mood UI design emphasizes:</p>
+  <ul>
+    <li>Simplicity and intuitiveness</li>
+    <li>Calm color palettes (reduce anxiety)</li>
+    <li>Minimal cognitive load</li>
+    <li>Pattern discovery through reflection</li>
+  </ul>
+  <p class="note">Source: <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5977660/">PMC Research</a></p>
+</section>
+
+<!-- Section 4: Cognitive & UX -->
+<section>
+  <h2>4. Cognitive Considerations <span class="tag adv">advanced</span></h2>
+
+  <h3>Visual Metaphor Effectiveness</h3>
+  <p class="desc">Research on visual metaphors shows:</p>
+  <ul>
+    <li><span class="ok">Benefit:</span> Help participants better remember information</li>
+    <li><span class="warn">Tradeoff:</span> Can slow visual search speed</li>
+    <li>Effectiveness depends on cognitive load ratio (information conveyed / mental effort)</li>
+  </ul>
+
+  <h3>Metaphor Design Guidelines</h3>
+  <ul>
+    <li>Successful metaphors <em>simplify</em>, not complicate</li>
+    <li>Leverage existing mental models (familiarity)</li>
+    <li>Avoid overwhelming with information</li>
+    <li>Mismatches cause cognitive friction</li>
+  </ul>
+  <p class="note">Source: <a href="https://arxiv.org/pdf/0809.0884">Risch, arXiv</a></p>
+</section>
+
+<section>
+  <h2>Affective Color Design <span class="tag adv">advanced</span></h2>
+
+  <h3>Color and Emotion</h3>
+  <p class="desc">Research on affective visualization shows color properties influence emotional interpretation:</p>
+  <ul>
+    <li><strong>Lightness:</strong> Light = calm, optimistic; Dark = intense, serious</li>
+    <li><strong>Chromaticity:</strong> Saturated = energetic; Desaturated = subdued</li>
+    <li><strong>Hue:</strong> Warm (red/orange) = urgency; Cool (blue/green) = calm</li>
+  </ul>
+
+  <h3>Application to Strata</h3>
+  <p class="desc">The current earth-tone palette (light = spacious, dark = compressed) aligns well with research. Consider:</p>
+  <ul>
+    <li>Light earth tones evoke calm, breathing room</li>
+    <li>Dark earth tones suggest depth, pressure, seriousness</li>
+    <li>Red unconformities create urgency without overwhelming</li>
+  </ul>
+  <p class="note">Source: <a href="https://dl.acm.org/doi/10.1145/3025453.3026041">CHI 2017</a></p>
+</section>
+
+<section>
+  <h2>Accessibility Requirements <span class="tag warn">critical</span></h2>
+
+  <h3>Color Vision Considerations</h3>
+  <p class="desc">~8% of men have some color blindness. Critical guidelines:</p>
+  <ul>
+    <li><strong>Use intensity variation:</strong> Colorblind users distinguish intensity well</li>
+    <li><strong>Avoid red-green:</strong> Use blue/orange or blue/brown instead</li>
+    <li><strong>Add secondary cues:</strong> Patterns, textures, labels, symbols</li>
+    <li><strong>Minimum contrast:</strong> 4.5:1 for normal text, 3:1 for large elements</li>
+  </ul>
+
+  <h3>Current Prototype Assessment</h3>
+  <ul>
+    <li><span class="ok">Good:</span> Earth tone gradient uses intensity (light to dark)</li>
+    <li><span class="warn">Concern:</span> Red unconformity relies solely on hue</li>
+    <li><span class="warn">Concern:</span> No texture/pattern differentiation for categories</li>
+  </ul>
+  <p class="note">Source: <a href="https://www.tableau.com/blog/examining-data-viz-rules-dont-use-red-green-together">Tableau</a></p>
+</section>
+
+<!-- Section 5: Enhancement Opportunities -->
+<section>
+  <h2>5. Enhancement Opportunities <span class="tag eff">actionable</span></h2>
+
+  <h3>Visual Encoding Dimensions</h3>
+  <p class="desc">Current prototype uses:</p>
+  <ul>
+    <li><strong>Height/Thickness:</strong> Time availability</li>
+    <li><strong>Color Intensity:</strong> Pressure level</li>
+    <li><strong>Red Lines:</strong> Deadlines</li>
+  </ul>
+
+  <h3>Untapped Dimensions</h3>
+  <table>
+    <tr><th>Dimension</th><th>Potential Encoding</th></tr>
+    <tr><td>Texture/Pattern</td><td>Task categories (work, personal, health)</td></tr>
+    <tr><td>Grain Size (width variation)</td><td>Energy/focus required</td></tr>
+    <tr><td>Inclusions (embedded dots)</td><td>Specific task markers</td></tr>
+    <tr><td>Bedding Angle</td><td>Flexibility/rigidity of schedule</td></tr>
+    <tr><td>Fossil Markers</td><td>Completed milestones</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>Interactive Features <span class="tag eff">actionable</span></h2>
+
+  <h3>Geological Tool Inspiration</h3>
+  <p class="desc">Professional stratigraphic software (CoreWall, WellCAD, PSICAT) offers:</p>
+  <ul>
+    <li>Zoom to see fine detail</li>
+    <li>Click layers for detailed metadata</li>
+    <li>Drag to adjust layer boundaries</li>
+    <li>Core image overlay with data curves</li>
+    <li>Multi-core correlation views</li>
+  </ul>
+
+  <h3>Recommended Interactions</h3>
+  <ul>
+    <li><strong>Hover:</strong> Show layer details (dates, tasks, pressure score)</li>
+    <li><strong>Click:</strong> Expand layer to show contained tasks</li>
+    <li><strong>Scroll/Zoom:</strong> Navigate through longer time spans</li>
+    <li><strong>Drag:</strong> Adjust time boundaries (planning mode)</li>
+    <li><strong>Filter:</strong> Show/hide task categories</li>
+  </ul>
+  <p class="note">Source: <a href="https://boscorf.org/core-repository/resources/software">BOSCORF</a></p>
+</section>
+
+<section>
+  <h2>Animation Possibilities <span class="tag new">enhancement</span></h2>
+
+  <h3>Sedimentation Animation</h3>
+  <p class="desc">Following the Visual Sedimentation technique:</p>
+  <ul>
+    <li>New tasks "fall" and settle into layers</li>
+    <li>Layers compress as time passes</li>
+    <li>Unconformities "cut through" with dramatic effect</li>
+    <li>Past layers visually "lithify" (solidify)</li>
+  </ul>
+
+  <h3>Transition Guidelines</h3>
+  <p class="desc">From UX research on animation:</p>
+  <ul>
+    <li>Duration: 200-500ms for state changes</li>
+    <li>Easing: ease-out for settling, ease-in-out for transitions</li>
+    <li>Avoid: jarring jumps, excessive motion</li>
+    <li>Purpose: convey meaning, not decoration</li>
+  </ul>
+  <p class="note">Source: <a href="https://www.nngroup.com/articles/animation-duration/">NN/g</a></p>
+</section>
+
+<!-- Section 6: Comparison Views -->
+<section>
+  <h2>6. Comparison Views <span class="tag eff">actionable</span></h2>
+
+  <h3>Planned vs. Actual</h3>
+  <p class="desc">Project management best practice: show baseline vs. current state. Apply to stratigraphy:</p>
+  <ul>
+    <li><strong>Side-by-side cores:</strong> Planned (left) vs. Actual (right)</li>
+    <li><strong>Overlay:</strong> Planned as faded/ghost layer behind actual</li>
+    <li><strong>Variance indicators:</strong> Color coding for ahead/behind</li>
+  </ul>
+
+  <h3>Multiple Timeline Comparison</h3>
+  <p class="desc">Show parallel "cores" for:</p>
+  <ul>
+    <li>Different projects</li>
+    <li>Different team members</li>
+    <li>Different time periods (this week vs. last week)</li>
+    <li>Correlation analysis (when are multiple people under pressure?)</li>
+  </ul>
+  <p class="note">Source: <a href="https://www.officetimeline.com/features/planned-vs-actual">Office Timeline</a></p>
+</section>
+
+<section>
+  <h2>Future vs. Past Distinction <span class="tag eff">actionable</span></h2>
+
+  <h3>Geological Analogy</h3>
+  <p class="desc">In geology, the future doesn't exist in the rock record. For task visualization:</p>
+  <ul>
+    <li><strong>Past (below):</strong> Solid, lithified, unchangeable - use firm colors, sharp boundaries</li>
+    <li><strong>Present (middle):</strong> Active sediment surface - highlight, animate, call attention</li>
+    <li><strong>Future (above):</strong> Projected deposition - use transparency, dashed lines, tentative styling</li>
+  </ul>
+
+  <h3>Visual Treatment</h3>
+  <table>
+    <tr><th>Time Zone</th><th>Visual Style</th></tr>
+    <tr><td>Past</td><td>Solid fills, firm edges, archived feel</td></tr>
+    <tr><td>Present/Now</td><td>Highlighted border, "active surface" indicator</td></tr>
+    <tr><td>Future</td><td>Semi-transparent, dashed edges, lighter overall</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>Task Categories in Layers <span class="tag eff">actionable</span></h2>
+
+  <h3>Geological Precedent: Facies</h3>
+  <p class="desc">Geologists distinguish "facies" (rock types deposited in different environments). Apply to tasks:</p>
+  <ul>
+    <li><strong>Marine facies:</strong> Work tasks (blue-gray tones)</li>
+    <li><strong>Terrestrial facies:</strong> Personal tasks (warm earth tones)</li>
+    <li><strong>Volcanic ash:</strong> Urgent/interruption tasks (distinct marker)</li>
+  </ul>
+
+  <h3>Implementation Options</h3>
+  <ul>
+    <li><strong>Horizontal banding:</strong> Categories as horizontal sub-layers within time layers</li>
+    <li><strong>Texture patterns:</strong> Stipple for work, cross-hatch for personal</li>
+    <li><strong>Color tint:</strong> Add blue tint for work, warm tint for personal</li>
+    <li><strong>Inclusions:</strong> Small icons/glyphs embedded in layers</li>
+  </ul>
+</section>
+
+</div>
+
+<!-- Design Recommendations Section (Full Width) -->
+<section class="full-width">
+  <h2>7. Synthesis: Design Recommendations</h2>
+
+  <div class="grid grid-2">
+    <div>
+      <h3>High Priority Enhancements</h3>
+      <table>
+        <tr><th>Recommendation</th><th>Rationale</th></tr>
+        <tr><td>Add "Now" indicator line</td><td>Clearly delineate past/present/future zones</td></tr>
+        <tr><td>Style future layers as semi-transparent</td><td>Distinguish projected vs. recorded time</td></tr>
+        <tr><td>Add texture patterns for accessibility</td><td>Don't rely on color alone (8% color blindness)</td></tr>
+        <tr><td>Add hover tooltips on layers</td><td>Progressive disclosure of details</td></tr>
+        <tr><td>Add click-to-expand layer detail</td><td>Show tasks within time periods</td></tr>
+        <tr><td>Use blue/orange for urgency instead of red/green</td><td>Colorblind-friendly palette</td></tr>
+      </table>
+    </div>
+
+    <div>
+      <h3>Medium Priority Enhancements</h3>
+      <table>
+        <tr><th>Recommendation</th><th>Rationale</th></tr>
+        <tr><td>Add task category encoding (texture/tint)</td><td>Increase information density</td></tr>
+        <tr><td>Implement planned vs. actual dual view</td><td>Enable variance analysis</td></tr>
+        <tr><td>Add "fossil markers" for milestones</td><td>Mark completed significant events</td></tr>
+        <tr><td>Create multiple timeline comparison</td><td>Team/project coordination</td></tr>
+        <tr><td>Add sediment compression animation</td><td>Reinforce temporal metaphor</td></tr>
+        <tr><td>Add zoom/scroll for longer periods</td><td>Scale to quarterly/yearly views</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 12px;">Visual Encoding Enhancement</h3>
+  <div class="encoding-demo">
+    <div style="text-align: center;">
+      <div class="stratum-sample stratum-spacious" style="background: linear-gradient(180deg, #D4CDB8, #BEB59C); opacity: 0.5; border: 1px dashed var(--line);"></div>
+      <p class="note">Future<br/>(transparent, dashed)</p>
+    </div>
+    <div style="text-align: center;">
+      <div class="stratum-sample stratum-moderate" style="box-shadow: 0 0 0 2px var(--blue);"></div>
+      <p class="note">Present<br/>(highlighted border)</p>
+    </div>
+    <div style="text-align: center;">
+      <div class="stratum-sample stratum-compressed"></div>
+      <p class="note">Past<br/>(solid, archived)</p>
+    </div>
+    <div style="text-align: center;">
+      <div class="stratum-unconformity"></div>
+      <p class="note">Deadline<br/>(unconformity)</p>
+    </div>
+  </div>
+</section>
+
+<!-- Confidence Assessment -->
+<section class="full-width">
+  <h2>Confidence Assessment</h2>
+  <table>
+    <tr><th>Claim</th><th>Confidence</th><th>Evidence Quality</th></tr>
+    <tr><td>Vertical orientation effective for depth/time metaphor</td><td><span class="ok">High</span></td><td>Multiple research studies, geological convention</td></tr>
+    <tr><td>Thickness encoding for duration is perceptually accurate</td><td><span class="ok">High</span></td><td>Perceptual research confirms length/area perception accuracy</td></tr>
+    <tr><td>Color intensity for pressure is intuitive</td><td><span class="ok">High</span></td><td>Affective color research, established convention</td></tr>
+    <tr><td>Unconformity metaphor for deadlines is clear</td><td class="warn">Medium</td><td>Novel application, needs user testing</td></tr>
+    <tr><td>Geological metaphor reduces cognitive load</td><td class="warn">Medium</td><td>Metaphor research is mixed; depends on user familiarity</td></tr>
+    <tr><td>Users will interpret "depth = past" intuitively</td><td class="warn">Medium</td><td>Cultural convention, but not universal</td></tr>
+  </table>
+</section>
+
+<!-- Limitations -->
+<section>
+  <h2>Limitations & Open Questions</h2>
+  <ul>
+    <li>No direct user studies found on stratigraphic metaphors for task management</li>
+    <li>Geological familiarity varies by audience - may need onboarding</li>
+    <li>Mobile responsiveness of vertical core visualization untested</li>
+    <li>Scalability to longer time periods (year+) may require scroll/zoom</li>
+    <li>Integration with calendar/task systems not addressed</li>
+    <li>Real-time data updates and animation performance unknown</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Further Research Directions</h2>
+  <ul>
+    <li>User study: Do people intuitively understand the sediment/pressure metaphor?</li>
+    <li>A/B test: Stratigraphy vs. traditional calendar/Gantt for task pressure awareness</li>
+    <li>Explore ice core data visualization conventions for additional encoding ideas</li>
+    <li>Investigate Harris Matrix (archaeological stratigraphy) for dependency visualization</li>
+    <li>Study "Deep Time" interactive (deeptime.info) for engagement techniques</li>
+    <li>Test animation of sedimentation process for onboarding new users</li>
+  </ul>
+</section>
+
+<!-- Bibliography -->
+<section class="bib full-width">
+  <h2>Sources</h2>
+  <ol>
+    <li><a href="https://geo.libretexts.org/Bookshelves/Geography_(Physical)/The_Story_of_Earth_-_An_Observational_Guide_(Hauptvogel_and_Sisson)/01:_Labs/1.06:_Stratigraphy">Geosciences LibreTexts - Stratigraphy</a> - Fundamental stratigraphy principles</li>
+    <li><a href="https://pressbooks.bccampus.ca/earthhistorylab/chapter/part-ii-interpreting-stratigraphy-in-a-stratigraphic-log/">Laboratory Manual for Earth History</a> - Interpreting stratigraphic logs</li>
+    <li><a href="https://en.wikipedia.org/wiki/Unconformity">Wikipedia - Unconformity</a> - Types and meanings of unconformities</li>
+    <li><a href="https://serc.carleton.edu/eet/cores/part_1.html">SERC Carleton - Sediment Core Interpretation</a> - Visual cues in core analysis</li>
+    <li><a href="https://par.nsf.gov/servlets/purl/10157010">NSF Research - Timeline Shape Effects</a> - Evaluating timeline visualization performance</li>
+    <li><a href="https://dl.acm.org/doi/10.1109/TVCG.2010.162">IEEE TVCG - Graphical Perception of Multiple Time Series</a> - Stacked visualization perception</li>
+    <li><a href="https://www.aviz.fr/Research/VisualSedimentation">AVIZ INRIA - Visual Sedimentation</a> - Sedimentation metaphor for data streams</li>
+    <li><a href="https://burnoutguard.app/">BurnoutGuard</a> - Stress and workload visualization</li>
+    <li><a href="https://www.saviom.com/blog/how-does-resource-heatmap-optimize-profitable-utilization/">Saviom - Resource Heatmap</a> - Workload heat map principles</li>
+    <li><a href="https://adrianroselli.com/2018/02/github-contributions-chart.html">Adrian Roselli - GitHub Contributions Chart</a> - Accessibility critique</li>
+    <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5977660/">PMC - Mobile Apps for Mood Tracking</a> - Mood visualization research</li>
+    <li><a href="https://www.cg.tuwien.ac.at/research/publications/2008/TRA08/TRA08-paper.pdf">TU Vienna - Harris Matrix Composer</a> - Archaeological stratigraphy software</li>
+    <li><a href="https://boscorf.org/core-repository/resources/software">BOSCORF - Core Logging Software</a> - Professional stratigraphy tools</li>
+    <li><a href="https://deeptime.info/">Deep Time Interactive</a> - Geological timeline visualization</li>
+    <li><a href="https://www.tableau.com/blog/examining-data-viz-rules-dont-use-red-green-together">Tableau - Colorblind-Friendly Visualization</a> - Accessibility guidelines</li>
+    <li><a href="https://dl.acm.org/doi/10.1145/3025453.3026041">CHI 2017 - Affective Color in Visualization</a> - Color and emotion research</li>
+    <li><a href="https://arxiv.org/pdf/0809.0884">Risch - Role of Metaphor in Information Visualization</a> - Cognitive aspects of visual metaphors</li>
+    <li><a href="https://www.nngroup.com/articles/animation-duration/">NN/g - Animation Duration</a> - UX animation best practices</li>
+    <li><a href="https://www.officetimeline.com/features/planned-vs-actual">Office Timeline - Planned vs Actual</a> - Baseline comparison techniques</li>
+    <li><a href="https://idl.uw.edu/papers/task-data-effectiveness">UW IDL - Visual Encoding Effectiveness</a> - Task and data distribution effects</li>
+  </ol>
+</section>
+
+</body>
+</html>

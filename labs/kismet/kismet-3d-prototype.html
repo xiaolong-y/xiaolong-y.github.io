@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kismet Interactive Prototypes</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: #FFFCF0;
+      font-family: 'IBM Plex Mono', monospace;
+      padding: 20px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body { background: #1C1B18; }
+      h1, h2 { color: #DAD8CE; }
+      .version-label { color: #878580; }
+      .description { color: #6F6E69; }
+    }
+
+    h1 {
+      font-size: 0.9em;
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #575653;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.75em;
+      color: #9F9D94;
+      margin-bottom: 30px;
+    }
+
+    .prototypes {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .prototype {
+      text-align: center;
+    }
+
+    .version-label {
+      font-size: 0.8em;
+      font-weight: 500;
+      color: #6F6E69;
+      margin-bottom: 5px;
+    }
+
+    .description {
+      font-size: 0.7em;
+      color: #9F9D94;
+      margin-bottom: 15px;
+      max-width: 300px;
+    }
+
+    .stage {
+      width: 320px;
+      height: 380px;
+      background: #0a0a0a;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .stage svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .emotion-tag {
+      margin-top: 10px;
+      font-size: 0.7em;
+      color: #878580;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Kismet Interactive Prototypes</h1>
+<p class="subtitle">Move mouse to interact. Click to trigger expressions. Choose your favorite.</p>
+
+<div class="prototypes">
+
+  <!-- VERSION A: Detailed Wireframe -->
+  <div class="prototype">
+    <div class="version-label">Version A: Detailed Wireframe</div>
+    <div class="description">Accurate mechanical structure with visible joints, servos, and connection points</div>
+    <div class="stage" id="stageA">
+      <svg viewBox="0 0 320 380" id="kismetA">
+        <defs>
+          <filter id="glowA">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <g id="headA" transform="translate(160, 180)">
+          <!-- Neck structure -->
+          <g id="neckA">
+            <line x1="-20" y1="80" x2="-20" y2="140" stroke="#4a7c5a" stroke-width="1"/>
+            <line x1="20" y1="80" x2="20" y2="140" stroke="#4a7c5a" stroke-width="1"/>
+            <line x1="-20" y1="80" x2="20" y2="80" stroke="#4a7c5a" stroke-width="1"/>
+            <line x1="-30" y1="110" x2="30" y2="110" stroke="#4a7c5a" stroke-width="1"/>
+            <line x1="-20" y1="80" x2="-30" y2="110" stroke="#4a7c5a" stroke-width="1"/>
+            <line x1="20" y1="80" x2="30" y2="110" stroke="#4a7c5a" stroke-width="1"/>
+            <circle cx="-20" cy="80" r="3" fill="#7cba5a"/>
+            <circle cx="20" cy="80" r="3" fill="#7cba5a"/>
+            <circle cx="-30" cy="110" r="3" fill="#7cba5a"/>
+            <circle cx="30" cy="110" r="3" fill="#7cba5a"/>
+          </g>
+
+          <!-- Left Ear -->
+          <g id="leftEarA" transform="translate(-90, -10)">
+            <path d="M0,0 L-25,-35 L-20,-40 L-15,-35 L-10,-45 L0,-35 L5,-40 L10,-30 L0,0"
+                  fill="none" stroke="#c4956a" stroke-width="1.5"/>
+            <line x1="0" y1="0" x2="-5" y2="30" stroke="#c4956a" stroke-width="1.5"/>
+            <circle cx="0" cy="0" r="4" fill="#e8a060"/>
+            <circle cx="-25" cy="-35" r="2" fill="#e8a060"/>
+            <circle cx="-10" cy="-45" r="2" fill="#e8a060"/>
+            <circle cx="10" cy="-30" r="2" fill="#e8a060"/>
+            <circle cx="-5" cy="30" r="3" fill="#e8a060"/>
+          </g>
+
+          <!-- Right Ear -->
+          <g id="rightEarA" transform="translate(90, -10)">
+            <path d="M0,0 L25,-35 L20,-40 L15,-35 L10,-45 L0,-35 L-5,-40 L-10,-30 L0,0"
+                  fill="none" stroke="#c4956a" stroke-width="1.5"/>
+            <line x1="0" y1="0" x2="5" y2="30" stroke="#c4956a" stroke-width="1.5"/>
+            <circle cx="0" cy="0" r="4" fill="#e8a060"/>
+            <circle cx="25" cy="-35" r="2" fill="#e8a060"/>
+            <circle cx="10" cy="-45" r="2" fill="#e8a060"/>
+            <circle cx="-10" cy="-30" r="2" fill="#e8a060"/>
+            <circle cx="5" cy="30" r="3" fill="#e8a060"/>
+          </g>
+
+          <!-- Face frame - wireframe mesh -->
+          <ellipse cx="0" cy="10" rx="75" ry="65" fill="none" stroke="#5588aa" stroke-width="1" opacity="0.5"/>
+          <ellipse cx="0" cy="10" rx="60" ry="52" fill="none" stroke="#5588aa" stroke-width="1" opacity="0.3"/>
+
+          <!-- Eyebrow structures -->
+          <g id="leftBrowA" transform="translate(-40, -35)">
+            <path d="M-25,0 L-15,-8 L0,-10 L15,-8 L25,0" fill="none" stroke="#7a6a5a" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="-25" cy="0" r="2" fill="#a08070"/>
+            <circle cx="0" cy="-10" r="2" fill="#a08070"/>
+            <circle cx="25" cy="0" r="2" fill="#a08070"/>
+          </g>
+          <g id="rightBrowA" transform="translate(40, -35)">
+            <path d="M-25,0 L-15,-8 L0,-10 L15,-8 L25,0" fill="none" stroke="#7a6a5a" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="-25" cy="0" r="2" fill="#a08070"/>
+            <circle cx="0" cy="-10" r="2" fill="#a08070"/>
+            <circle cx="25" cy="0" r="2" fill="#a08070"/>
+          </g>
+
+          <!-- Eye sockets - mechanical rings -->
+          <g id="leftEyeSocketA" transform="translate(-40, -5)">
+            <ellipse cx="0" cy="0" rx="28" ry="24" fill="none" stroke="#446688" stroke-width="2"/>
+            <ellipse cx="0" cy="0" rx="32" ry="27" fill="none" stroke="#334455" stroke-width="1"/>
+            <!-- Eyeball -->
+            <circle cx="0" cy="0" r="20" fill="#1a3a5a" stroke="#4a8aca" stroke-width="1"/>
+            <circle cx="0" cy="0" r="18" fill="none" stroke="#3a7aba" stroke-width="0.5"/>
+            <!-- Iris -->
+            <circle cx="0" cy="0" r="14" fill="#2a6a9a"/>
+            <circle id="pupilLA" cx="0" cy="0" r="8" fill="#0a1a2a"/>
+            <!-- Highlight -->
+            <circle cx="-5" cy="-5" r="4" fill="rgba(255,255,255,0.4)"/>
+            <circle cx="3" cy="3" r="2" fill="rgba(255,255,255,0.2)"/>
+          </g>
+
+          <g id="rightEyeSocketA" transform="translate(40, -5)">
+            <ellipse cx="0" cy="0" rx="28" ry="24" fill="none" stroke="#446688" stroke-width="2"/>
+            <ellipse cx="0" cy="0" rx="32" ry="27" fill="none" stroke="#334455" stroke-width="1"/>
+            <circle cx="0" cy="0" r="20" fill="#1a3a5a" stroke="#4a8aca" stroke-width="1"/>
+            <circle cx="0" cy="0" r="18" fill="none" stroke="#3a7aba" stroke-width="0.5"/>
+            <circle cx="0" cy="0" r="14" fill="#2a6a9a"/>
+            <circle id="pupilRA" cx="0" cy="0" r="8" fill="#0a1a2a"/>
+            <circle cx="-5" cy="-5" r="4" fill="rgba(255,255,255,0.4)"/>
+            <circle cx="3" cy="3" r="2" fill="rgba(255,255,255,0.2)"/>
+          </g>
+
+          <!-- Eyelids -->
+          <g id="leftLidA">
+            <ellipse cx="-40" cy="-5" rx="28" ry="0" fill="#2a2a2a" id="lidLA"/>
+          </g>
+          <g id="rightLidA">
+            <ellipse cx="40" cy="-5" rx="28" ry="0" fill="#2a2a2a" id="lidRA"/>
+          </g>
+
+          <!-- Nose/sensor area -->
+          <polygon points="0,20 -8,35 8,35" fill="none" stroke="#668899" stroke-width="1.5"/>
+          <circle cx="0" cy="28" r="3" fill="#7799aa"/>
+
+          <!-- Mouth structure -->
+          <g id="mouthA" transform="translate(0, 55)">
+            <ellipse cx="0" cy="0" rx="35" ry="18" fill="none" stroke="#554444" stroke-width="1.5"/>
+            <path id="lipsA" d="M-30,0 Q-15,8 0,10 Q15,8 30,0" fill="none" stroke="#cc6666" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="-30" cy="0" r="2" fill="#aa5555"/>
+            <circle cx="30" cy="0" r="2" fill="#aa5555"/>
+            <circle cx="0" cy="10" r="2" fill="#aa5555"/>
+          </g>
+
+          <!-- Chin structure -->
+          <path d="M-25,75 Q0,90 25,75" fill="none" stroke="#4a7c5a" stroke-width="1"/>
+        </g>
+      </svg>
+    </div>
+    <div class="emotion-tag">State: <span id="emotionA">Curious</span></div>
+  </div>
+
+  <!-- VERSION B: Stylized Geometric -->
+  <div class="prototype">
+    <div class="version-label">Version B: Stylized Geometric</div>
+    <div class="description">Clean geometric interpretation with bold lines and minimalist aesthetic</div>
+    <div class="stage" id="stageB">
+      <svg viewBox="0 0 320 380" id="kismetB">
+        <defs>
+          <linearGradient id="eyeGradB" cx="30%" cy="30%">
+            <stop offset="0%" style="stop-color:#60b0e0"/>
+            <stop offset="100%" style="stop-color:#2070a0"/>
+          </linearGradient>
+        </defs>
+        <g id="headB" transform="translate(160, 180)">
+          <!-- Base/Neck - geometric -->
+          <g id="neckB">
+            <rect x="-25" y="70" width="50" height="80" fill="none" stroke="#3a5a4a" stroke-width="2"/>
+            <line x1="-25" y1="90" x2="25" y2="90" stroke="#3a5a4a" stroke-width="1"/>
+            <line x1="-25" y1="110" x2="25" y2="110" stroke="#3a5a4a" stroke-width="1"/>
+            <line x1="-25" y1="130" x2="25" y2="130" stroke="#3a5a4a" stroke-width="1"/>
+          </g>
+
+          <!-- Ears - angular -->
+          <g id="leftEarB" transform="translate(-85, 0)">
+            <polygon points="0,0 -30,-50 -35,-30 -25,0 -35,30 -30,50 0,0"
+                     fill="none" stroke="#d4a060" stroke-width="2"/>
+            <circle cx="-30" cy="-50" r="4" fill="#e8b070"/>
+            <circle cx="-30" cy="50" r="4" fill="#e8b070"/>
+            <circle cx="0" cy="0" r="5" fill="#d4a060"/>
+          </g>
+          <g id="rightEarB" transform="translate(85, 0)">
+            <polygon points="0,0 30,-50 35,-30 25,0 35,30 30,50 0,0"
+                     fill="none" stroke="#d4a060" stroke-width="2"/>
+            <circle cx="30" cy="-50" r="4" fill="#e8b070"/>
+            <circle cx="30" cy="50" r="4" fill="#e8b070"/>
+            <circle cx="0" cy="0" r="5" fill="#d4a060"/>
+          </g>
+
+          <!-- Face - hexagonal -->
+          <polygon points="0,-60 55,-35 55,35 0,65 -55,35 -55,-35"
+                   fill="none" stroke="#5080a0" stroke-width="2"/>
+
+          <!-- Eyebrows - bold bars -->
+          <g id="leftBrowB" transform="translate(-35, -40)">
+            <rect x="-25" y="-5" width="50" height="8" fill="#6a5a4a" rx="2"/>
+          </g>
+          <g id="rightBrowB" transform="translate(35, -40)">
+            <rect x="-25" y="-5" width="50" height="8" fill="#6a5a4a" rx="2"/>
+          </g>
+
+          <!-- Eyes - large circles -->
+          <g id="leftEyeB" transform="translate(-35, -5)">
+            <circle cx="0" cy="0" r="25" fill="#102030" stroke="#4090c0" stroke-width="3"/>
+            <circle cx="0" cy="0" r="18" fill="#2060a0"/>
+            <circle id="pupilLB" cx="0" cy="0" r="10" fill="#051525"/>
+            <circle cx="-6" cy="-6" r="5" fill="rgba(255,255,255,0.5)"/>
+          </g>
+          <g id="rightEyeB" transform="translate(35, -5)">
+            <circle cx="0" cy="0" r="25" fill="#102030" stroke="#4090c0" stroke-width="3"/>
+            <circle cx="0" cy="0" r="18" fill="#2060a0"/>
+            <circle id="pupilRB" cx="0" cy="0" r="10" fill="#051525"/>
+            <circle cx="-6" cy="-6" r="5" fill="rgba(255,255,255,0.5)"/>
+          </g>
+
+          <!-- Eyelids -->
+          <rect id="lidLB" x="-60" y="-30" width="50" height="0" fill="#1a1a1a"/>
+          <rect id="lidRB" x="10" y="-30" width="50" height="0" fill="#1a1a1a"/>
+
+          <!-- Nose - triangle -->
+          <polygon points="0,15 -10,35 10,35" fill="#304050" stroke="#4080a0" stroke-width="1"/>
+
+          <!-- Mouth - curved rectangle -->
+          <g id="mouthB" transform="translate(0, 55)">
+            <rect x="-35" y="-12" width="70" height="24" rx="12" fill="#1a1a1a" stroke="#553333" stroke-width="2"/>
+            <path id="lipsB" d="M-28,0 Q0,12 28,0" fill="none" stroke="#cc5555" stroke-width="4" stroke-linecap="round"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="emotion-tag">State: <span id="emotionB">Curious</span></div>
+  </div>
+
+  <!-- VERSION C: Organic Wireframe -->
+  <div class="prototype">
+    <div class="version-label">Version C: Organic Wireframe</div>
+    <div class="description">Flowing curves with node points, inspired by the original schematic style</div>
+    <div class="stage" id="stageC">
+      <svg viewBox="0 0 320 380" id="kismetC">
+        <defs>
+          <filter id="glowC">
+            <feGaussianBlur stdDeviation="1.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <g id="headC" transform="translate(160, 180)">
+          <!-- Neck - curved structure -->
+          <g id="neckC">
+            <path d="M-15,70 Q-25,100 -20,140 M15,70 Q25,100 20,140" fill="none" stroke="#5a8a6a" stroke-width="1.5"/>
+            <path d="M-20,140 Q0,150 20,140" fill="none" stroke="#5a8a6a" stroke-width="1.5"/>
+            <ellipse cx="0" cy="70" rx="20" ry="8" fill="none" stroke="#5a8a6a" stroke-width="1"/>
+            <circle cx="-15" cy="70" r="3" fill="#7aba8a"/>
+            <circle cx="15" cy="70" r="3" fill="#7aba8a"/>
+            <circle cx="-20" cy="140" r="3" fill="#7aba8a"/>
+            <circle cx="20" cy="140" r="3" fill="#7aba8a"/>
+            <circle cx="0" cy="150" r="2" fill="#7aba8a"/>
+          </g>
+
+          <!-- Ears - organic flowing -->
+          <g id="leftEarC" transform="translate(-80, -5)">
+            <path d="M0,0 Q-20,-20 -15,-45 Q-10,-55 -5,-50 Q0,-60 5,-45 Q10,-35 0,0"
+                  fill="none" stroke="#d0a060" stroke-width="2"/>
+            <path d="M0,0 Q-15,25 -10,45" fill="none" stroke="#d0a060" stroke-width="1.5"/>
+            <circle cx="0" cy="0" r="5" fill="#e0b070"/>
+            <circle cx="-15" cy="-45" r="3" fill="#e0b070"/>
+            <circle cx="0" cy="-55" r="3" fill="#e0b070"/>
+            <circle cx="5" cy="-45" r="2" fill="#e0b070"/>
+            <circle cx="-10" cy="45" r="3" fill="#e0b070"/>
+          </g>
+          <g id="rightEarC" transform="translate(80, -5)">
+            <path d="M0,0 Q20,-20 15,-45 Q10,-55 5,-50 Q0,-60 -5,-45 Q-10,-35 0,0"
+                  fill="none" stroke="#d0a060" stroke-width="2"/>
+            <path d="M0,0 Q15,25 10,45" fill="none" stroke="#d0a060" stroke-width="1.5"/>
+            <circle cx="0" cy="0" r="5" fill="#e0b070"/>
+            <circle cx="15" cy="-45" r="3" fill="#e0b070"/>
+            <circle cx="0" cy="-55" r="3" fill="#e0b070"/>
+            <circle cx="-5" cy="-45" r="2" fill="#e0b070"/>
+            <circle cx="10" cy="45" r="3" fill="#e0b070"/>
+          </g>
+
+          <!-- Face outline - organic -->
+          <path d="M-60,-30 Q-70,10 -55,50 Q-30,75 0,78 Q30,75 55,50 Q70,10 60,-30 Q50,-55 0,-60 Q-50,-55 -60,-30"
+                fill="none" stroke="#5090b0" stroke-width="1.5" opacity="0.6"/>
+
+          <!-- Eyebrows - curved with nodes -->
+          <g id="leftBrowC" transform="translate(-38, -38)">
+            <path d="M-22,5 Q-10,-8 0,-10 Q10,-8 22,5" fill="none" stroke="#8a7a6a" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="-22" cy="5" r="3" fill="#a09080"/>
+            <circle cx="0" cy="-10" r="3" fill="#a09080"/>
+            <circle cx="22" cy="5" r="3" fill="#a09080"/>
+          </g>
+          <g id="rightBrowC" transform="translate(38, -38)">
+            <path d="M-22,5 Q-10,-8 0,-10 Q10,-8 22,5" fill="none" stroke="#8a7a6a" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="-22" cy="5" r="3" fill="#a09080"/>
+            <circle cx="0" cy="-10" r="3" fill="#a09080"/>
+            <circle cx="22" cy="5" r="3" fill="#a09080"/>
+          </g>
+
+          <!-- Eyes - detailed with rings -->
+          <g id="leftEyeC" transform="translate(-38, -5)">
+            <circle cx="0" cy="0" r="26" fill="none" stroke="#3070a0" stroke-width="1"/>
+            <circle cx="0" cy="0" r="23" fill="none" stroke="#4080b0" stroke-width="1.5"/>
+            <circle cx="0" cy="0" r="20" fill="#0a2040" stroke="#5090c0" stroke-width="2"/>
+            <!-- Iris detail -->
+            <circle cx="0" cy="0" r="15" fill="#1a4a7a"/>
+            <circle cx="0" cy="0" r="12" fill="#2a5a8a" opacity="0.7"/>
+            <circle id="pupilLC" cx="0" cy="0" r="7" fill="#051020"/>
+            <!-- Highlights -->
+            <circle cx="-5" cy="-6" r="4" fill="rgba(255,255,255,0.5)"/>
+            <circle cx="4" cy="4" r="2" fill="rgba(255,255,255,0.3)"/>
+            <!-- Connecting nodes -->
+            <circle cx="-26" cy="0" r="2" fill="#5090c0"/>
+            <circle cx="26" cy="0" r="2" fill="#5090c0"/>
+            <circle cx="0" cy="-26" r="2" fill="#5090c0"/>
+            <circle cx="0" cy="26" r="2" fill="#5090c0"/>
+          </g>
+          <g id="rightEyeC" transform="translate(38, -5)">
+            <circle cx="0" cy="0" r="26" fill="none" stroke="#3070a0" stroke-width="1"/>
+            <circle cx="0" cy="0" r="23" fill="none" stroke="#4080b0" stroke-width="1.5"/>
+            <circle cx="0" cy="0" r="20" fill="#0a2040" stroke="#5090c0" stroke-width="2"/>
+            <circle cx="0" cy="0" r="15" fill="#1a4a7a"/>
+            <circle cx="0" cy="0" r="12" fill="#2a5a8a" opacity="0.7"/>
+            <circle id="pupilRC" cx="0" cy="0" r="7" fill="#051020"/>
+            <circle cx="-5" cy="-6" r="4" fill="rgba(255,255,255,0.5)"/>
+            <circle cx="4" cy="4" r="2" fill="rgba(255,255,255,0.3)"/>
+            <circle cx="-26" cy="0" r="2" fill="#5090c0"/>
+            <circle cx="26" cy="0" r="2" fill="#5090c0"/>
+            <circle cx="0" cy="-26" r="2" fill="#5090c0"/>
+            <circle cx="0" cy="26" r="2" fill="#5090c0"/>
+          </g>
+
+          <!-- Eyelids -->
+          <ellipse id="lidLC" cx="-38" cy="-5" rx="23" ry="0" fill="#151515"/>
+          <ellipse id="lidRC" cx="38" cy="-5" rx="23" ry="0" fill="#151515"/>
+
+          <!-- Nose - organic -->
+          <path d="M0,18 Q-8,28 -6,38 Q0,42 6,38 Q8,28 0,18" fill="none" stroke="#5080a0" stroke-width="1.5"/>
+          <circle cx="0" cy="18" r="2" fill="#6090b0"/>
+          <circle cx="-6" cy="38" r="2" fill="#6090b0"/>
+          <circle cx="6" cy="38" r="2" fill="#6090b0"/>
+
+          <!-- Mouth - flowing curves -->
+          <g id="mouthC" transform="translate(0, 58)">
+            <ellipse cx="0" cy="0" rx="32" ry="15" fill="none" stroke="#4a3a3a" stroke-width="1.5"/>
+            <path id="lipsC" d="M-28,-2 Q-14,6 0,8 Q14,6 28,-2" fill="none" stroke="#c06060" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="-28" cy="-2" r="3" fill="#b05050"/>
+            <circle cx="0" cy="8" r="3" fill="#b05050"/>
+            <circle cx="28" cy="-2" r="3" fill="#b05050"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="emotion-tag">State: <span id="emotionC">Curious</span></div>
+  </div>
+
+</div>
+
+<script>
+// Shared animation system for all three versions
+class KismetController {
+  constructor(id, elements) {
+    this.id = id;
+    this.el = elements;
+    this.state = {
+      headRotY: 0, headRotX: 0,
+      pupilX: 0, pupilY: 0,
+      earRotL: 0, earRotR: 0,
+      browL: 0, browR: 0,
+      mouthCurve: 8,
+      lidHeight: 0,
+      emotion: 'curious'
+    };
+    this.target = { ...this.state };
+    this.isBlinking = false;
+  }
+
+  setEmotion(emotion) {
+    const emotions = {
+      curious: { browL: 0, browR: 0, mouthCurve: 8, label: 'Curious' },
+      happy: { browL: -5, browR: -5, mouthCurve: 15, label: 'Happy' },
+      surprised: { browL: -12, browR: -12, mouthCurve: -3, label: 'Surprised' },
+      sad: { browL: 8, browR: 8, mouthCurve: -10, label: 'Sad' },
+      interested: { browL: -6, browR: 0, mouthCurve: 5, label: 'Interested' }
+    };
+    if (emotions[emotion]) {
+      this.target.browL = emotions[emotion].browL;
+      this.target.browR = emotions[emotion].browR;
+      this.target.mouthCurve = emotions[emotion].mouthCurve;
+      this.state.emotion = emotion;
+      document.getElementById('emotion' + this.id).textContent = emotions[emotion].label;
+    }
+  }
+
+  blink() {
+    this.isBlinking = true;
+    setTimeout(() => this.isBlinking = false, 120);
+  }
+
+  update(mouseX, mouseY) {
+    // Calculate targets from mouse
+    this.target.headRotY = (mouseX - 0.5) * 25;
+    this.target.headRotX = (mouseY - 0.5) * -15;
+    this.target.pupilX = (mouseX - 0.5) * 12;
+    this.target.pupilY = (mouseY - 0.5) * 8;
+    this.target.earRotL = (mouseX - 0.5) * -25;
+    this.target.earRotR = (mouseX - 0.5) * 25;
+
+    // Smooth interpolation
+    const smooth = 0.1;
+    for (let key in this.state) {
+      if (typeof this.state[key] === 'number' && this.target[key] !== undefined) {
+        this.state[key] += (this.target[key] - this.state[key]) * smooth;
+      }
+    }
+
+    // Apply to DOM
+    this.render();
+  }
+
+  render() {
+    const s = this.state;
+    const el = this.el;
+
+    // Head transform
+    if (el.head) {
+      el.head.setAttribute('transform',
+        `translate(160, 180) rotate(${s.headRotY * 0.3})`);
+    }
+
+    // Pupils
+    if (el.pupilL) {
+      el.pupilL.setAttribute('cx', s.pupilX);
+      el.pupilL.setAttribute('cy', s.pupilY);
+    }
+    if (el.pupilR) {
+      el.pupilR.setAttribute('cx', s.pupilX);
+      el.pupilR.setAttribute('cy', s.pupilY);
+    }
+
+    // Ears
+    if (el.earL) {
+      const baseTransform = this.id === 'A' ? 'translate(-90, -10)' :
+                           this.id === 'B' ? 'translate(-85, 0)' : 'translate(-80, -5)';
+      el.earL.setAttribute('transform', `${baseTransform} rotate(${s.earRotL})`);
+    }
+    if (el.earR) {
+      const baseTransform = this.id === 'A' ? 'translate(90, -10)' :
+                           this.id === 'B' ? 'translate(85, 0)' : 'translate(80, -5)';
+      el.earR.setAttribute('transform', `${baseTransform} rotate(${s.earRotR})`);
+    }
+
+    // Eyebrows
+    if (el.browL) {
+      const baseY = this.id === 'A' ? -35 : this.id === 'B' ? -40 : -38;
+      const baseX = this.id === 'A' ? -40 : this.id === 'B' ? -35 : -38;
+      el.browL.setAttribute('transform', `translate(${baseX}, ${baseY + s.browL})`);
+    }
+    if (el.browR) {
+      const baseY = this.id === 'A' ? -35 : this.id === 'B' ? -40 : -38;
+      const baseX = this.id === 'A' ? 40 : this.id === 'B' ? 35 : 38;
+      el.browR.setAttribute('transform', `translate(${baseX}, ${baseY + s.browR})`);
+    }
+
+    // Mouth
+    if (el.lips) {
+      const curve = s.mouthCurve;
+      if (this.id === 'A') {
+        el.lips.setAttribute('d', `M-30,0 Q-15,${curve * 0.8} 0,${curve} Q15,${curve * 0.8} 30,0`);
+      } else if (this.id === 'B') {
+        el.lips.setAttribute('d', `M-28,0 Q0,${curve} 28,0`);
+      } else {
+        el.lips.setAttribute('d', `M-28,-2 Q-14,${curve * 0.6} 0,${curve} Q14,${curve * 0.6} 28,-2`);
+      }
+    }
+
+    // Eyelids (blinking)
+    const lidHeight = this.isBlinking ? 24 : 0;
+    if (el.lidL) {
+      if (this.id === 'B') {
+        el.lidL.setAttribute('height', lidHeight * 2);
+      } else {
+        el.lidL.setAttribute('ry', lidHeight);
+      }
+    }
+    if (el.lidR) {
+      if (this.id === 'B') {
+        el.lidR.setAttribute('height', lidHeight * 2);
+      } else {
+        el.lidR.setAttribute('ry', lidHeight);
+      }
+    }
+  }
+
+  reset() {
+    this.target.headRotY = 0;
+    this.target.headRotX = 0;
+    this.target.pupilX = 0;
+    this.target.pupilY = 0;
+    this.target.earRotL = 0;
+    this.target.earRotR = 0;
+    this.setEmotion('curious');
+  }
+}
+
+// Initialize controllers
+const controllers = {
+  A: new KismetController('A', {
+    head: document.getElementById('headA'),
+    pupilL: document.getElementById('pupilLA'),
+    pupilR: document.getElementById('pupilRA'),
+    earL: document.getElementById('leftEarA'),
+    earR: document.getElementById('rightEarA'),
+    browL: document.getElementById('leftBrowA'),
+    browR: document.getElementById('rightBrowA'),
+    lips: document.getElementById('lipsA'),
+    lidL: document.getElementById('lidLA'),
+    lidR: document.getElementById('lidRA')
+  }),
+  B: new KismetController('B', {
+    head: document.getElementById('headB'),
+    pupilL: document.getElementById('pupilLB'),
+    pupilR: document.getElementById('pupilRB'),
+    earL: document.getElementById('leftEarB'),
+    earR: document.getElementById('rightEarB'),
+    browL: document.getElementById('leftBrowB'),
+    browR: document.getElementById('rightBrowB'),
+    lips: document.getElementById('lipsB'),
+    lidL: document.getElementById('lidLB'),
+    lidR: document.getElementById('lidRB')
+  }),
+  C: new KismetController('C', {
+    head: document.getElementById('headC'),
+    pupilL: document.getElementById('pupilLC'),
+    pupilR: document.getElementById('pupilRC'),
+    earL: document.getElementById('leftEarC'),
+    earR: document.getElementById('rightEarC'),
+    browL: document.getElementById('leftBrowC'),
+    browR: document.getElementById('rightBrowC'),
+    lips: document.getElementById('lipsC'),
+    lidL: document.getElementById('lidLC'),
+    lidR: document.getElementById('lidRC')
+  })
+};
+
+// Mouse tracking for each stage
+['A', 'B', 'C'].forEach(id => {
+  const stage = document.getElementById('stage' + id);
+
+  stage.addEventListener('mousemove', (e) => {
+    const rect = stage.getBoundingClientRect();
+    const mouseX = (e.clientX - rect.left) / rect.width;
+    const mouseY = (e.clientY - rect.top) / rect.height;
+    controllers[id].update(mouseX, mouseY);
+
+    // Dynamic emotion based on position
+    if (mouseY < 0.25) {
+      controllers[id].setEmotion('surprised');
+    } else if (mouseX < 0.25 || mouseX > 0.75) {
+      controllers[id].setEmotion('interested');
+    } else if (mouseY > 0.75) {
+      controllers[id].setEmotion('sad');
+    } else {
+      controllers[id].setEmotion('curious');
+    }
+  });
+
+  stage.addEventListener('mouseleave', () => {
+    controllers[id].reset();
+  });
+
+  stage.addEventListener('click', () => {
+    const emotions = ['curious', 'happy', 'surprised', 'sad', 'interested'];
+    const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+    controllers[id].setEmotion(randomEmotion);
+    controllers[id].blink();
+
+    // Ear wiggle
+    let wiggle = 0;
+    const wiggleInterval = setInterval(() => {
+      controllers[id].target.earRotL = (wiggle % 2 === 0) ? 35 : -15;
+      controllers[id].target.earRotR = (wiggle % 2 === 0) ? -35 : 15;
+      wiggle++;
+      if (wiggle > 5) clearInterval(wiggleInterval);
+    }, 80);
+  });
+});
+
+// Animation loop
+function animate() {
+  ['A', 'B', 'C'].forEach(id => {
+    controllers[id].render();
+  });
+  requestAnimationFrame(animate);
+}
+animate();
+
+// Random blinks
+setInterval(() => {
+  ['A', 'B', 'C'].forEach(id => {
+    if (Math.random() < 0.25) {
+      controllers[id].blink();
+    }
+  });
+}, 3000);
+
+// Idle movements
+setInterval(() => {
+  ['A', 'B', 'C'].forEach(id => {
+    const c = controllers[id];
+    if (Math.abs(c.target.headRotY) < 2) {
+      c.target.headRotY = (Math.random() - 0.5) * 8;
+      c.target.pupilX = (Math.random() - 0.5) * 6;
+      c.target.pupilY = (Math.random() - 0.5) * 4;
+    }
+  });
+}, 3500);
+</script>
+
+</body>
+</html>

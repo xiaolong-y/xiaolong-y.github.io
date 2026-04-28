@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clustering Illusion</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --fx-magenta: #A02F6F;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
+        --fx-magenta: #CE5D97;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 1000px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-green);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .main-display {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 800px) {
+      .main-display {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field-container {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .field-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--fx-base-200);
+      font-size: 0.85em;
+      font-weight: 400;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .field-header .label {
+      color: var(--fx-base-900);
+    }
+
+    .field-header .tag {
+      font-size: 0.75em;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-weight: 500;
+    }
+
+    .tag-random {
+      background: var(--fx-green);
+      color: var(--fx-paper);
+    }
+
+    .tag-human {
+      background: var(--fx-purple);
+      color: var(--fx-paper);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 340px;
+      cursor: crosshair;
+    }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    button {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8em;
+      padding: 10px 16px;
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--fx-base-900);
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+
+    button:hover {
+      border-color: var(--fx-blue);
+      color: var(--fx-blue);
+    }
+
+    button.primary {
+      background: var(--fx-green);
+      border-color: var(--fx-green);
+      color: var(--fx-paper);
+    }
+
+    button.primary:hover {
+      background: var(--fx-cyan);
+      border-color: var(--fx-cyan);
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-box {
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 3px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5em;
+      font-weight: 400;
+      color: var(--fx-base-900);
+    }
+
+    .stat-label {
+      font-size: 0.7em;
+      color: var(--fx-base-700);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-green);
+      line-height: 1.5;
+    }
+
+    .phase-indicator {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .phase-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--fx-base-200);
+      transition: all var(--duration-medium) var(--ease-mechanical);
+    }
+
+    .phase-dot.active {
+      background: var(--fx-green);
+      box-shadow: 0 0 8px var(--fx-green);
+    }
+
+    .phase-dot.complete {
+      background: var(--fx-cyan);
+    }
+
+    .quiz-container {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .quiz-question {
+      font-size: 1em;
+      color: var(--fx-base-900);
+      margin-bottom: 20px;
+    }
+
+    .quiz-options {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .quiz-option {
+      padding: 16px 32px;
+      background: var(--fx-paper);
+      border: 2px solid var(--fx-base-200);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+      font-size: 0.9em;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--fx-blue);
+      transform: translateY(-2px);
+    }
+
+    .quiz-option.selected {
+      border-color: var(--fx-green);
+      background: var(--fx-green);
+      color: var(--fx-paper);
+    }
+
+    .quiz-option.wrong {
+      border-color: var(--fx-red);
+      background: var(--fx-red);
+      color: var(--fx-paper);
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 600px) {
+      /* Ensure minimum text size of 14px */
+      body { font-size: 14px; }
+
+      /* Canvas adjustments */
+      canvas { height: 280px; }
+
+      /* Heading sizes */
+      h1 { font-size: 1.2em; }
+
+      /* Navigation - increase touch target */
+      .back-nav {
+        font-size: 0.9em;
+        padding: 12px 16px;
+        min-height: 44px;
+        display: inline-flex;
+      }
+
+      /* Field headers */
+      .field-header {
+        font-size: 0.95em;
+        padding: 14px 16px;
+      }
+
+      .field-header .tag {
+        font-size: 0.85em;
+        padding: 4px 10px;
+      }
+
+      /* Instructions and descriptions */
+      .description { font-size: 0.95em; }
+      .instruction { font-size: 0.9em; }
+      .insight { font-size: 0.95em; }
+
+      /* Buttons - ensure 44x44px touch targets */
+      button {
+        font-size: 0.9em;
+        padding: 14px 20px;
+        min-height: 44px;
+        min-width: 44px;
+      }
+
+      .button-row {
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      /* Quiz options - larger touch targets */
+      .quiz-option {
+        padding: 18px 24px;
+        font-size: 1em;
+        min-height: 44px;
+      }
+
+      .quiz-options {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      /* Stats */
+      .stats-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .stat-label {
+        font-size: 0.8em;
+      }
+
+      .stat-value {
+        font-size: 1.8em;
+      }
+
+      /* Event elements */
+      .event-year {
+        font-size: 0.8em;
+      }
+
+      .event-title {
+        font-size: 1em;
+      }
+
+      /* Explanation options */
+      .explanation-option {
+        font-size: 0.95em;
+        padding: 16px 18px;
+        min-height: 44px;
+      }
+
+      /* Phase indicator - larger touch feedback */
+      .phase-dot {
+        width: 12px;
+        height: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../../cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Clustering Illusion</h1>
+    <p class="description">
+      We see patterns in randomness that aren't there. True random distributions often look "clustered" because our brains expect random to mean "evenly spread." This causes us to see meaningful patterns—hot streaks, lucky zones, conspiracies—in pure noise.
+    </p>
+
+    <div class="phase-indicator">
+      <div class="phase-dot active" id="phase1"></div>
+      <div class="phase-dot" id="phase2"></div>
+      <div class="phase-dot" id="phase3"></div>
+    </div>
+
+    <!-- Phase 1: Quiz -->
+    <div class="quiz-container" id="quizContainer">
+      <p class="quiz-question">Which star field was generated by a computer using true randomness?</p>
+      <div class="main-display" style="margin-bottom: 20px;">
+        <div class="field-container">
+          <div class="field-header">
+            <span class="label">Field A</span>
+          </div>
+          <canvas id="canvasA"></canvas>
+        </div>
+        <div class="field-container">
+          <div class="field-header">
+            <span class="label">Field B</span>
+          </div>
+          <canvas id="canvasB"></canvas>
+        </div>
+      </div>
+      <div class="quiz-options">
+        <div class="quiz-option" id="optionA" onclick="makeGuess('A')">Field A</div>
+        <div class="quiz-option" id="optionB" onclick="makeGuess('B')">Field B</div>
+      </div>
+    </div>
+
+    <!-- Phase 2: Reveal -->
+    <div class="controls hidden" id="revealContainer">
+      <div class="main-display" style="margin-bottom: 16px;">
+        <div class="field-container">
+          <div class="field-header">
+            <span class="label" id="labelA">Field A</span>
+            <span class="tag" id="tagA"></span>
+          </div>
+          <canvas id="canvasA2"></canvas>
+        </div>
+        <div class="field-container">
+          <div class="field-header">
+            <span class="label" id="labelB">Field B</span>
+            <span class="tag" id="tagB"></span>
+          </div>
+          <canvas id="canvasB2"></canvas>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-value" id="statCluster">—</div>
+          <div class="stat-label">Avg Nearest Neighbor</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="statVariance">—</div>
+          <div class="stat-label">Spacing Variance</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="statGuesses">0%</div>
+          <div class="stat-label">Get This Wrong</div>
+        </div>
+      </div>
+
+      <p class="insight" id="insight">
+        Click a field above to see clustering analysis. The "clumpier" one is actually random—humans spread points too evenly when trying to be random.
+      </p>
+
+      <div class="button-row">
+        <button class="primary" onclick="startOver()">Try Again</button>
+        <button onclick="showAnalysis()">Deep Analysis</button>
+      </div>
+    </div>
+
+    <!-- Phase 3: Deep Analysis -->
+    <div class="controls hidden" id="analysisContainer">
+      <div class="instruction">
+        <strong>Why does this happen?</strong><br>
+        When humans try to create "random" patterns, we unconsciously avoid clusters—placing each new point away from existing ones. But true randomness doesn't care about prior points. Random processes naturally create clusters, gaps, and streaks.
+      </div>
+
+      <div class="main-display" style="margin-bottom: 16px;">
+        <div class="field-container">
+          <div class="field-header">
+            <span class="label">Nearest Neighbor Distances</span>
+          </div>
+          <canvas id="canvasHist"></canvas>
+        </div>
+        <div class="field-container">
+          <div class="field-header">
+            <span class="label">Voronoi Cells (Territory per Point)</span>
+          </div>
+          <canvas id="canvasVoronoi"></canvas>
+        </div>
+      </div>
+
+      <p class="insight">
+        <strong>Real-world impact:</strong> This is why we see "hot hands" in basketball (streaks happen in random sequences), cancer clusters from random environmental causes, stock market "patterns" in noise, and why gamblers believe in lucky streaks.
+      </p>
+
+      <div class="button-row">
+        <button class="primary" onclick="startOver()">Start Over</button>
+        <button onclick="animateGeneration()">Watch Generation</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Canvas setup
+    const canvases = {};
+    const contexts = {};
+    let dpr = window.devicePixelRatio || 1;
+
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
+
+    // State
+    let randomField = [];
+    let humanField = [];
+    let randomIsA = Math.random() < 0.5;
+    let userGuessed = false;
+    let totalGuesses = 0;
+    let wrongGuesses = 0;
+
+    // Initialize canvases
+    function initCanvas(id) {
+      const canvas = document.getElementById(id);
+      if (!canvas) return null;
+      const ctx = canvas.getContext('2d');
+      canvases[id] = canvas;
+      contexts[id] = ctx;
+      resizeCanvas(id);
+      return ctx;
+    }
+
+    function resizeCanvas(id) {
+      const canvas = canvases[id];
+      if (!canvas) return;
+      const ctx = contexts[id];
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+      return { width, height };
+    }
+
+    // Generate truly random points
+    function generateRandomPoints(count, width, height, margin = 20) {
+      const points = [];
+      for (let i = 0; i < count; i++) {
+        points.push({
+          x: margin + Math.random() * (width - 2 * margin),
+          y: margin + Math.random() * (height - 2 * margin)
+        });
+      }
+      return points;
+    }
+
+    // Generate "human random" points (avoiding clusters)
+    function generateHumanPoints(count, width, height, margin = 20) {
+      const points = [];
+      const minDist = Math.sqrt((width * height) / count) * 0.7;
+
+      let attempts = 0;
+      while (points.length < count && attempts < count * 100) {
+        const newPoint = {
+          x: margin + Math.random() * (width - 2 * margin),
+          y: margin + Math.random() * (height - 2 * margin)
+        };
+
+        // Check distance to all existing points
+        let tooClose = false;
+        for (const p of points) {
+          const dist = Math.sqrt((p.x - newPoint.x) ** 2 + (p.y - newPoint.y) ** 2);
+          if (dist < minDist) {
+            tooClose = true;
+            break;
+          }
+        }
+
+        if (!tooClose) {
+          points.push(newPoint);
+        }
+        attempts++;
+      }
+
+      // Fill remaining with less strict spacing
+      while (points.length < count) {
+        points.push({
+          x: margin + Math.random() * (width - 2 * margin),
+          y: margin + Math.random() * (height - 2 * margin)
+        });
+      }
+
+      return points;
+    }
+
+    // Draw star field
+    function drawStarField(canvasId, points, showAnalysis = false, highlightClusters = false) {
+      const canvas = canvases[canvasId];
+      const ctx = contexts[canvasId];
+      if (!canvas || !ctx) return;
+
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(0, 0, width, height);
+
+      // Draw grid for reference
+      ctx.strokeStyle = getColor('base-200');
+      ctx.lineWidth = 0.5;
+      const gridSize = 40;
+      for (let x = gridSize; x < width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = gridSize; y < height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      // Highlight clusters if requested
+      if (highlightClusters) {
+        const clusters = findClusters(points, 50);
+        clusters.forEach(cluster => {
+          if (cluster.length >= 3) {
+            ctx.fillStyle = getColor('yellow') + '30';
+            ctx.beginPath();
+            const center = cluster.reduce((acc, p) => ({ x: acc.x + p.x / cluster.length, y: acc.y + p.y / cluster.length }), { x: 0, y: 0 });
+            const radius = Math.max(...cluster.map(p => Math.sqrt((p.x - center.x) ** 2 + (p.y - center.y) ** 2))) + 15;
+            ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+      }
+
+      // Draw points as stars
+      points.forEach((point, i) => {
+        const size = 2 + Math.random() * 2;
+        const brightness = 0.5 + Math.random() * 0.5;
+
+        // Star glow
+        const gradient = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, size * 3);
+        gradient.addColorStop(0, getColor('cyan') + Math.floor(brightness * 99).toString(16).padStart(2, '0'));
+        gradient.addColorStop(1, getColor('cyan') + '00');
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, size * 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Star core
+        ctx.fillStyle = getColor('base-900');
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Show nearest neighbor lines if analysis
+      if (showAnalysis) {
+        points.forEach(point => {
+          let nearest = null;
+          let minDist = Infinity;
+          points.forEach(other => {
+            if (other === point) return;
+            const dist = Math.sqrt((point.x - other.x) ** 2 + (point.y - other.y) ** 2);
+            if (dist < minDist) {
+              minDist = dist;
+              nearest = other;
+            }
+          });
+          if (nearest) {
+            ctx.strokeStyle = getColor('orange') + '60';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(point.x, point.y);
+            ctx.lineTo(nearest.x, nearest.y);
+            ctx.stroke();
+          }
+        });
+      }
+    }
+
+    // Find clusters using simple distance threshold
+    function findClusters(points, threshold) {
+      const visited = new Set();
+      const clusters = [];
+
+      points.forEach((point, i) => {
+        if (visited.has(i)) return;
+
+        const cluster = [point];
+        visited.add(i);
+
+        const queue = [i];
+        while (queue.length > 0) {
+          const current = queue.shift();
+          points.forEach((other, j) => {
+            if (visited.has(j)) return;
+            const dist = Math.sqrt((points[current].x - other.x) ** 2 + (points[current].y - other.y) ** 2);
+            if (dist < threshold) {
+              cluster.push(other);
+              visited.add(j);
+              queue.push(j);
+            }
+          });
+        }
+
+        clusters.push(cluster);
+      });
+
+      return clusters;
+    }
+
+    // Calculate statistics
+    function calcStats(points) {
+      // Average nearest neighbor distance
+      let totalNN = 0;
+      const nnDistances = [];
+      points.forEach(point => {
+        let minDist = Infinity;
+        points.forEach(other => {
+          if (other === point) return;
+          const dist = Math.sqrt((point.x - other.x) ** 2 + (point.y - other.y) ** 2);
+          if (dist < minDist) minDist = dist;
+        });
+        totalNN += minDist;
+        nnDistances.push(minDist);
+      });
+      const avgNN = totalNN / points.length;
+
+      // Variance in spacing
+      const mean = nnDistances.reduce((a, b) => a + b, 0) / nnDistances.length;
+      const variance = nnDistances.reduce((a, b) => a + (b - mean) ** 2, 0) / nnDistances.length;
+
+      return { avgNN: avgNN.toFixed(1), variance: variance.toFixed(1), nnDistances };
+    }
+
+    // Draw histogram
+    function drawHistogram(canvasId, randomDists, humanDists) {
+      const canvas = canvases[canvasId];
+      const ctx = contexts[canvasId];
+      if (!canvas || !ctx) return;
+
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(0, 0, width, height);
+
+      const margin = { top: 30, right: 20, bottom: 50, left: 50 };
+      const chartWidth = width - margin.left - margin.right;
+      const chartHeight = height - margin.top - margin.bottom;
+
+      // Create histogram bins
+      const allDists = [...randomDists, ...humanDists];
+      const maxDist = Math.max(...allDists);
+      const binCount = 15;
+      const binSize = maxDist / binCount;
+
+      const randomBins = new Array(binCount).fill(0);
+      const humanBins = new Array(binCount).fill(0);
+
+      randomDists.forEach(d => {
+        const bin = Math.min(Math.floor(d / binSize), binCount - 1);
+        randomBins[bin]++;
+      });
+
+      humanDists.forEach(d => {
+        const bin = Math.min(Math.floor(d / binSize), binCount - 1);
+        humanBins[bin]++;
+      });
+
+      const maxCount = Math.max(...randomBins, ...humanBins);
+      const barWidth = chartWidth / binCount / 2 - 2;
+
+      // Title
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '11px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('Distribution of Nearest Neighbor Distances', width / 2, 18);
+
+      // Draw bars
+      for (let i = 0; i < binCount; i++) {
+        const x = margin.left + (i * chartWidth / binCount);
+
+        // Random bars (left)
+        const randomH = (randomBins[i] / maxCount) * chartHeight;
+        ctx.fillStyle = getColor('green') + '80';
+        ctx.fillRect(x + 2, margin.top + chartHeight - randomH, barWidth, randomH);
+
+        // Human bars (right)
+        const humanH = (humanBins[i] / maxCount) * chartHeight;
+        ctx.fillStyle = getColor('purple') + '80';
+        ctx.fillRect(x + barWidth + 4, margin.top + chartHeight - humanH, barWidth, humanH);
+      }
+
+      // X axis
+      ctx.strokeStyle = getColor('base-700');
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(margin.left, margin.top + chartHeight);
+      ctx.lineTo(width - margin.right, margin.top + chartHeight);
+      ctx.stroke();
+
+      // X labels
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '9px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      for (let i = 0; i <= 5; i++) {
+        const x = margin.left + (i / 5) * chartWidth;
+        const val = Math.round((i / 5) * maxDist);
+        ctx.fillText(val + 'px', x, margin.top + chartHeight + 15);
+      }
+      ctx.fillText('Distance to Nearest Star', width / 2, height - 10);
+
+      // Legend
+      ctx.fillStyle = getColor('green');
+      ctx.fillRect(margin.left, height - 35, 12, 12);
+      ctx.fillStyle = getColor('base-700');
+      ctx.textAlign = 'left';
+      ctx.fillText('True Random', margin.left + 18, height - 25);
+
+      ctx.fillStyle = getColor('purple');
+      ctx.fillRect(margin.left + 120, height - 35, 12, 12);
+      ctx.fillStyle = getColor('base-700');
+      ctx.fillText('Human "Random"', margin.left + 138, height - 25);
+    }
+
+    // Draw Voronoi-like cell visualization
+    function drawVoronoi(canvasId) {
+      const canvas = canvases[canvasId];
+      const ctx = contexts[canvasId];
+      if (!canvas || !ctx) return;
+
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      const halfW = width / 2;
+
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(0, 0, width, height);
+
+      // Draw label
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '10px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('True Random', halfW / 2, 20);
+      ctx.fillText('Human "Random"', halfW + halfW / 2, 20);
+
+      // Divider
+      ctx.strokeStyle = getColor('base-200');
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(halfW, 30);
+      ctx.lineTo(halfW, height);
+      ctx.stroke();
+
+      // Draw heat map of density
+      const cellSize = 8;
+
+      // Random side
+      for (let x = 0; x < halfW; x += cellSize) {
+        for (let y = 30; y < height; y += cellSize) {
+          const cx = x + cellSize / 2;
+          const cy = y + cellSize / 2;
+
+          // Find distance to nearest point
+          let minDist = Infinity;
+          randomField.forEach(p => {
+            // Scale points to half width
+            const px = p.x * (halfW - 20) / (canvas.clientWidth - 40) + 10;
+            const py = p.y * (height - 50) / (canvas.clientHeight - 40) + 30;
+            const dist = Math.sqrt((cx - px) ** 2 + (cy - py) ** 2);
+            if (dist < minDist) minDist = dist;
+          });
+
+          const intensity = Math.min(1, minDist / 60);
+          const alpha = Math.floor((1 - intensity) * 40).toString(16).padStart(2, '0');
+          ctx.fillStyle = getColor('green') + alpha;
+          ctx.fillRect(x, y, cellSize, cellSize);
+        }
+      }
+
+      // Human side
+      for (let x = halfW; x < width; x += cellSize) {
+        for (let y = 30; y < height; y += cellSize) {
+          const cx = x + cellSize / 2;
+          const cy = y + cellSize / 2;
+
+          let minDist = Infinity;
+          humanField.forEach(p => {
+            const px = halfW + p.x * (halfW - 20) / (canvas.clientWidth - 40) + 10;
+            const py = p.y * (height - 50) / (canvas.clientHeight - 40) + 30;
+            const dist = Math.sqrt((cx - px) ** 2 + (cy - py) ** 2);
+            if (dist < minDist) minDist = dist;
+          });
+
+          const intensity = Math.min(1, minDist / 60);
+          const alpha = Math.floor((1 - intensity) * 40).toString(16).padStart(2, '0');
+          ctx.fillStyle = getColor('purple') + alpha;
+          ctx.fillRect(x, y, cellSize, cellSize);
+        }
+      }
+
+      // Draw points
+      randomField.forEach(p => {
+        const px = p.x * (halfW - 20) / (canvas.clientWidth - 40) + 10;
+        const py = p.y * (height - 50) / (canvas.clientHeight - 40) + 30;
+        ctx.fillStyle = getColor('base-900');
+        ctx.beginPath();
+        ctx.arc(px, py, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      humanField.forEach(p => {
+        const px = halfW + p.x * (halfW - 20) / (canvas.clientWidth - 40) + 10;
+        const py = p.y * (height - 50) / (canvas.clientHeight - 40) + 30;
+        ctx.fillStyle = getColor('base-900');
+        ctx.beginPath();
+        ctx.arc(px, py, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Labels
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '9px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('More variation in cell sizes', halfW / 2, height - 8);
+      ctx.fillText('Uniform cell sizes', halfW + halfW / 2, height - 8);
+    }
+
+    // User makes a guess
+    function makeGuess(choice) {
+      if (userGuessed) return;
+      userGuessed = true;
+      totalGuesses++;
+
+      const correctAnswer = randomIsA ? 'A' : 'B';
+      const isCorrect = choice === correctAnswer;
+
+      if (!isCorrect) wrongGuesses++;
+
+      // Update UI
+      document.getElementById('option' + choice).classList.add(isCorrect ? 'selected' : 'wrong');
+
+      if (!isCorrect) {
+        document.getElementById('option' + correctAnswer).classList.add('selected');
+      }
+
+      // Transition to reveal after delay
+      setTimeout(() => {
+        document.getElementById('phase1').classList.remove('active');
+        document.getElementById('phase1').classList.add('complete');
+        document.getElementById('phase2').classList.add('active');
+
+        document.getElementById('quizContainer').classList.add('hidden');
+        document.getElementById('revealContainer').classList.remove('hidden');
+
+        // Setup reveal canvases
+        initCanvas('canvasA2');
+        initCanvas('canvasB2');
+
+        const fieldA = randomIsA ? randomField : humanField;
+        const fieldB = randomIsA ? humanField : randomField;
+
+        drawStarField('canvasA2', fieldA, true, randomIsA);
+        drawStarField('canvasB2', fieldB, true, !randomIsA);
+
+        // Update labels
+        document.getElementById('tagA').textContent = randomIsA ? 'TRUE RANDOM' : 'HUMAN';
+        document.getElementById('tagA').className = 'tag ' + (randomIsA ? 'tag-random' : 'tag-human');
+        document.getElementById('tagB').textContent = randomIsA ? 'HUMAN' : 'TRUE RANDOM';
+        document.getElementById('tagB').className = 'tag ' + (randomIsA ? 'tag-human' : 'tag-random');
+
+        // Stats
+        const randomStats = calcStats(randomField);
+        const humanStats = calcStats(humanField);
+
+        document.getElementById('statCluster').textContent = randomStats.avgNN + ' vs ' + humanStats.avgNN;
+        document.getElementById('statVariance').textContent = randomStats.variance + ' vs ' + humanStats.variance;
+        document.getElementById('statGuesses').textContent = Math.round(wrongGuesses / totalGuesses * 100) + '%';
+
+        // Update insight
+        const insight = document.getElementById('insight');
+        if (isCorrect) {
+          insight.innerHTML = '<strong>Correct!</strong> You spotted the truly random field. Most people get this wrong because we expect randomness to look more "spread out." The field with clusters and gaps is actually random—true randomness clumps.';
+        } else {
+          insight.innerHTML = '<strong>Fooled by the illusion.</strong> The field you thought was random was actually generated by a human-like algorithm that avoids clusters. True randomness naturally creates clumps and gaps—we just don\'t expect it to.';
+        }
+      }, 1500);
+    }
+
+    function showAnalysis() {
+      document.getElementById('phase2').classList.remove('active');
+      document.getElementById('phase2').classList.add('complete');
+      document.getElementById('phase3').classList.add('active');
+
+      document.getElementById('revealContainer').classList.add('hidden');
+      document.getElementById('analysisContainer').classList.remove('hidden');
+
+      initCanvas('canvasHist');
+      initCanvas('canvasVoronoi');
+
+      const randomStats = calcStats(randomField);
+      const humanStats = calcStats(humanField);
+
+      drawHistogram('canvasHist', randomStats.nnDistances, humanStats.nnDistances);
+      drawVoronoi('canvasVoronoi');
+    }
+
+    function animateGeneration() {
+      // Reset and show quiz with animation
+      startOver();
+    }
+
+    function startOver() {
+      userGuessed = false;
+      randomIsA = Math.random() < 0.5;
+
+      // Reset phases
+      document.getElementById('phase1').className = 'phase-dot active';
+      document.getElementById('phase2').className = 'phase-dot';
+      document.getElementById('phase3').className = 'phase-dot';
+
+      // Reset UI
+      document.getElementById('quizContainer').classList.remove('hidden');
+      document.getElementById('revealContainer').classList.add('hidden');
+      document.getElementById('analysisContainer').classList.add('hidden');
+      document.getElementById('optionA').className = 'quiz-option';
+      document.getElementById('optionB').className = 'quiz-option';
+
+      // Generate new fields
+      const canvasA = canvases['canvasA'];
+      if (canvasA) {
+        const width = canvasA.clientWidth;
+        const height = canvasA.clientHeight;
+
+        randomField = generateRandomPoints(50, width, height);
+        humanField = generateHumanPoints(50, width, height);
+
+        const fieldA = randomIsA ? randomField : humanField;
+        const fieldB = randomIsA ? humanField : randomField;
+
+        drawStarField('canvasA', fieldA);
+        drawStarField('canvasB', fieldB);
+      }
+    }
+
+    // Initialize
+    function init() {
+      initCanvas('canvasA');
+      initCanvas('canvasB');
+
+      const canvasA = canvases['canvasA'];
+      if (canvasA) {
+        const width = canvasA.clientWidth;
+        const height = canvasA.clientHeight;
+
+        randomField = generateRandomPoints(50, width, height);
+        humanField = generateHumanPoints(50, width, height);
+
+        const fieldA = randomIsA ? randomField : humanField;
+        const fieldB = randomIsA ? humanField : randomField;
+
+        drawStarField('canvasA', fieldA);
+        drawStarField('canvasB', fieldB);
+      }
+    }
+
+    window.addEventListener('resize', () => {
+      dpr = window.devicePixelRatio || 1;
+      Object.keys(canvases).forEach(id => {
+        if (canvases[id]) {
+          resizeCanvas(id);
+        }
+      });
+      // Redraw current state
+      if (!userGuessed) {
+        const fieldA = randomIsA ? randomField : humanField;
+        const fieldB = randomIsA ? humanField : randomField;
+        drawStarField('canvasA', fieldA);
+        drawStarField('canvasB', fieldB);
+      }
+    });
+
+    // Start
+    init();
+  </script>
+</body>
+</html>

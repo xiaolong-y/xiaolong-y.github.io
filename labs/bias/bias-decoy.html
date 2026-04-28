@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decoy Effect</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-100: #E6E4D9;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --fx-magenta: #A02F6F;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-100: #282726;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
+        --fx-magenta: #CE5D97;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 950px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-purple);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 800px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--fx-base-200);
+      font-size: 0.85em;
+      font-weight: 500;
+      color: var(--fx-base-900);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-header .phase {
+      font-size: 0.75em;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: var(--fx-purple);
+      color: var(--fx-paper);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 320px;
+    }
+
+    .ranking-panel {
+      padding: 16px;
+    }
+
+    .ranking-instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .ranking-slots {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ranking-slot {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--fx-paper);
+      border: 2px solid var(--fx-base-200);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+
+    .ranking-slot:hover {
+      border-color: var(--fx-blue);
+    }
+
+    .ranking-slot.filled {
+      border-color: var(--fx-green);
+    }
+
+    .ranking-slot.decoy-slot {
+      border-style: dashed;
+      opacity: 0.6;
+    }
+
+    .ranking-slot.decoy-slot.active {
+      opacity: 1;
+      border-style: solid;
+      border-color: var(--fx-orange);
+    }
+
+    .rank-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--fx-base-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      font-size: 0.85em;
+    }
+
+    .rank-number.gold { background: var(--fx-yellow); color: var(--fx-paper); }
+    .rank-number.silver { background: var(--fx-base-700); color: var(--fx-paper); }
+    .rank-number.bronze { background: var(--fx-orange); color: var(--fx-paper); }
+
+    .slot-content {
+      flex: 1;
+      font-size: 0.85em;
+    }
+
+    .slot-content .name {
+      font-weight: 500;
+      color: var(--fx-base-900);
+    }
+
+    .slot-content .attrs {
+      font-size: 0.75em;
+      color: var(--fx-base-700);
+      margin-top: 2px;
+    }
+
+    .slot-empty {
+      color: var(--fx-base-700);
+      font-style: italic;
+      font-size: 0.8em;
+    }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 20px;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .toggle-label {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 60px;
+      height: 32px;
+      background: var(--fx-base-200);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: background var(--duration-medium) var(--ease-mechanical);
+    }
+
+    .toggle-switch.active {
+      background: var(--fx-purple);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 24px;
+      height: 24px;
+      background: var(--fx-paper);
+      border-radius: 50%;
+      transition: transform var(--duration-medium) var(--ease-mechanical);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(28px);
+    }
+
+    .option-cards {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .option-card {
+      background: var(--fx-paper);
+      border: 2px solid var(--fx-base-200);
+      border-radius: 6px;
+      padding: 14px 18px;
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+      min-width: 140px;
+      text-align: center;
+    }
+
+    .option-card:hover {
+      border-color: var(--fx-blue);
+      transform: translateY(-2px);
+    }
+
+    .option-card.selected {
+      border-color: var(--fx-green);
+      background: var(--fx-green);
+      color: var(--fx-paper);
+    }
+
+    .option-card.decoy-card {
+      opacity: 0;
+      transform: scale(0.9);
+      pointer-events: none;
+      width: 0;
+      min-width: 0;
+      padding: 0;
+      margin: 0;
+      border: none;
+    }
+
+    .option-card.decoy-card.visible {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+      min-width: 140px;
+      padding: 14px 18px;
+      border: 2px dashed var(--fx-orange);
+    }
+
+    .option-card .name {
+      font-weight: 500;
+      font-size: 0.9em;
+      margin-bottom: 6px;
+    }
+
+    .option-card .price {
+      font-size: 1.3em;
+      font-weight: 300;
+      margin-bottom: 4px;
+    }
+
+    .option-card .quality {
+      font-size: 0.75em;
+      color: var(--fx-base-700);
+    }
+
+    .option-card.selected .quality {
+      color: var(--fx-paper);
+      opacity: 0.9;
+    }
+
+    .results-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .result-box {
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .result-box h3 {
+      font-size: 0.75em;
+      font-weight: 400;
+      color: var(--fx-base-700);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .result-bar {
+      display: flex;
+      height: 24px;
+      border-radius: 4px;
+      overflow: hidden;
+      background: var(--fx-base-200);
+    }
+
+    .result-segment {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7em;
+      font-weight: 500;
+      color: var(--fx-paper);
+      transition: width var(--duration-medium) var(--ease-mechanical);
+    }
+
+    .result-segment.a { background: var(--fx-blue); }
+    .result-segment.b { background: var(--fx-cyan); }
+    .result-segment.decoy { background: var(--fx-orange); }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 14px;
+      background: var(--fx-paper);
+      border-radius: 4px;
+      border-left: 3px solid var(--fx-purple);
+      line-height: 1.6;
+    }
+
+    .dominance-legend {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 12px;
+      font-size: 0.75em;
+      color: var(--fx-base-700);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.2em; }
+      .results-row { grid-template-columns: 1fr; }
+      .option-cards { flex-direction: column; align-items: center; }
+
+      /* Ensure all text is at least 14px on mobile */
+      .back-nav { font-size: 14px; }
+      .description { font-size: 14px; }
+      .panel-header { font-size: 14px; }
+      .panel-header .phase { font-size: 12px; }
+      .ranking-instruction { font-size: 14px; }
+      .rank-number { font-size: 14px; }
+      .slot-content { font-size: 14px; }
+      .slot-content .attrs { font-size: 12px; }
+      .slot-empty { font-size: 14px; }
+      .toggle-label { font-size: 14px; }
+      .option-card .name { font-size: 14px; }
+      .option-card .quality { font-size: 12px; }
+      .result-box h3 { font-size: 12px; }
+      .result-segment { font-size: 12px; }
+      .insight { font-size: 14px; }
+      .dominance-legend { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../../cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Decoy Effect</h1>
+    <p class="description">
+      When comparing options on multiple attributes, adding a "decoy"—an option that's clearly worse than one choice but not the other—shifts preference toward the dominating option. This violates rational choice theory: adding an option no one wants shouldn't change your ranking.
+    </p>
+
+    <div class="main-layout">
+      <div class="panel">
+        <div class="panel-header">
+          <span>Attribute Space</span>
+          <span class="phase" id="phaseLabel">2 Options</span>
+        </div>
+        <canvas id="canvas"></canvas>
+        <div class="dominance-legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background: var(--fx-blue)"></div>
+            <span>Option A (Budget)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: var(--fx-cyan)"></div>
+            <span>Option B (Premium)</span>
+          </div>
+          <div class="legend-item" id="decoyLegend" style="opacity: 0">
+            <div class="legend-dot" style="background: var(--fx-orange)"></div>
+            <span>Decoy</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span>Your Ranking</span>
+        </div>
+        <div class="ranking-panel">
+          <p class="ranking-instruction">Click an option below to select your top choice:</p>
+
+          <div class="option-cards">
+            <div class="option-card" data-option="A" onclick="selectOption('A')">
+              <div class="name">Option A</div>
+              <div class="price">$60</div>
+              <div class="quality">Quality: 6/10</div>
+            </div>
+            <div class="option-card decoy-card" data-option="decoy" onclick="selectOption('decoy')">
+              <div class="name">Decoy</div>
+              <div class="price">$70</div>
+              <div class="quality">Quality: 5/10</div>
+            </div>
+            <div class="option-card" data-option="B" onclick="selectOption('B')">
+              <div class="name">Option B</div>
+              <div class="price">$90</div>
+              <div class="quality">Quality: 9/10</div>
+            </div>
+          </div>
+
+          <div class="ranking-slots">
+            <div class="ranking-slot" id="rank1">
+              <div class="rank-number gold">1</div>
+              <div class="slot-content">
+                <span class="slot-empty" id="slot1Text">Select your top choice</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="toggle-row">
+        <span class="toggle-label">Without Decoy</span>
+        <div class="toggle-switch" id="decoyToggle" onclick="toggleDecoy()"></div>
+        <span class="toggle-label">With Decoy</span>
+      </div>
+
+      <div class="results-row">
+        <div class="result-box">
+          <h3>Without Decoy</h3>
+          <div class="result-bar">
+            <div class="result-segment a" id="barA1" style="width: 52%">52%</div>
+            <div class="result-segment b" id="barB1" style="width: 48%">48%</div>
+          </div>
+        </div>
+        <div class="result-box">
+          <h3>With Decoy</h3>
+          <div class="result-bar">
+            <div class="result-segment a" id="barA2" style="width: 25%">25%</div>
+            <div class="result-segment b" id="barB2" style="width: 74%">74%</div>
+            <div class="result-segment decoy" id="barDecoy" style="width: 1%">1%</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="insight" id="insight">
+        <strong>Without the decoy:</strong> Options A and B have a tradeoff—A is cheaper, B is better quality. Neither dominates. People split roughly evenly based on what they value more.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
+
+    // State
+    let decoyVisible = false;
+    let userChoice = null;
+    let animationPhase = 0;
+
+    // Options data (normalized 0-1)
+    const options = {
+      A: { x: 0.3, y: 0.55, price: 60, quality: 6, label: 'A' },
+      B: { x: 0.7, y: 0.85, price: 90, quality: 9, label: 'B' },
+      decoy: { x: 0.4, y: 0.45, price: 70, quality: 5, label: 'D' }
+    };
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function draw() {
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(0, 0, width, height);
+
+      const margin = { left: 60, right: 30, top: 30, bottom: 50 };
+      const chartW = width - margin.left - margin.right;
+      const chartH = height - margin.top - margin.bottom;
+
+      animationPhase += 0.02;
+
+      // Draw axes
+      ctx.strokeStyle = getColor('base-200');
+      ctx.lineWidth = 1;
+
+      // X axis (Price - lower is better, so flip)
+      ctx.beginPath();
+      ctx.moveTo(margin.left, height - margin.bottom);
+      ctx.lineTo(width - margin.right, height - margin.bottom);
+      ctx.stroke();
+
+      // Y axis (Quality - higher is better)
+      ctx.beginPath();
+      ctx.moveTo(margin.left, margin.top);
+      ctx.lineTo(margin.left, height - margin.bottom);
+      ctx.stroke();
+
+      // Axis labels
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '10px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('← Better Price                    Higher Price →', width / 2, height - 10);
+
+      ctx.save();
+      ctx.translate(15, height / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText('← Lower Quality    Higher Quality →', 0, 0);
+      ctx.restore();
+
+      // Grid lines
+      ctx.strokeStyle = getColor('base-200') + '60';
+      ctx.setLineDash([3, 3]);
+      for (let i = 0.25; i <= 1; i += 0.25) {
+        ctx.beginPath();
+        ctx.moveTo(margin.left, margin.top + chartH * (1 - i));
+        ctx.lineTo(width - margin.right, margin.top + chartH * (1 - i));
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(margin.left + chartW * i, margin.top);
+        ctx.lineTo(margin.left + chartW * i, height - margin.bottom);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+
+      // Draw dominance region if decoy visible
+      if (decoyVisible) {
+        const decoyX = margin.left + options.decoy.x * chartW;
+        const decoyY = margin.top + (1 - options.decoy.y) * chartH;
+        const bX = margin.left + options.B.x * chartW;
+        const bY = margin.top + (1 - options.B.y) * chartH;
+
+        // B dominates decoy - show region
+        ctx.fillStyle = getColor('cyan') + '15';
+        ctx.beginPath();
+        ctx.moveTo(decoyX, decoyY);
+        ctx.lineTo(decoyX, margin.top);
+        ctx.lineTo(margin.left, margin.top);
+        ctx.lineTo(margin.left, decoyY);
+        ctx.closePath();
+        ctx.fill();
+
+        // Dominance arrow from decoy to B
+        ctx.strokeStyle = getColor('orange') + '80';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(decoyX, decoyY);
+        ctx.lineTo(bX, bY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Arrow head
+        const angle = Math.atan2(bY - decoyY, bX - decoyX);
+        ctx.fillStyle = getColor('orange') + '80';
+        ctx.beginPath();
+        ctx.moveTo(bX - 20 * Math.cos(angle), bY - 20 * Math.sin(angle));
+        ctx.lineTo(bX - 20 * Math.cos(angle) - 8 * Math.cos(angle - Math.PI / 6), bY - 20 * Math.sin(angle) - 8 * Math.sin(angle - Math.PI / 6));
+        ctx.lineTo(bX - 20 * Math.cos(angle) - 8 * Math.cos(angle + Math.PI / 6), bY - 20 * Math.sin(angle) - 8 * Math.sin(angle + Math.PI / 6));
+        ctx.closePath();
+        ctx.fill();
+
+        // "B dominates D" label
+        ctx.fillStyle = getColor('cyan');
+        ctx.font = '9px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('B dominates Decoy', (decoyX + bX) / 2, (decoyY + bY) / 2 - 10);
+      }
+
+      // Draw options
+      const drawOption = (opt, color, isDecoy = false, pulse = false) => {
+        const x = margin.left + opt.x * chartW;
+        const y = margin.top + (1 - opt.y) * chartH;
+        const size = isDecoy ? 12 : 16;
+        const actualSize = pulse ? size + Math.sin(animationPhase * 3) * 3 : size;
+
+        // Glow
+        if (pulse) {
+          const gradient = ctx.createRadialGradient(x, y, 0, x, y, actualSize * 2);
+          gradient.addColorStop(0, color + '40');
+          gradient.addColorStop(1, color + '00');
+          ctx.fillStyle = gradient;
+          ctx.beginPath();
+          ctx.arc(x, y, actualSize * 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Main circle
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x, y, actualSize, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Label
+        ctx.fillStyle = getColor('paper');
+        ctx.font = `bold ${isDecoy ? 10 : 12}px IBM Plex Mono`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(opt.label, x, y);
+
+        // Price/Quality tooltip
+        ctx.fillStyle = getColor('base-900');
+        ctx.font = '9px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(`$${opt.price}`, x, y + actualSize + 6);
+        ctx.fillStyle = getColor('base-700');
+        ctx.fillText(`Q: ${opt.quality}/10`, x, y + actualSize + 18);
+      };
+
+      // Draw A
+      const isASelected = userChoice === 'A';
+      drawOption(options.A, getColor('blue'), false, isASelected);
+
+      // Draw B
+      const isBSelected = userChoice === 'B';
+      drawOption(options.B, getColor('cyan'), false, isBSelected);
+
+      // Draw Decoy if visible
+      if (decoyVisible) {
+        const isDecoySelected = userChoice === 'decoy';
+        drawOption(options.decoy, getColor('orange'), true, isDecoySelected);
+      }
+
+      // "Better" corner indicator
+      ctx.fillStyle = getColor('green') + '30';
+      ctx.beginPath();
+      ctx.moveTo(margin.left, margin.top);
+      ctx.lineTo(margin.left + 60, margin.top);
+      ctx.lineTo(margin.left, margin.top + 60);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = getColor('green');
+      ctx.font = '8px IBM Plex Mono';
+      ctx.textAlign = 'left';
+      ctx.fillText('BEST', margin.left + 5, margin.top + 15);
+
+      requestAnimationFrame(draw);
+    }
+
+    function toggleDecoy() {
+      decoyVisible = !decoyVisible;
+      const toggle = document.getElementById('decoyToggle');
+      const decoyCard = document.querySelector('.decoy-card');
+      const phaseLabel = document.getElementById('phaseLabel');
+      const decoyLegend = document.getElementById('decoyLegend');
+
+      toggle.classList.toggle('active', decoyVisible);
+      decoyCard.classList.toggle('visible', decoyVisible);
+      phaseLabel.textContent = decoyVisible ? '3 Options' : '2 Options';
+      decoyLegend.style.opacity = decoyVisible ? 1 : 0;
+
+      // Clear selection when toggling
+      userChoice = null;
+      document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('slot1Text').textContent = 'Select your top choice';
+      document.getElementById('slot1Text').className = 'slot-empty';
+
+      updateInsight();
+    }
+
+    function selectOption(option) {
+      if (option === 'decoy' && !decoyVisible) return;
+
+      userChoice = option;
+
+      document.querySelectorAll('.option-card').forEach(c => {
+        c.classList.toggle('selected', c.dataset.option === option);
+      });
+
+      // Update ranking display
+      const slotText = document.getElementById('slot1Text');
+      const opt = options[option];
+      slotText.innerHTML = `<span class="name">${option === 'decoy' ? 'Decoy' : 'Option ' + option}</span><span class="attrs"> — $${opt.price}, Quality ${opt.quality}/10</span>`;
+      slotText.className = 'slot-content';
+
+      updateInsight();
+    }
+
+    function updateInsight() {
+      const insight = document.getElementById('insight');
+
+      if (!decoyVisible) {
+        if (userChoice === 'A') {
+          insight.innerHTML = '<strong>You chose Option A.</strong> You prioritized price over quality. Without a decoy, about 52% of people make this choice—it\'s a genuine value judgment.';
+        } else if (userChoice === 'B') {
+          insight.innerHTML = '<strong>You chose Option B.</strong> You prioritized quality over price. Without a decoy, about 48% of people make this choice—it\'s a genuine value judgment.';
+        } else {
+          insight.innerHTML = '<strong>Without the decoy:</strong> Options A and B have a tradeoff—A is cheaper, B is better quality. Neither dominates. People split roughly evenly based on what they value more.';
+        }
+      } else {
+        if (userChoice === 'B') {
+          insight.innerHTML = '<strong>You chose Option B.</strong> With the decoy, 74% choose B (vs 48% without). The decoy makes B\'s value obvious—it\'s better AND cheaper than the decoy. This is <em>asymmetric dominance</em>.';
+        } else if (userChoice === 'A') {
+          insight.innerHTML = '<strong>You chose Option A.</strong> You resisted the decoy effect! Only 25% still choose A when the decoy is present (vs 52% without). Most people get pulled toward B.';
+        } else if (userChoice === 'decoy') {
+          insight.innerHTML = '<strong>You chose the Decoy!</strong> Virtually no one (1%) chooses the decoy—it exists only to make Option B look better by comparison. It\'s dominated by B in both price AND quality.';
+        } else {
+          insight.innerHTML = '<strong>With the decoy:</strong> The decoy is dominated by B (worse quality AND higher price). This makes B look obviously better. A is NOT dominated by decoy, so it doesn\'t benefit. Preference shifts from 48% → 74% for B.';
+        }
+      }
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+  </script>
+</body>
+</html>

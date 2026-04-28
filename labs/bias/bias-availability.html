@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Availability Heuristic</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-red);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .canvas-container {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 420px;
+      cursor: pointer;
+    }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+    }
+
+    .toggle-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .toggle-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85em;
+      padding: 10px 18px;
+      background: var(--fx-paper);
+      border: 2px solid var(--fx-base-200);
+      border-radius: 3px;
+      color: var(--fx-base-700);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .toggle-btn:hover {
+      border-color: var(--fx-blue);
+      color: var(--fx-blue);
+    }
+
+    .toggle-btn.active {
+      background: var(--fx-orange);
+      border-color: var(--fx-orange);
+      color: var(--fx-paper);
+    }
+
+    .toggle-btn.active.reality {
+      background: var(--fx-green);
+      border-color: var(--fx-green);
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-red);
+    }
+
+    @media (max-width: 600px) {
+      canvas { height: 380px; }
+      h1 { font-size: 1.2em; }
+      .toggle-btn { padding: 8px 12px; font-size: 0.75em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../../cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Availability Heuristic</h1>
+    <p class="description">
+      We judge probability by how easily examples come to mind. Vivid, emotional, heavily-covered events feel common; mundane but frequent events feel rare. The media shapes our mental landscape more than statistics do.
+    </p>
+
+    <div class="canvas-container">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <p class="instruction">Toggle between how dangers FEEL (media perception) vs what they ACTUALLY are (statistical reality).</p>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="mediaBtn">Media Perception</button>
+        <button class="toggle-btn" id="realityBtn">Statistical Reality</button>
+      </div>
+      <p class="insight" id="insight">In media perception, rare but dramatic events dominate. Shark attacks get 1000x the coverage per death compared to heart disease.</p>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
+
+    // State
+    let showReality = false;
+    let transitionProgress = 0; // 0 = media, 1 = reality
+
+    // Causes of death data (US annual deaths, approximate)
+    const causes = [
+      { name: 'Shark Attack', mediaSize: 80, realitySize: 4, color: 'red', deaths: 1 },
+      { name: 'Terrorism', mediaSize: 75, realitySize: 6, color: 'orange', deaths: 50 },
+      { name: 'Plane Crash', mediaSize: 70, realitySize: 8, color: 'purple', deaths: 200 },
+      { name: 'Lightning', mediaSize: 55, realitySize: 10, color: 'yellow', deaths: 40 },
+      { name: 'Falling Objects', mediaSize: 35, realitySize: 14, color: 'base-700', deaths: 800 },
+      { name: 'Drowning', mediaSize: 30, realitySize: 22, color: 'cyan', deaths: 4000 },
+      { name: 'Car Accident', mediaSize: 25, realitySize: 45, color: 'blue', deaths: 40000 },
+      { name: 'Flu', mediaSize: 18, realitySize: 50, color: 'base-700', deaths: 50000 },
+      { name: 'Stroke', mediaSize: 15, realitySize: 60, color: 'base-700', deaths: 150000 },
+      { name: 'Heart Disease', mediaSize: 12, realitySize: 90, color: 'green', deaths: 700000 },
+    ];
+
+    // Position bubbles in a semi-organized layout
+    function initPositions() {
+      causes.forEach((c, i) => {
+        const angle = (i / causes.length) * Math.PI * 1.8 - Math.PI * 0.4;
+        const radius = 120 + Math.random() * 40;
+        c.baseX = 0.5 + Math.cos(angle) * 0.25;
+        c.baseY = 0.5 + Math.sin(angle) * 0.25;
+        c.wobblePhase = Math.random() * Math.PI * 2;
+        c.currentSize = c.mediaSize;
+        c.targetSize = c.mediaSize;
+      });
+    }
+
+    initPositions();
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function draw() {
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(0, 0, width, height);
+
+      // Animate transition
+      const targetProgress = showReality ? 1 : 0;
+      transitionProgress += (targetProgress - transitionProgress) * 0.08;
+
+      // Update sizes
+      causes.forEach(c => {
+        c.targetSize = lerp(c.mediaSize, c.realitySize, transitionProgress);
+        c.currentSize += (c.targetSize - c.currentSize) * 0.1;
+      });
+
+      // Sort by size for proper layering
+      const sortedCauses = [...causes].sort((a, b) => b.currentSize - a.currentSize);
+
+      // Draw bubbles
+      const time = Date.now() * 0.001;
+
+      sortedCauses.forEach(c => {
+        const wobbleX = Math.sin(time + c.wobblePhase) * 5;
+        const wobbleY = Math.cos(time * 0.7 + c.wobblePhase) * 5;
+
+        const x = c.baseX * width + wobbleX;
+        const y = c.baseY * height + wobbleY;
+        const size = c.currentSize * (width / 600);
+
+        // Bubble glow
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, size * 1.2);
+        const color = getColor(c.color);
+        gradient.addColorStop(0, color + '40');
+        gradient.addColorStop(0.7, color + '20');
+        gradient.addColorStop(1, color + '00');
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(x, y, size * 1.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bubble body
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.85;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        // Label
+        if (size > 15) {
+          ctx.fillStyle = getColor('paper');
+          const fontSize = Math.max(8, Math.min(size * 0.3, 14));
+          ctx.font = `${fontSize}px IBM Plex Mono`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          // Wrap text for larger bubbles
+          if (size > 40) {
+            const words = c.name.split(' ');
+            if (words.length > 1) {
+              ctx.fillText(words[0], x, y - fontSize * 0.5);
+              ctx.fillText(words.slice(1).join(' '), x, y + fontSize * 0.5);
+            } else {
+              ctx.fillText(c.name, x, y);
+            }
+          } else {
+            ctx.fillText(c.name, x, y);
+          }
+        }
+      });
+
+      // Title indicating current view
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '11px IBM Plex Mono';
+      ctx.textAlign = 'center';
+
+      if (transitionProgress < 0.5) {
+        ctx.fillText('MEDIA PERCEPTION: Bubble size = how "available" in memory', width / 2, 25);
+      } else {
+        ctx.fillText('STATISTICAL REALITY: Bubble size = actual deaths per year', width / 2, 25);
+      }
+
+      // Legend
+      ctx.font = '9px IBM Plex Mono';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = getColor('base-700');
+      ctx.fillText('Bubble size represents:', 15, height - 35);
+      if (transitionProgress < 0.5) {
+        ctx.fillStyle = getColor('orange');
+        ctx.fillText('Mental availability (media coverage, emotional impact)', 15, height - 20);
+      } else {
+        ctx.fillStyle = getColor('green');
+        ctx.fillText('Actual probability of death (statistical data)', 15, height - 20);
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    function updateInsight() {
+      const insight = document.getElementById('insight');
+      if (showReality) {
+        insight.textContent = 'Reality inverts perception: Heart disease kills 700,000 Americans yearly. Shark attacks kill ~1. Yet sharks dominate our fear landscape.';
+        insight.style.borderLeftColor = getColor('green');
+      } else {
+        insight.textContent = 'In media perception, rare but dramatic events dominate. Shark attacks get 1000x the coverage per death compared to heart disease.';
+        insight.style.borderLeftColor = getColor('red');
+      }
+    }
+
+    document.getElementById('mediaBtn').addEventListener('click', () => {
+      showReality = false;
+      document.getElementById('mediaBtn').classList.add('active');
+      document.getElementById('realityBtn').classList.remove('active');
+      updateInsight();
+    });
+
+    document.getElementById('realityBtn').addEventListener('click', () => {
+      showReality = true;
+      document.getElementById('realityBtn').classList.add('active', 'reality');
+      document.getElementById('mediaBtn').classList.remove('active');
+      updateInsight();
+    });
+
+    canvas.addEventListener('click', () => {
+      showReality = !showReality;
+      document.getElementById('mediaBtn').classList.toggle('active', !showReality);
+      document.getElementById('realityBtn').classList.toggle('active', showReality);
+      if (showReality) {
+        document.getElementById('realityBtn').classList.add('reality');
+      }
+      updateInsight();
+    });
+
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+  </script>
+</body>
+</html>

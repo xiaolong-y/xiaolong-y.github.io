@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmation Bias</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-orange);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .canvas-container {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 450px;
+    }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+    }
+
+    .belief-toggle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toggle-label {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      background: var(--fx-base-200);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background var(--duration-fast) var(--ease-mechanical);
+    }
+
+    .toggle-switch.active {
+      background: var(--fx-yellow);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      background: var(--fx-paper);
+      border-radius: 50%;
+      transition: transform var(--duration-fast) var(--ease-mechanical);
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(24px);
+    }
+
+    .belief-state {
+      font-size: 0.85em;
+      font-weight: 400;
+      color: var(--fx-base-900);
+    }
+
+    @media (max-width: 600px) {
+      canvas { height: 350px; }
+      h1 { font-size: 1.2em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../../cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Confirmation Bias</h1>
+    <p class="description">
+      We actively seek, notice, and remember information that confirms our existing beliefs while filtering out contradicting evidence. Toggle the belief lens to see how the same stream of evidence appears completely different through biased versus open perception.
+    </p>
+
+    <div class="canvas-container">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <p class="instruction">Toggle the belief lens to compare biased versus open-minded perception of the same evidence stream.</p>
+      <div class="belief-toggle">
+        <span class="toggle-label">Belief Lens</span>
+        <div class="toggle-switch active" id="toggle"></div>
+        <span class="belief-state" id="state">Active - Filtering Evidence</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+    let beliefActive = true;
+    let evidence = [];
+    let lensRadius = 0;
+    let lensTargetRadius = 0;
+
+    // Colors
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
+
+    class Evidence {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        // Start from left side
+        this.x = -30;
+        this.y = height * 0.15 + Math.random() * height * 0.7;
+        this.vx = 1 + Math.random() * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.3;
+
+        // 50% confirming, 50% contradicting
+        this.confirming = Math.random() < 0.5;
+        this.baseSize = 8 + Math.random() * 6;
+        this.size = this.baseSize;
+        this.opacity = 0.8;
+        this.angle = 0;
+
+        // Visual properties
+        this.shape = Math.floor(Math.random() * 3); // 0=circle, 1=square, 2=triangle
+      }
+
+      update() {
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const dx = this.x - centerX;
+        const dy = this.y - centerY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (beliefActive && dist < lensRadius + 50) {
+          // Inside or near the belief lens
+          if (this.confirming) {
+            // Confirming evidence: pulled toward center, grows, brightens
+            const pull = 0.02 * (1 - dist / (lensRadius + 50));
+            this.vx -= dx * pull * 0.01;
+            this.vy -= dy * pull * 0.01;
+            this.size = this.baseSize * (1.2 + (1 - dist / lensRadius) * 0.5);
+            this.opacity = Math.min(1, 0.8 + (1 - dist / lensRadius) * 0.3);
+          } else {
+            // Contradicting evidence: pushed away, shrinks, fades
+            const push = 0.05 * (1 - dist / (lensRadius + 50));
+            this.vx += dx * push * 0.02;
+            this.vy += dy * push * 0.02;
+            this.size = this.baseSize * Math.max(0.3, dist / lensRadius * 0.8);
+            this.opacity = Math.max(0.15, dist / lensRadius * 0.6);
+          }
+        } else {
+          // Outside lens or belief inactive - normal appearance
+          this.size = this.baseSize;
+          this.opacity = 0.8;
+        }
+
+        this.x += this.vx;
+        this.y += this.vy;
+        this.angle += 0.02;
+
+        // Reset if off screen
+        if (this.x > width + 50) {
+          this.reset();
+        }
+
+        // Boundary bounce
+        if (this.y < 20 || this.y > height - 20) {
+          this.vy *= -1;
+          this.y = Math.max(20, Math.min(height - 20, this.y));
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.opacity;
+
+        const color = this.confirming ? getColor('blue') : getColor('red');
+        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+
+        if (this.shape === 0) {
+          // Circle
+          ctx.beginPath();
+          ctx.arc(0, 0, this.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (this.shape === 1) {
+          // Square
+          ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+        } else {
+          // Triangle
+          ctx.beginPath();
+          ctx.moveTo(0, -this.size / 2);
+          ctx.lineTo(this.size / 2, this.size / 2);
+          ctx.lineTo(-this.size / 2, this.size / 2);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+
+      lensRadius = Math.min(width, height) * 0.25;
+      lensTargetRadius = beliefActive ? lensRadius : 0;
+    }
+
+    function init() {
+      evidence = [];
+      for (let i = 0; i < 30; i++) {
+        const e = new Evidence();
+        e.x = Math.random() * width; // Spread initially
+        evidence.push(e);
+      }
+    }
+
+    function drawLens() {
+      const centerX = width / 2;
+      const centerY = height / 2;
+
+      // Animate lens radius
+      lensTargetRadius = beliefActive ? lensRadius : 0;
+      const currentLens = lensTargetRadius;
+
+      if (currentLens > 5) {
+        // Lens glow
+        const gradient = ctx.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, currentLens
+        );
+        gradient.addColorStop(0, getColor('yellow') + '25');
+        gradient.addColorStop(0.7, getColor('yellow') + '10');
+        gradient.addColorStop(1, getColor('yellow') + '00');
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, currentLens, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Lens border
+        ctx.strokeStyle = getColor('yellow') + '40';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, currentLens, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Label
+        ctx.fillStyle = getColor('yellow');
+        ctx.font = '11px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('BELIEF', centerX, centerY - 5);
+        ctx.font = '9px IBM Plex Mono';
+        ctx.fillStyle = getColor('base-700');
+        ctx.fillText('lens', centerX, centerY + 8);
+      }
+    }
+
+    function drawLegend() {
+      const x = 16;
+      const y = height - 50;
+
+      ctx.font = '10px IBM Plex Mono';
+      ctx.textAlign = 'left';
+
+      // Confirming
+      ctx.fillStyle = getColor('blue');
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = getColor('base-700');
+      ctx.fillText('Confirming evidence', x + 12, y + 4);
+
+      // Contradicting
+      ctx.fillStyle = getColor('red');
+      ctx.beginPath();
+      ctx.arc(x, y + 20, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = getColor('base-700');
+      ctx.fillText('Contradicting evidence', x + 12, y + 24);
+    }
+
+    function animate() {
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(0, 0, width, height);
+
+      drawLens();
+
+      evidence.forEach(e => {
+        e.update();
+        e.draw();
+      });
+
+      // Add new evidence occasionally
+      if (Math.random() < 0.02 && evidence.length < 40) {
+        evidence.push(new Evidence());
+      }
+
+      drawLegend();
+
+      requestAnimationFrame(animate);
+    }
+
+    // Toggle interaction
+    const toggle = document.getElementById('toggle');
+    const state = document.getElementById('state');
+
+    toggle.addEventListener('click', () => {
+      beliefActive = !beliefActive;
+      toggle.classList.toggle('active', beliefActive);
+      state.textContent = beliefActive ? 'Active - Filtering Evidence' : 'Inactive - Open Perception';
+    });
+
+    resize();
+    window.addEventListener('resize', () => {
+      resize();
+      init();
+    });
+    init();
+    animate();
+  </script>
+</body>
+</html>

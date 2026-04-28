@@ -169,11 +169,54 @@
       font-weight: 200;
     }
 
-    @media (max-width: 600px) {
+    .site-nav {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      position: fixed;
+      top: 48px;
+      right: max(18px, calc(50vw - 450px));
+      width: 155px;
+      z-index: 1000;
+      font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+
+    .site-nav li {
+      display: block;
+      margin: 0.18rem 0;
+    }
+
+    .site-nav li:not(:last-child)::after {
+      content: "";
+    }
+
+    .site-nav a {
+      color: var(--fx-blue, #205EA6);
+    }
+
+    .site-nav a:hover {
+      color: var(--fx-cyan, #24837B);
+    }
+
+    @media (max-width: 760px) {
       .site-nav {
-        flex-wrap: wrap;
-        gap: var(--sp-2);
+        position: static;
+        width: auto;
+        margin: 1.25rem 0 2rem;
       }
+
+      .site-nav li {
+        display: inline;
+        margin: 0;
+      }
+
+      .site-nav li:not(:last-child)::after {
+        content: " / ";
+        color: #777;
+      }
+    }
+
+    @media (max-width: 600px) {
       .bias-grid {
         grid-template-columns: 1fr;
       }
@@ -181,9 +224,19 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <a href="/" class="back-link"><span>&larr;</span> back</a>
+<ul class="site-nav">
+  <li><a href="/">Home</a></li>
+  <li><a href="pdfs/Resume_XiaolongYang_27.pdf">Resume</a></li>
+  <li><a href="research.html">Research</a></li>
+  <li><a href="software.html">Software</a></li>
+  <li><a href="teaching.html">Teaching</a></li>
+  <li><a href="bookshelf.html">Bookshelf</a></li>
+  <li><a href="blog/">Blog</a></li>
+  <li><a href="quotes.html">Quotes</a></li>
+  <li><a href="labs/">Maker Space</a></li>
+</ul>
 
+  <div class="container">
     <header class="page-header">
       <h1>Cognitive Biases</h1>
       <p class="page-intro">
@@ -192,140 +245,140 @@
     </header>
 
     <div class="bias-grid">
-      <a href="bias-confirmation.html" class="bias-card">
+      <a href="labs/bias/bias-confirmation.html" class="bias-card">
         <div class="bias-title">Confirmation Bias</div>
         <div class="bias-description">
           We seek evidence that confirms what we already believe and dismiss what contradicts it.
         </div>
       </a>
 
-      <a href="bias-anchoring.html" class="bias-card">
+      <a href="labs/bias/bias-anchoring.html" class="bias-card">
         <div class="bias-title">Anchoring Bias</div>
         <div class="bias-description">
           The first number we encounter becomes a reference point that skews all subsequent judgments.
         </div>
       </a>
 
-      <a href="bias-hindsight.html" class="bias-card">
+      <a href="labs/bias/bias-hindsight.html" class="bias-card">
         <div class="bias-title">Hindsight Bias</div>
         <div class="bias-description">
           After learning an outcome, we believe we "knew it all along" as memory reconstructs the past.
         </div>
       </a>
 
-      <a href="bias-dunning-kruger.html" class="bias-card">
+      <a href="labs/bias/bias-dunning-kruger.html" class="bias-card">
         <div class="bias-title">Dunning-Kruger Effect</div>
         <div class="bias-description">
           Those with low ability overestimate their competence; those with high ability underestimate.
         </div>
       </a>
 
-      <a href="bias-bandwagon.html" class="bias-card">
+      <a href="labs/bias/bias-bandwagon.html" class="bias-card">
         <div class="bias-title">Bandwagon Effect</div>
         <div class="bias-description">
           We adopt beliefs and behaviors because we perceive that many others do.
         </div>
       </a>
 
-      <a href="bias-spotlight.html" class="bias-card">
+      <a href="labs/bias/bias-spotlight.html" class="bias-card">
         <div class="bias-title">Spotlight Effect</div>
         <div class="bias-description">
           We drastically overestimate how much others notice our appearance and behavior.
         </div>
       </a>
 
-      <a href="bias-sunk-cost.html" class="bias-card">
+      <a href="labs/bias/bias-sunk-cost.html" class="bias-card">
         <div class="bias-title">Sunk Cost Fallacy</div>
         <div class="bias-description">
           We continue investing in failing endeavors because of what we've already invested.
         </div>
       </a>
 
-      <a href="bias-framing.html" class="bias-card">
+      <a href="labs/bias/bias-framing.html" class="bias-card">
         <div class="bias-title">Framing Effect</div>
         <div class="bias-description">
           Identical information presented differently leads to different decisions.
         </div>
       </a>
 
-      <a href="bias-availability.html" class="bias-card">
+      <a href="labs/bias/bias-availability.html" class="bias-card">
         <div class="bias-title">Availability Heuristic</div>
         <div class="bias-description">
           We judge frequency by how easily examples come to mind, overweighting vivid events.
         </div>
       </a>
 
-      <a href="bias-halo.html" class="bias-card">
+      <a href="labs/bias/bias-halo.html" class="bias-card">
         <div class="bias-title">Halo Effect</div>
         <div class="bias-description">
           One positive trait colors our perception of unrelated traits, creating a halo of assumptions.
         </div>
       </a>
 
-      <a href="bias-loss-aversion.html" class="bias-card">
+      <a href="labs/bias/bias-loss-aversion.html" class="bias-card">
         <div class="bias-title">Loss Aversion</div>
         <div class="bias-description">
           Losses hurt approximately twice as much as equivalent gains feel good.
         </div>
       </a>
 
-      <a href="bias-recency.html" class="bias-card">
+      <a href="labs/bias/bias-recency.html" class="bias-card">
         <div class="bias-title">Recency Bias</div>
         <div class="bias-description">
           Recent events weigh more heavily than older ones in memory and judgment.
         </div>
       </a>
 
-      <a href="bias-survivorship.html" class="bias-card">
+      <a href="labs/bias/bias-survivorship.html" class="bias-card">
         <div class="bias-title">Survivorship Bias</div>
         <div class="bias-description">
           We focus on survivors while ignoring the silent evidence of failures.
         </div>
       </a>
 
-      <a href="bias-clustering.html" class="bias-card">
+      <a href="labs/bias/bias-clustering.html" class="bias-card">
         <div class="bias-title">Clustering Illusion</div>
         <div class="bias-description">
           We see patterns and "hot streaks" in random data that aren't really there.
         </div>
       </a>
 
-      <a href="bias-attentional-blink.html" class="bias-card">
+      <a href="labs/bias/bias-attentional-blink.html" class="bias-card">
         <div class="bias-title">Attentional Blink</div>
         <div class="bias-description">
           After spotting something important, we have a 200-500ms blind spot for the next thing.
         </div>
       </a>
 
-      <a href="bias-black-swan.html" class="bias-card">
+      <a href="labs/bias/bias-black-swan.html" class="bias-card">
         <div class="bias-title">Black Swan Blindness</div>
         <div class="bias-description">
           We systematically underestimate rare, catastrophic events because normalcy dominates our experience.
         </div>
       </a>
 
-      <a href="bias-narrative.html" class="bias-card">
+      <a href="labs/bias/bias-narrative.html" class="bias-card">
         <div class="bias-title">Narrative Fallacy</div>
         <div class="bias-description">
           We create coherent stories to explain random events, making chaos feel orderly.
         </div>
       </a>
 
-      <a href="bias-authority.html" class="bias-card">
+      <a href="labs/bias/bias-authority.html" class="bias-card">
         <div class="bias-title">Authority Bias</div>
         <div class="bias-description">
           We trust people with titles and credentials—even when irrelevant to the domain.
         </div>
       </a>
 
-      <a href="bias-social-proof.html" class="bias-card">
+      <a href="labs/bias/bias-social-proof.html" class="bias-card">
         <div class="bias-title">Social Proof</div>
         <div class="bias-description">
           We look to others' behavior to determine correct action, assuming the crowd knows best.
         </div>
       </a>
 
-      <a href="bias-decoy.html" class="bias-card">
+      <a href="labs/bias/bias-decoy.html" class="bias-card">
         <div class="bias-title">Decoy Effect</div>
         <div class="bias-description">
           Adding an inferior third option changes preference between the original two.

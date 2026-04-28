@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option E: Year Ribbon</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --paper: #FFFCF0;
+      --ink: #1C1B1A;
+      --muted: #6F6E69;
+      --available: #66800B;
+      --occupied: #E6E4D9;
+      --deadline: #D14D41;
+      --line: #DAD8CE;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #100F0F;
+        --ink: #CECDC3;
+        --muted: #878580;
+        --available: #879A39;
+        --occupied: #282726;
+        --deadline: #D14D41;
+        --line: #403E3C;
+      }
+    }
+
+    body {
+      font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+      font-size: 12px;
+      background: var(--paper);
+      color: var(--ink);
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .ribbon-container {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .month-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .month-label {
+      width: 28px;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      flex-shrink: 0;
+    }
+
+    .days-bar {
+      display: flex;
+      gap: 1px;
+      flex-grow: 1;
+    }
+
+    .day {
+      width: 9px;
+      height: 14px;
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+
+    .day.available {
+      background: var(--available);
+    }
+
+    .day.occupied {
+      background: var(--occupied);
+    }
+
+    .day.deadline {
+      background: var(--deadline);
+      position: relative;
+    }
+
+    .day.empty {
+      background: transparent;
+      width: 9px;
+    }
+
+    .day-count {
+      width: 32px;
+      font-size: 10px;
+      color: var(--muted);
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .day-count span {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .legend {
+      display: flex;
+      gap: 16px;
+      margin-top: 20px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 1px;
+    }
+
+    .legend-swatch.available { background: var(--available); }
+    .legend-swatch.occupied { background: var(--occupied); }
+    .legend-swatch.deadline { background: var(--deadline); }
+
+    .summary {
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .summary strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Option E: Year Ribbon</h1>
+    <p class="subtitle">2025 availability at a glance</p>
+
+    <div class="ribbon-container">
+      <!-- January: 31 days, busy with holidays, 18 available -->
+      <div class="month-row">
+        <span class="month-label">Jan</span>
+        <div class="days-bar">
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day deadline"></div>
+        </div>
+        <span class="day-count"><span>18</span>d</span>
+      </div>
+
+      <!-- February: 28 days, 17 available -->
+      <div class="month-row">
+        <span class="month-label">Feb</span>
+        <div class="days-bar">
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day empty"></div>
+          <div class="day empty"></div>
+          <div class="day empty"></div>
+        </div>
+        <span class="day-count"><span>17</span>d</span>
+      </div>
+
+      <!-- March: 31 days, deadline on 15th, 19 available -->
+      <div class="month-row">
+        <span class="month-label">Mar</span>
+        <div class="days-bar">
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day deadline"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+        </div>
+        <span class="day-count"><span>19</span>d</span>
+      </div>
+
+      <!-- April: 30 days, 20 available -->
+      <div class="month-row">
+        <span class="month-label">Apr</span>
+        <div class="days-bar">
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day empty"></div>
+        </div>
+        <span class="day-count"><span>20</span>d</span>
+      </div>
+
+      <!-- May: 31 days, 21 available -->
+      <div class="month-row">
+        <span class="month-label">May</span>
+        <div class="days-bar">
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day deadline"></div>
+        </div>
+        <span class="day-count"><span>21</span>d</span>
+      </div>
+
+      <!-- June: 30 days, summer = more available, 24 available -->
+      <div class="month-row">
+        <span class="month-label">Jun</span>
+        <div class="days-bar">
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day empty"></div>
+        </div>
+        <span class="day-count"><span>24</span>d</span>
+      </div>
+
+      <!-- July: 31 days, summer peak, 26 available -->
+      <div class="month-row">
+        <span class="month-label">Jul</span>
+        <div class="days-bar">
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+        </div>
+        <span class="day-count"><span>26</span>d</span>
+      </div>
+
+      <!-- August: 31 days, summer, 25 available -->
+      <div class="month-row">
+        <span class="month-label">Aug</span>
+        <div class="days-bar">
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+        </div>
+        <span class="day-count"><span>25</span>d</span>
+      </div>
+
+      <!-- September: 30 days, back to normal, 20 available -->
+      <div class="month-row">
+        <span class="month-label">Sep</span>
+        <div class="days-bar">
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day empty"></div>
+        </div>
+        <span class="day-count"><span>20</span>d</span>
+      </div>
+
+      <!-- October: 31 days, deadline on 15th, 19 available -->
+      <div class="month-row">
+        <span class="month-label">Oct</span>
+        <div class="days-bar">
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day deadline"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+        </div>
+        <span class="day-count"><span>19</span>d</span>
+      </div>
+
+      <!-- November: 30 days, 18 available -->
+      <div class="month-row">
+        <span class="month-label">Nov</span>
+        <div class="days-bar">
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day empty"></div>
+        </div>
+        <span class="day-count"><span>18</span>d</span>
+      </div>
+
+      <!-- December: 31 days, busy holidays, deadline on 31st, 16 available -->
+      <div class="month-row">
+        <span class="month-label">Dec</span>
+        <div class="days-bar">
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day available"></div>
+          <div class="day available"></div>
+          <div class="day occupied"></div>
+          <div class="day occupied"></div>
+          <div class="day deadline"></div>
+        </div>
+        <span class="day-count"><span>16</span>d</span>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-swatch available"></div>
+        <span>Available</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-swatch occupied"></div>
+        <span>Occupied</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-swatch deadline"></div>
+        <span>Deadline</span>
+      </div>
+    </div>
+
+    <div class="summary">
+      <strong>243</strong> days available of 365 (67%) &middot; <strong>5</strong> deadlines
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option K: Tree Rings | Time Visualization Prototype</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Flexoki base */
+      --paper: #FFFCF0;
+      --ink: #2D2B28;
+      --muted: #6F6E69;
+      --line: #DAD8CE;
+      --panel: #F2F0E5;
+
+      /* Ring colors - natural wood/growth spectrum */
+      --ring-abundant: #66800B;      /* Green - good growth */
+      --ring-healthy: #879A39;       /* Light green */
+      --ring-normal: #AD8301;        /* Yellow-brown */
+      --ring-stressed: #BC5215;      /* Orange - drought */
+      --ring-crisis: #AF3029;        /* Red - extreme stress */
+      --ring-base: #DAD8CE;          /* Light wood grain */
+      --ring-dark: #8B7355;          /* Dark wood grain */
+      --scar: #AF3029;               /* Deadline scars */
+      --highlight: #205EA6;          /* Current ring highlight */
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #1C1B18;
+        --ink: #CECDC3;
+        --muted: #878580;
+        --line: #403E3C;
+        --panel: #2D2B28;
+
+        --ring-abundant: #879A39;
+        --ring-healthy: #A4B85C;
+        --ring-normal: #D0A215;
+        --ring-stressed: #DA702C;
+        --ring-crisis: #D14D41;
+        --ring-base: #575653;
+        --ring-dark: #A08060;
+        --scar: #D14D41;
+        --highlight: #4385BE;
+      }
+    }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .ring-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      background: var(--panel);
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      margin-bottom: 24px;
+    }
+
+    .tree-rings {
+      position: relative;
+      width: 500px;
+      height: 500px;
+    }
+
+    /* Legend */
+    .legend {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    .legend h2 {
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-left: 3px solid var(--highlight);
+      padding-left: 8px;
+    }
+
+    .legend-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+    }
+
+    .legend-swatch {
+      width: 40px;
+      height: 16px;
+      border-radius: 2px;
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .legend-swatch.abundant {
+      background: linear-gradient(90deg, var(--ring-abundant), var(--ring-healthy));
+    }
+
+    .legend-swatch.normal {
+      background: var(--ring-normal);
+    }
+
+    .legend-swatch.stressed {
+      background: linear-gradient(90deg, var(--ring-stressed), var(--ring-crisis));
+    }
+
+    .legend-swatch.scar {
+      background: var(--ring-base);
+      position: relative;
+    }
+
+    .legend-swatch.scar::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background: var(--scar);
+      border-radius: 50%;
+    }
+
+    .legend-swatch.width-demo {
+      height: 8px;
+      background: var(--ring-dark);
+    }
+
+    .legend-swatch.width-demo.wide {
+      height: 20px;
+    }
+
+    /* Info section */
+    .info {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .info h2 {
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-left: 3px solid var(--ring-abundant);
+      padding-left: 8px;
+    }
+
+    .info p {
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .info p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Tooltip */
+    .tooltip {
+      position: absolute;
+      background: var(--ink);
+      color: var(--paper);
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 100;
+      white-space: nowrap;
+    }
+
+    .tooltip.visible {
+      opacity: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .tree-rings {
+        width: 320px;
+        height: 320px;
+      }
+
+      .ring-container {
+        padding: 20px 10px;
+      }
+
+      h1 {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Option K: Tree Rings</h1>
+    <p class="subtitle">A dendrochronology of your time - each ring tells a story of growth or stress</p>
+
+    <div class="ring-container">
+      <div class="tree-rings">
+        <svg viewBox="0 0 500 500" width="100%" height="100%">
+          <defs>
+            <!-- Wood grain texture filter -->
+            <filter id="grain" x="0%" y="0%" width="100%" height="100%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise"/>
+              <feDiffuseLighting in="noise" lighting-color="#f5f0e0" surfaceScale="1.5" result="light">
+                <feDistantLight azimuth="45" elevation="60"/>
+              </feDiffuseLighting>
+              <feComposite in="SourceGraphic" in2="light" operator="arithmetic" k1="1" k2="0.3" k3="0.2" k4="0"/>
+            </filter>
+
+            <!-- Subtle wood pattern -->
+            <pattern id="woodPattern" patternUnits="userSpaceOnUse" width="200" height="200">
+              <rect width="200" height="200" fill="var(--ring-base)"/>
+              <path d="M0,50 Q50,45 100,55 T200,50" stroke="var(--ring-dark)" stroke-width="0.5" fill="none" opacity="0.2"/>
+              <path d="M0,100 Q50,95 100,105 T200,100" stroke="var(--ring-dark)" stroke-width="0.5" fill="none" opacity="0.2"/>
+              <path d="M0,150 Q50,145 100,155 T200,150" stroke="var(--ring-dark)" stroke-width="0.5" fill="none" opacity="0.2"/>
+            </pattern>
+
+            <!-- Glow for current ring -->
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+
+          <!-- Background circle (tree cross-section base) -->
+          <circle cx="250" cy="250" r="240" fill="var(--ring-base)" opacity="0.5"/>
+
+          <!-- Ring data: from center (oldest) to outer (newest) -->
+          <!-- Week 12 (oldest, center) - normal week -->
+          <circle cx="250" cy="250" r="35" fill="none"
+                  stroke="var(--ring-normal)" stroke-width="12" opacity="0.85"
+                  class="ring" data-week="12" data-status="Normal week"/>
+
+          <!-- Week 11 - healthy, good availability -->
+          <circle cx="250" cy="250" r="55" fill="none"
+                  stroke="var(--ring-healthy)" stroke-width="18" opacity="0.85"
+                  class="ring" data-week="11" data-status="Productive week - research progress"/>
+
+          <!-- Week 10 - stressed, deadline approaching -->
+          <circle cx="250" cy="250" r="75" fill="none"
+                  stroke="var(--ring-stressed)" stroke-width="10" opacity="0.9"
+                  class="ring" data-week="10" data-status="Deadline pressure"/>
+
+          <!-- Week 9 - CRISIS with scar (major deadline) -->
+          <circle cx="250" cy="250" r="88" fill="none"
+                  stroke="var(--ring-crisis)" stroke-width="6" opacity="0.95"
+                  class="ring" data-week="9" data-status="Paper submission deadline"/>
+          <!-- Scar mark -->
+          <circle cx="320" cy="215" r="6" fill="var(--scar)" opacity="0.9"/>
+          <circle cx="320" cy="215" r="3" fill="var(--paper)" opacity="0.6"/>
+
+          <!-- Week 8 - recovery, abundant -->
+          <circle cx="250" cy="250" r="108" fill="none"
+                  stroke="var(--ring-abundant)" stroke-width="22" opacity="0.8"
+                  class="ring" data-week="8" data-status="Post-deadline recovery"/>
+
+          <!-- Week 7 - healthy -->
+          <circle cx="250" cy="250" r="130" fill="none"
+                  stroke="var(--ring-healthy)" stroke-width="16" opacity="0.85"
+                  class="ring" data-week="7" data-status="Steady progress"/>
+
+          <!-- Week 6 - normal -->
+          <circle cx="250" cy="250" r="148" fill="none"
+                  stroke="var(--ring-normal)" stroke-width="12" opacity="0.85"
+                  class="ring" data-week="6" data-status="Teaching week"/>
+
+          <!-- Week 5 - stressed -->
+          <circle cx="250" cy="250" r="165" fill="none"
+                  stroke="var(--ring-stressed)" stroke-width="14" opacity="0.85"
+                  class="ring" data-week="5" data-status="Grading backlog"/>
+
+          <!-- Week 4 - with scar (conference deadline) -->
+          <circle cx="250" cy="250" r="180" fill="none"
+                  stroke="var(--ring-crisis)" stroke-width="8" opacity="0.9"
+                  class="ring" data-week="4" data-status="Conference submission"/>
+          <!-- Scar mark -->
+          <circle cx="175" cy="320" r="5" fill="var(--scar)" opacity="0.9"/>
+          <circle cx="175" cy="320" r="2.5" fill="var(--paper)" opacity="0.6"/>
+
+          <!-- Week 3 - abundant vacation -->
+          <circle cx="250" cy="250" r="200" fill="none"
+                  stroke="var(--ring-abundant)" stroke-width="24" opacity="0.75"
+                  class="ring" data-week="3" data-status="Winter break - rest and reading"/>
+
+          <!-- Week 2 - healthy return -->
+          <circle cx="250" cy="250" r="218" fill="none"
+                  stroke="var(--ring-healthy)" stroke-width="14" opacity="0.85"
+                  class="ring" data-week="2" data-status="Fresh start"/>
+
+          <!-- Week 1 (current) - highlighted -->
+          <circle cx="250" cy="250" r="235" fill="none"
+                  stroke="var(--highlight)" stroke-width="16" opacity="0.9"
+                  filter="url(#glow)"
+                  class="ring current" data-week="1" data-status="This week - planning ahead"/>
+
+          <!-- Third scar in week 11 area (minor deadline) -->
+          <circle cx="200" cy="200" r="4" fill="var(--scar)" opacity="0.8"/>
+          <circle cx="200" cy="200" r="2" fill="var(--paper)" opacity="0.5"/>
+
+          <!-- Center label -->
+          <text x="250" y="250" text-anchor="middle" dominant-baseline="middle"
+                font-family="'IBM Plex Mono', monospace" font-size="10" fill="var(--muted)">
+            12 weeks ago
+          </text>
+
+          <!-- Outer label -->
+          <text x="250" y="22" text-anchor="middle"
+                font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="500" fill="var(--highlight)">
+            NOW
+          </text>
+
+          <!-- Directional arrow -->
+          <path d="M250,30 L250,45" stroke="var(--highlight)" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <defs>
+            <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--highlight)"/>
+            </marker>
+          </defs>
+
+          <!-- Time direction label -->
+          <text x="485" y="250" text-anchor="end" writing-mode="vertical-rl"
+                font-family="'IBM Plex Mono', monospace" font-size="9" fill="var(--muted)">
+            time flows outward
+          </text>
+        </svg>
+      </div>
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <div class="legend">
+      <h2>Reading the Rings</h2>
+      <div class="legend-grid">
+        <div class="legend-item">
+          <div class="legend-swatch abundant"></div>
+          <span>Abundant time - growth, breathing room</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch normal"></div>
+          <span>Normal pace - steady work</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch stressed"></div>
+          <span>Stressed period - drought, compression</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch scar"></div>
+          <span>Deadline scar - trauma marker</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch width-demo wide"></div>
+          <span>Wide ring = more available time</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch width-demo"></div>
+          <span>Narrow ring = compressed time</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info">
+      <h2>About This Visualization</h2>
+      <p>
+        Like tree rings that record years of growth and hardship, this visualization maps your temporal experience
+        over a 12-week period. Wide green rings represent weeks of abundance - time for deep work, reflection,
+        and growth. Narrow orange and red rings show periods of stress where time compressed under deadline pressure.
+      </p>
+      <p>
+        The scars (red dots) mark deadline events that left their mark on your schedule - paper submissions,
+        conference deadlines, or crunch periods. Over time, patterns emerge: do you see seasonal rhythms?
+        Regular stress cycles? The tree tells your story.
+      </p>
+      <p>
+        The outermost ring (blue, glowing) represents the current week. Time flows outward from the center,
+        building your chronology ring by ring.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Interactive tooltip for rings
+    const tooltip = document.getElementById('tooltip');
+    const rings = document.querySelectorAll('.ring');
+    const container = document.querySelector('.ring-container');
+
+    rings.forEach(ring => {
+      ring.style.cursor = 'pointer';
+
+      ring.addEventListener('mouseenter', (e) => {
+        const week = ring.dataset.week;
+        const status = ring.dataset.status;
+        const weekLabel = week === '1' ? 'This week' : `${week} weeks ago`;
+        tooltip.innerHTML = `<strong>${weekLabel}</strong><br>${status}`;
+        tooltip.classList.add('visible');
+      });
+
+      ring.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        tooltip.style.left = (e.clientX - rect.left + 15) + 'px';
+        tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
+      });
+
+      ring.addEventListener('mouseleave', () => {
+        tooltip.classList.remove('visible');
+      });
+    });
+
+    // Add subtle animation to current ring
+    const currentRing = document.querySelector('.ring.current');
+    if (currentRing) {
+      let opacity = 0.9;
+      let increasing = false;
+
+      setInterval(() => {
+        if (increasing) {
+          opacity += 0.02;
+          if (opacity >= 1) increasing = false;
+        } else {
+          opacity -= 0.02;
+          if (opacity <= 0.7) increasing = true;
+        }
+        currentRing.style.opacity = opacity;
+      }, 100);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option B: Multi-Lane Runway</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --paper: #FFFCF0;
+      --ink: #100F0F;
+      --muted: #6F6E69;
+      --line: #E6E4D9;
+      --deep-green: #66800B;
+      --light-green: #879A39;
+      --yellow: #D0A215;
+      --orange: #DA702C;
+      --red: #D14D41;
+      --purple: #8B7EC8;
+      --gray: #878580;
+      --gray-light: #B7B5AC;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.875rem;
+      margin-bottom: 24px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+      font-size: 0.75rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+    }
+
+    .timeline-container {
+      overflow-x: auto;
+    }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: fit-content;
+    }
+
+    /* Day headers */
+    .day-header-row {
+      display: flex;
+      margin-left: 140px;
+      margin-bottom: 4px;
+    }
+
+    .day-header {
+      width: 24px;
+      text-align: center;
+      font-size: 0.65rem;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .day-header.today {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .day-header.weekend {
+      color: var(--gray-light);
+    }
+
+    /* Lane */
+    .lane {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lane-label {
+      width: 130px;
+      flex-shrink: 0;
+      text-align: right;
+      padding-right: 8px;
+    }
+
+    .lane-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .lane-meta {
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    .lane-days {
+      display: flex;
+      gap: 1px;
+    }
+
+    .day-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      width: 24px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .day-col.deadline::after {
+      content: '';
+      position: absolute;
+      right: -1px;
+      top: -4px;
+      bottom: -4px;
+      width: 3px;
+      background: var(--red);
+      border-radius: 1px;
+      z-index: 10;
+    }
+
+    .half-day {
+      width: 22px;
+      height: 14px;
+      border-radius: 2px;
+    }
+
+    .deep-green { background: var(--deep-green); }
+    .light-green { background: var(--light-green); }
+    .yellow { background: var(--yellow); }
+    .orange { background: var(--orange); }
+    .purple { background: var(--purple); }
+    .gray { background: var(--gray-light); opacity: 0.5; }
+    .past { background: var(--gray-light); opacity: 0.3; }
+
+    .lane-summary {
+      width: 70px;
+      flex-shrink: 0;
+      text-align: left;
+      padding-left: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .lane-summary .hours {
+      color: var(--deep-green);
+    }
+
+    /* Today marker */
+    .today-marker {
+      position: relative;
+    }
+
+    .today-marker::before {
+      content: 'TODAY';
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: 0.5px;
+    }
+
+    /* Week markers */
+    .week-markers {
+      display: flex;
+      margin-left: 140px;
+      margin-top: 8px;
+      font-size: 0.6rem;
+      color: var(--gray);
+    }
+
+    .week-marker {
+      flex-shrink: 0;
+    }
+
+    .week-marker:first-child { width: 175px; }
+    .week-marker:nth-child(2) { width: 175px; }
+    .week-marker:nth-child(3) { width: 175px; }
+    .week-marker:nth-child(4) { width: 100px; }
+  </style>
+</head>
+<body>
+  <h1>Option B: Multi-Lane Runway</h1>
+  <p class="subtitle">30-day view with AM/PM blocks per day. Each lane shows runway to its deadline.</p>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-swatch" style="background: var(--deep-green);"></div>
+      <span>4+ hrs (deep work)</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background: var(--light-green);"></div>
+      <span>2-4 hrs</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background: var(--yellow);"></div>
+      <span>1-2 hrs</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background: var(--orange);"></div>
+      <span>&lt;1 hr</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background: var(--purple);"></div>
+      <span>Admin/social</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background: var(--red);"></div>
+      <span>Deadline</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background: var(--gray-light); opacity: 0.5;"></div>
+      <span>Post-deadline</span>
+    </div>
+  </div>
+
+  <div class="timeline-container">
+    <div class="timeline">
+      <!-- Day headers -->
+      <div class="day-header-row">
+        <div class="day-header today">1</div>
+        <div class="day-header">2</div>
+        <div class="day-header">3</div>
+        <div class="day-header weekend">4</div>
+        <div class="day-header weekend">5</div>
+        <div class="day-header">6</div>
+        <div class="day-header">7</div>
+        <div class="day-header">8</div>
+        <div class="day-header">9</div>
+        <div class="day-header">10</div>
+        <div class="day-header weekend">11</div>
+        <div class="day-header weekend">12</div>
+        <div class="day-header">13</div>
+        <div class="day-header">14</div>
+        <div class="day-header">15</div>
+        <div class="day-header">16</div>
+        <div class="day-header">17</div>
+        <div class="day-header weekend">18</div>
+        <div class="day-header weekend">19</div>
+        <div class="day-header">20</div>
+        <div class="day-header">21</div>
+        <div class="day-header">22</div>
+        <div class="day-header">23</div>
+        <div class="day-header">24</div>
+        <div class="day-header weekend">25</div>
+        <div class="day-header weekend">26</div>
+        <div class="day-header">27</div>
+        <div class="day-header">28</div>
+        <div class="day-header">29</div>
+        <div class="day-header">30</div>
+      </div>
+
+      <!-- Lane 1: Paper Submission (deadline day 10) -->
+      <div class="lane">
+        <div class="lane-label">
+          <div class="lane-title">Paper Submission</div>
+          <div class="lane-meta">APSR R&R due</div>
+        </div>
+        <div class="lane-days">
+          <!-- Day 1 (Today - Wed) -->
+          <div class="day-col today-marker">
+            <div class="half-day light-green"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Day 2 (Thu - meeting heavy) -->
+          <div class="day-col">
+            <div class="half-day orange"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 3 (Fri) -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Day 4 (Sat) -->
+          <div class="day-col">
+            <div class="half-day deep-green"></div>
+            <div class="half-day deep-green"></div>
+          </div>
+          <!-- Day 5 (Sun) -->
+          <div class="day-col">
+            <div class="half-day deep-green"></div>
+            <div class="half-day light-green"></div>
+          </div>
+          <!-- Day 6 (Mon) -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 7 (Tue - meeting heavy) -->
+          <div class="day-col">
+            <div class="half-day orange"></div>
+            <div class="half-day purple"></div>
+          </div>
+          <!-- Day 8 (Wed) -->
+          <div class="day-col">
+            <div class="half-day yellow"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 9 (Thu - meeting heavy) -->
+          <div class="day-col">
+            <div class="half-day orange"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 10 (Fri - DEADLINE) -->
+          <div class="day-col deadline">
+            <div class="half-day orange"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Days 11-30: Post-deadline (grayed) -->
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+        </div>
+        <div class="lane-summary"><span class="hours">26h</span> available</div>
+      </div>
+
+      <!-- Lane 2: Grant Proposal (deadline day 20) -->
+      <div class="lane">
+        <div class="lane-label">
+          <div class="lane-title">Grant Proposal</div>
+          <div class="lane-meta">NSF CAREER</div>
+        </div>
+        <div class="lane-days">
+          <!-- Day 1 (Today) -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Day 2 (Thu) -->
+          <div class="day-col">
+            <div class="half-day orange"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 3 (Fri) -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Day 4 (Sat) -->
+          <div class="day-col">
+            <div class="half-day deep-green"></div>
+            <div class="half-day deep-green"></div>
+          </div>
+          <!-- Day 5 (Sun) -->
+          <div class="day-col">
+            <div class="half-day deep-green"></div>
+            <div class="half-day light-green"></div>
+          </div>
+          <!-- Day 6 (Mon) -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 7 (Tue) -->
+          <div class="day-col">
+            <div class="half-day orange"></div>
+            <div class="half-day purple"></div>
+          </div>
+          <!-- Day 8 (Wed) -->
+          <div class="day-col">
+            <div class="half-day yellow"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 9 (Thu) -->
+          <div class="day-col">
+            <div class="half-day orange"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 10 (Fri) -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Day 11 (Sat) -->
+          <div class="day-col">
+            <div class="half-day deep-green"></div>
+            <div class="half-day deep-green"></div>
+          </div>
+          <!-- Day 12 (Sun) -->
+          <div class="day-col">
+            <div class="half-day deep-green"></div>
+            <div class="half-day light-green"></div>
+          </div>
+          <!-- Day 13 (Mon) -->
+          <div class="day-col">
+            <div class="half-day yellow"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 14 (Tue) -->
+          <div class="day-col">
+            <div class="half-day purple"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 15 (Wed) -->
+          <div class="day-col">
+            <div class="half-day yellow"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Day 16 (Thu) -->
+          <div class="day-col">
+            <div class="half-day orange"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 17 (Fri) -->
+          <div class="day-col">
+            <div class="half-day yellow"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 18 (Sat) -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day light-green"></div>
+          </div>
+          <!-- Day 19 (Sun) -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Day 20 (Mon - DEADLINE) -->
+          <div class="day-col deadline">
+            <div class="half-day orange"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Days 21-30: Post-deadline -->
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+        </div>
+        <div class="lane-summary"><span class="hours">58h</span> available</div>
+      </div>
+
+      <!-- Lane 3: Talk Prep (deadline day 28) -->
+      <div class="lane">
+        <div class="lane-label">
+          <div class="lane-title">Talk Prep</div>
+          <div class="lane-meta">APSA Conference</div>
+        </div>
+        <div class="lane-days">
+          <!-- Day 1 (Today) -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Day 2 -->
+          <div class="day-col">
+            <div class="half-day orange"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 3 -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Day 4 -->
+          <div class="day-col">
+            <div class="half-day deep-green"></div>
+            <div class="half-day deep-green"></div>
+          </div>
+          <!-- Day 5 -->
+          <div class="day-col">
+            <div class="half-day deep-green"></div>
+            <div class="half-day light-green"></div>
+          </div>
+          <!-- Day 6 -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 7 -->
+          <div class="day-col">
+            <div class="half-day orange"></div>
+            <div class="half-day purple"></div>
+          </div>
+          <!-- Day 8 -->
+          <div class="day-col">
+            <div class="half-day yellow"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 9 -->
+          <div class="day-col">
+            <div class="half-day orange"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 10 -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Day 11 -->
+          <div class="day-col">
+            <div class="half-day deep-green"></div>
+            <div class="half-day deep-green"></div>
+          </div>
+          <!-- Day 12 -->
+          <div class="day-col">
+            <div class="half-day deep-green"></div>
+            <div class="half-day light-green"></div>
+          </div>
+          <!-- Day 13 -->
+          <div class="day-col">
+            <div class="half-day yellow"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 14 -->
+          <div class="day-col">
+            <div class="half-day purple"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 15 -->
+          <div class="day-col">
+            <div class="half-day yellow"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Day 16 -->
+          <div class="day-col">
+            <div class="half-day orange"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 17 -->
+          <div class="day-col">
+            <div class="half-day yellow"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 18 -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day light-green"></div>
+          </div>
+          <!-- Day 19 -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Day 20 -->
+          <div class="day-col">
+            <div class="half-day yellow"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 21 -->
+          <div class="day-col">
+            <div class="half-day purple"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 22 -->
+          <div class="day-col">
+            <div class="half-day yellow"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Day 23 -->
+          <div class="day-col">
+            <div class="half-day orange"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 24 -->
+          <div class="day-col">
+            <div class="half-day orange"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 25 -->
+          <div class="day-col">
+            <div class="half-day light-green"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Day 26 -->
+          <div class="day-col">
+            <div class="half-day yellow"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 27 -->
+          <div class="day-col">
+            <div class="half-day orange"></div>
+            <div class="half-day orange"></div>
+          </div>
+          <!-- Day 28 (DEADLINE) -->
+          <div class="day-col deadline">
+            <div class="half-day orange"></div>
+            <div class="half-day yellow"></div>
+          </div>
+          <!-- Days 29-30: Post-deadline -->
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+          <div class="day-col"><div class="half-day gray"></div><div class="half-day gray"></div></div>
+        </div>
+        <div class="lane-summary"><span class="hours">72h</span> available</div>
+      </div>
+
+      <!-- Week markers -->
+      <div class="week-markers">
+        <div class="week-marker">Week 1</div>
+        <div class="week-marker">Week 2</div>
+        <div class="week-marker">Week 3</div>
+        <div class="week-marker">Week 4+</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

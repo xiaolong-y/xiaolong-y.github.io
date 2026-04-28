@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stratigraphic Core v2 | Enhanced Time Visualization</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --paper: #FFFCF0;
+      --ink: #2D2B28;
+      --muted: #6F6E69;
+      --line: #DAD8CE;
+      --panel: #F2F0E5;
+      --blue: #205EA6;
+      --cyan: #24837B;
+      --green: #66800B;
+      --orange: #DA702C;
+      --red: #AF3029;
+      --purple: #5E409D;
+
+      /* Earth tone palette */
+      --earth-light: #E6DFD4;
+      --earth-sand: #D4CDB8;
+      --earth-tan: #C4B8A5;
+      --earth-med: #A89E88;
+      --earth-brown: #8A7D6D;
+      --earth-dark: #6E6555;
+      --earth-deep: #5C5346;
+
+      /* Facies colors (task categories) */
+      --facies-work: #B8C4D4;      /* Blue-gray marine */
+      --facies-personal: #D4C4B0;   /* Warm terrestrial */
+      --facies-health: #C4D4C0;     /* Green organic */
+      --facies-urgent: #D4B8B8;     /* Volcanic ash red-tint */
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #100F0F;
+        --ink: #CECDC3;
+        --muted: #878580;
+        --line: #403E3C;
+        --panel: #1C1B1A;
+        --blue: #4385BE;
+        --cyan: #3AA99F;
+        --green: #879A39;
+        --orange: #DA702C;
+        --red: #D14D41;
+        --purple: #8B7EC8;
+
+        --earth-light: #3D3A35;
+        --earth-sand: #4A4640;
+        --earth-tan: #55504A;
+        --earth-med: #605A52;
+        --earth-brown: #6B645A;
+        --earth-dark: #524D45;
+        --earth-deep: #3D3935;
+
+        --facies-work: #3A4555;
+        --facies-personal: #554A3A;
+        --facies-health: #3A4A3D;
+        --facies-urgent: #553A3A;
+      }
+    }
+
+    body {
+      font: 12px/1.5 'IBM Plex Mono', ui-monospace, monospace;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 1.1em;
+      font-weight: 500;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9em;
+      margin-bottom: 24px;
+    }
+
+    /* Main layout */
+    .visualization {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+    }
+
+    .core-container {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    /* Date labels */
+    .date-labels {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.75em;
+      color: var(--muted);
+      width: 65px;
+      text-align: right;
+    }
+
+    .date-label {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+
+    .date-label::after {
+      content: '';
+      width: 8px;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .date-label.future {
+      color: var(--muted);
+      opacity: 0.6;
+      font-style: italic;
+    }
+
+    .date-label.present {
+      color: var(--blue);
+      font-weight: 500;
+    }
+
+    /* Core sample tube */
+    .core-sample {
+      width: 140px;
+      background: linear-gradient(to right,
+        rgba(0,0,0,0.06) 0%,
+        transparent 12%,
+        transparent 88%,
+        rgba(0,0,0,0.06) 100%);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow:
+        inset 2px 0 6px rgba(0,0,0,0.08),
+        inset -2px 0 6px rgba(0,0,0,0.08),
+        0 4px 20px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    /* Glass tube highlight */
+    .core-sample::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10px;
+      width: 18px;
+      height: 100%;
+      background: linear-gradient(to right,
+        rgba(255,255,255,0.25),
+        transparent);
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    /* ========== STRATA LAYERS ========== */
+    .stratum {
+      width: 100%;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      overflow: hidden;
+    }
+
+    .stratum:hover {
+      filter: brightness(1.08);
+      transform: scaleX(1.02);
+    }
+
+    .stratum.expanded {
+      filter: brightness(1.05);
+    }
+
+    /* Wavy organic boundary at bottom of each layer */
+    .stratum::before {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: inherit;
+      filter: brightness(0.82);
+      clip-path: polygon(
+        0% 50%, 5% 35%, 12% 55%, 20% 40%, 28% 60%,
+        35% 38%, 45% 58%, 55% 35%, 65% 55%, 75% 42%,
+        85% 62%, 92% 38%, 100% 50%, 100% 100%, 0% 100%
+      );
+      z-index: 1;
+    }
+
+    /* ========== TEMPORAL ZONES ========== */
+
+    /* FUTURE: Semi-transparent, dashed, tentative */
+    .stratum.future {
+      opacity: 0.55;
+      border-left: 2px dashed var(--line);
+      border-right: 2px dashed var(--line);
+    }
+
+    .stratum.future::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 8px,
+        rgba(255,255,255,0.08) 8px,
+        rgba(255,255,255,0.08) 16px
+      );
+      pointer-events: none;
+    }
+
+    /* PRESENT: Highlighted, active surface */
+    .stratum.present {
+      box-shadow:
+        inset 0 0 0 2px var(--blue),
+        0 0 12px rgba(32, 94, 166, 0.3);
+      z-index: 5;
+    }
+
+    .stratum.present::after {
+      content: 'NOW';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.7em;
+      font-weight: 500;
+      color: var(--blue);
+      letter-spacing: 2px;
+      opacity: 0.7;
+    }
+
+    /* PAST: Solid, lithified, archived */
+    .stratum.past {
+      /* Solid appearance - no extra styling needed */
+    }
+
+    /* ========== PRESSURE LEVELS (thickness + color) ========== */
+
+    /* Spacious - thick, light */
+    .stratum.spacious {
+      height: 52px;
+      background: linear-gradient(180deg,
+        var(--earth-sand) 0%,
+        var(--earth-tan) 100%);
+    }
+
+    /* Moderate - medium */
+    .stratum.moderate {
+      height: 32px;
+      background: linear-gradient(180deg,
+        var(--earth-med) 0%,
+        var(--earth-brown) 100%);
+    }
+
+    /* Compressed - thin, dark */
+    .stratum.compressed {
+      height: 16px;
+      background: linear-gradient(180deg,
+        var(--earth-dark) 0%,
+        var(--earth-deep) 100%);
+    }
+
+    /* Very compressed - critical */
+    .stratum.critical {
+      height: 10px;
+      background: linear-gradient(180deg,
+        var(--earth-deep) 0%,
+        #4A4540 100%);
+    }
+
+    /* ========== FACIES (Task Categories) ========== */
+
+    .stratum.facies-work {
+      background: linear-gradient(180deg,
+        var(--facies-work) 0%,
+        color-mix(in srgb, var(--facies-work) 80%, var(--earth-brown)) 100%);
+    }
+
+    .stratum.facies-personal {
+      background: linear-gradient(180deg,
+        var(--facies-personal) 0%,
+        color-mix(in srgb, var(--facies-personal) 80%, var(--earth-brown)) 100%);
+    }
+
+    .stratum.facies-health {
+      background: linear-gradient(180deg,
+        var(--facies-health) 0%,
+        color-mix(in srgb, var(--facies-health) 80%, var(--earth-brown)) 100%);
+    }
+
+    /* ========== TEXTURE PATTERNS (Accessibility) ========== */
+
+    .stratum .texture {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      opacity: 0.15;
+    }
+
+    /* Stipple pattern for work */
+    .texture.stipple {
+      background-image: radial-gradient(circle, var(--ink) 1px, transparent 1px);
+      background-size: 8px 8px;
+    }
+
+    /* Cross-hatch for personal */
+    .texture.crosshatch {
+      background: repeating-linear-gradient(
+        45deg,
+        var(--ink) 0px,
+        var(--ink) 1px,
+        transparent 1px,
+        transparent 6px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        var(--ink) 0px,
+        var(--ink) 1px,
+        transparent 1px,
+        transparent 6px
+      );
+    }
+
+    /* Horizontal lines for health */
+    .texture.horizontal {
+      background: repeating-linear-gradient(
+        0deg,
+        var(--ink) 0px,
+        var(--ink) 1px,
+        transparent 1px,
+        transparent 5px
+      );
+    }
+
+    /* Noise texture for geological feel */
+    .texture.noise {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.08;
+    }
+
+    /* ========== UNCONFORMITIES (Deadlines) ========== */
+
+    .unconformity {
+      height: 5px;
+      background: linear-gradient(90deg,
+        var(--orange) 0%,
+        var(--red) 50%,
+        var(--orange) 100%);
+      position: relative;
+      box-shadow:
+        0 0 10px rgba(175, 48, 41, 0.4),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+      cursor: pointer;
+    }
+
+    .unconformity::before {
+      display: none;
+    }
+
+    .unconformity::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: rgba(255,255,255,0.4);
+    }
+
+    .unconformity:hover {
+      box-shadow:
+        0 0 16px rgba(175, 48, 41, 0.6),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+
+    /* Unconformity types */
+    .unconformity.major {
+      height: 7px;
+      background: linear-gradient(90deg,
+        var(--red) 0%,
+        #8B0000 50%,
+        var(--red) 100%);
+    }
+
+    .unconformity.minor {
+      height: 3px;
+      opacity: 0.7;
+    }
+
+    /* ========== FOSSIL MARKERS (Milestones) ========== */
+
+    .fossil {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+    }
+
+    .fossil svg {
+      width: 100%;
+      height: 100%;
+      fill: var(--ink);
+      opacity: 0.5;
+    }
+
+    .fossil:hover svg {
+      opacity: 0.8;
+    }
+
+    /* ========== TOOLTIPS ========== */
+
+    .tooltip {
+      position: absolute;
+      left: calc(100% + 16px);
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-size: 0.8em;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .stratum:hover .tooltip,
+    .unconformity:hover .tooltip {
+      opacity: 1;
+      transform: translateY(-50%) translateX(4px);
+    }
+
+    .tooltip-title {
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .tooltip-dates {
+      color: var(--muted);
+      font-size: 0.9em;
+    }
+
+    .tooltip-pressure {
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pressure-bar {
+      width: 60px;
+      height: 6px;
+      background: var(--line);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .pressure-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+
+    .pressure-fill.low { width: 25%; background: var(--green); }
+    .pressure-fill.medium { width: 55%; background: var(--orange); }
+    .pressure-fill.high { width: 85%; background: var(--red); }
+
+    .tooltip-tasks {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+      font-size: 0.9em;
+    }
+
+    .tooltip-task {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 3px 0;
+    }
+
+    .task-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    .task-dot.work { background: var(--blue); }
+    .task-dot.personal { background: var(--orange); }
+    .task-dot.health { background: var(--green); }
+
+    /* ========== EXPANDED LAYER DETAILS ========== */
+
+    .layer-details {
+      max-height: 0;
+      overflow: hidden;
+      background: rgba(0,0,0,0.05);
+      transition: max-height 0.3s ease;
+    }
+
+    .stratum.expanded .layer-details {
+      max-height: 200px;
+    }
+
+    .layer-details-content {
+      padding: 8px 12px;
+      font-size: 0.75em;
+    }
+
+    .detail-task {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .detail-task:last-child {
+      border-bottom: none;
+    }
+
+    /* ========== ANNOTATIONS ========== */
+
+    .annotations {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.72em;
+      color: var(--muted);
+      width: 110px;
+    }
+
+    .annotation {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+
+    .annotation::before {
+      content: '';
+      width: 8px;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .annotation.deadline {
+      color: var(--red);
+      font-weight: 500;
+    }
+
+    .annotation.future {
+      opacity: 0.6;
+      font-style: italic;
+    }
+
+    .annotation.present {
+      color: var(--blue);
+      font-weight: 500;
+    }
+
+    /* ========== LEGEND ========== */
+
+    .legend-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-left: 24px;
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-size: 0.8em;
+      max-width: 220px;
+    }
+
+    .legend-section {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+    }
+
+    .legend-section:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .legend-title {
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-size: 0.85em;
+      letter-spacing: 0.5px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0;
+    }
+
+    .legend-swatch {
+      width: 36px;
+      border-radius: 2px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
+
+    .legend-swatch.spacious {
+      height: 18px;
+      background: linear-gradient(180deg, var(--earth-sand), var(--earth-tan));
+    }
+
+    .legend-swatch.moderate {
+      height: 12px;
+      background: linear-gradient(180deg, var(--earth-med), var(--earth-brown));
+    }
+
+    .legend-swatch.compressed {
+      height: 6px;
+      background: linear-gradient(180deg, var(--earth-dark), var(--earth-deep));
+    }
+
+    .legend-swatch.unconformity {
+      height: 4px;
+      background: linear-gradient(90deg, var(--orange), var(--red), var(--orange));
+      box-shadow: 0 0 6px rgba(175, 48, 41, 0.3);
+    }
+
+    .legend-swatch.future-style {
+      height: 14px;
+      background: var(--earth-sand);
+      opacity: 0.5;
+      border: 1px dashed var(--line);
+    }
+
+    .legend-swatch.present-style {
+      height: 14px;
+      background: var(--earth-med);
+      box-shadow: inset 0 0 0 2px var(--blue);
+    }
+
+    .legend-text {
+      color: var(--muted);
+      line-height: 1.3;
+    }
+
+    /* Facies swatches */
+    .legend-swatch.work {
+      height: 14px;
+      background: var(--facies-work);
+    }
+
+    .legend-swatch.personal {
+      height: 14px;
+      background: var(--facies-personal);
+    }
+
+    .legend-swatch.health {
+      height: 14px;
+      background: var(--facies-health);
+    }
+
+    /* ========== DIRECTION INDICATOR ========== */
+
+    .direction {
+      margin-top: 24px;
+      font-size: 0.75em;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .direction-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.2;
+    }
+
+    .direction-arrow span:nth-child(2) {
+      font-size: 1.4em;
+    }
+
+    /* ========== INSTRUCTIONS ========== */
+
+    .instructions {
+      margin-top: 24px;
+      padding: 12px 16px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font-size: 0.75em;
+      color: var(--muted);
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .instructions strong {
+      color: var(--ink);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Stratigraphic Core v2</h1>
+  <p class="subtitle">Time as geological sediment — enhanced with research-backed design</p>
+
+  <div class="visualization">
+    <div class="core-container">
+
+      <!-- Date labels -->
+      <div class="date-labels">
+        <div class="date-label future" style="height: 52px;">Dec 30</div>
+        <div class="date-label future" style="height: 32px;">Dec 23</div>
+        <div class="date-label present" style="height: 32px;">Dec 18</div>
+        <div class="date-label" style="height: 16px;">Dec 11</div>
+        <div class="date-label" style="height: 5px;"></div>
+        <div class="date-label" style="height: 52px;">Dec 4</div>
+        <div class="date-label" style="height: 32px;">Nov 27</div>
+        <div class="date-label" style="height: 16px;">Nov 20</div>
+        <div class="date-label" style="height: 10px;">Nov 13</div>
+        <div class="date-label" style="height: 5px;"></div>
+        <div class="date-label" style="height: 52px;">Nov 6</div>
+        <div class="date-label" style="height: 32px;">Oct 30</div>
+        <div class="date-label" style="height: 16px;">Oct 23</div>
+        <div class="date-label" style="height: 5px;"></div>
+        <div class="date-label" style="height: 52px;">Oct 16</div>
+      </div>
+
+      <!-- Core sample -->
+      <div class="core-sample">
+
+        <!-- FUTURE ZONE -->
+        <div class="stratum spacious future facies-personal" data-period="Dec 30 - Jan 5">
+          <div class="texture crosshatch"></div>
+          <div class="tooltip">
+            <div class="tooltip-title">Winter Break</div>
+            <div class="tooltip-dates">Dec 30 - Jan 5</div>
+            <div class="tooltip-pressure">
+              <span>Pressure:</span>
+              <div class="pressure-bar"><div class="pressure-fill low"></div></div>
+            </div>
+            <div class="tooltip-tasks">
+              <div class="tooltip-task"><span class="task-dot personal"></span> Family time</div>
+              <div class="tooltip-task"><span class="task-dot personal"></span> Reading</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stratum moderate future facies-work" data-period="Dec 23 - Dec 29">
+          <div class="texture stipple"></div>
+          <div class="tooltip">
+            <div class="tooltip-title">Grading Period</div>
+            <div class="tooltip-dates">Dec 23 - Dec 29</div>
+            <div class="tooltip-pressure">
+              <span>Pressure:</span>
+              <div class="pressure-bar"><div class="pressure-fill medium"></div></div>
+            </div>
+            <div class="tooltip-tasks">
+              <div class="tooltip-task"><span class="task-dot work"></span> Final grades due</div>
+              <div class="tooltip-task"><span class="task-dot work"></span> Grade appeals</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRESENT ZONE -->
+        <div class="stratum moderate present facies-work" data-period="Dec 18 - Dec 22">
+          <div class="texture stipple"></div>
+          <!-- Fossil marker for milestone -->
+          <div class="fossil" title="Paper submitted">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+          </div>
+          <div class="tooltip">
+            <div class="tooltip-title">Finals Week</div>
+            <div class="tooltip-dates">Dec 18 - Dec 22 (NOW)</div>
+            <div class="tooltip-pressure">
+              <span>Pressure:</span>
+              <div class="pressure-bar"><div class="pressure-fill medium"></div></div>
+            </div>
+            <div class="tooltip-tasks">
+              <div class="tooltip-task"><span class="task-dot work"></span> Exam proctoring</div>
+              <div class="tooltip-task"><span class="task-dot work"></span> Student meetings</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAST ZONE -->
+        <div class="stratum compressed past facies-work" data-period="Dec 11 - Dec 17">
+          <div class="texture stipple"></div>
+          <div class="texture noise"></div>
+          <div class="tooltip">
+            <div class="tooltip-title">Pre-Finals Crunch</div>
+            <div class="tooltip-dates">Dec 11 - Dec 17</div>
+            <div class="tooltip-pressure">
+              <span>Pressure:</span>
+              <div class="pressure-bar"><div class="pressure-fill high"></div></div>
+            </div>
+            <div class="tooltip-tasks">
+              <div class="tooltip-task"><span class="task-dot work"></span> Exam prep</div>
+              <div class="tooltip-task"><span class="task-dot work"></span> Review sessions</div>
+              <div class="tooltip-task"><span class="task-dot work"></span> Office hours</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deadline unconformity -->
+        <div class="unconformity major">
+          <div class="tooltip">
+            <div class="tooltip-title" style="color: var(--red);">Paper Deadline</div>
+            <div class="tooltip-dates">Dec 10, 11:59 PM</div>
+          </div>
+        </div>
+
+        <div class="stratum spacious past facies-personal" data-period="Dec 4 - Dec 10">
+          <div class="texture crosshatch"></div>
+          <div class="texture noise"></div>
+          <div class="tooltip">
+            <div class="tooltip-title">Post-Thanksgiving</div>
+            <div class="tooltip-dates">Dec 4 - Dec 10</div>
+            <div class="tooltip-pressure">
+              <span>Pressure:</span>
+              <div class="pressure-bar"><div class="pressure-fill low"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stratum moderate past facies-work" data-period="Nov 27 - Dec 3">
+          <div class="texture stipple"></div>
+          <div class="texture noise"></div>
+          <div class="fossil" title="Conference talk">
+            <svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9" fill="currentColor"/></svg>
+          </div>
+          <div class="tooltip">
+            <div class="tooltip-title">Writing Sprint</div>
+            <div class="tooltip-dates">Nov 27 - Dec 3</div>
+            <div class="tooltip-pressure">
+              <span>Pressure:</span>
+              <div class="pressure-bar"><div class="pressure-fill medium"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stratum compressed past facies-work" data-period="Nov 20 - Nov 26">
+          <div class="texture stipple"></div>
+          <div class="texture noise"></div>
+          <div class="tooltip">
+            <div class="tooltip-title">Crunch Time</div>
+            <div class="tooltip-dates">Nov 20 - Nov 26</div>
+            <div class="tooltip-pressure">
+              <span>Pressure:</span>
+              <div class="pressure-bar"><div class="pressure-fill high"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stratum critical past facies-work" data-period="Nov 13 - Nov 19">
+          <div class="texture stipple"></div>
+          <div class="texture noise"></div>
+          <div class="tooltip">
+            <div class="tooltip-title">Critical Period</div>
+            <div class="tooltip-dates">Nov 13 - Nov 19</div>
+            <div class="tooltip-pressure">
+              <span>Pressure:</span>
+              <div class="pressure-bar"><div class="pressure-fill high"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deadline unconformity -->
+        <div class="unconformity">
+          <div class="tooltip">
+            <div class="tooltip-title" style="color: var(--red);">Grant Deadline</div>
+            <div class="tooltip-dates">Nov 12, 5:00 PM</div>
+          </div>
+        </div>
+
+        <div class="stratum spacious past facies-health" data-period="Nov 6 - Nov 12">
+          <div class="texture horizontal"></div>
+          <div class="texture noise"></div>
+          <div class="tooltip">
+            <div class="tooltip-title">Recovery Week</div>
+            <div class="tooltip-dates">Nov 6 - Nov 12</div>
+            <div class="tooltip-pressure">
+              <span>Pressure:</span>
+              <div class="pressure-bar"><div class="pressure-fill low"></div></div>
+            </div>
+            <div class="tooltip-tasks">
+              <div class="tooltip-task"><span class="task-dot health"></span> Rest</div>
+              <div class="tooltip-task"><span class="task-dot health"></span> Exercise</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stratum moderate past facies-work" data-period="Oct 30 - Nov 5">
+          <div class="texture stipple"></div>
+          <div class="texture noise"></div>
+          <div class="tooltip">
+            <div class="tooltip-title">Teaching Heavy</div>
+            <div class="tooltip-dates">Oct 30 - Nov 5</div>
+            <div class="tooltip-pressure">
+              <span>Pressure:</span>
+              <div class="pressure-bar"><div class="pressure-fill medium"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stratum compressed past facies-work" data-period="Oct 23 - Oct 29">
+          <div class="texture stipple"></div>
+          <div class="texture noise"></div>
+          <div class="tooltip">
+            <div class="tooltip-title">Midterm Grading</div>
+            <div class="tooltip-dates">Oct 23 - Oct 29</div>
+            <div class="tooltip-pressure">
+              <span>Pressure:</span>
+              <div class="pressure-bar"><div class="pressure-fill high"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deadline unconformity -->
+        <div class="unconformity minor">
+          <div class="tooltip">
+            <div class="tooltip-title" style="color: var(--red);">Conference Abstract</div>
+            <div class="tooltip-dates">Oct 22</div>
+          </div>
+        </div>
+
+        <div class="stratum spacious past facies-personal" data-period="Oct 16 - Oct 22">
+          <div class="texture crosshatch"></div>
+          <div class="texture noise"></div>
+          <div class="fossil" title="Project launch">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+          </div>
+          <div class="tooltip">
+            <div class="tooltip-title">Open Period</div>
+            <div class="tooltip-dates">Oct 16 - Oct 22</div>
+            <div class="tooltip-pressure">
+              <span>Pressure:</span>
+              <div class="pressure-bar"><div class="pressure-fill low"></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Annotations -->
+      <div class="annotations">
+        <div class="annotation future" style="height: 52px;">Winter break</div>
+        <div class="annotation future" style="height: 32px;">Grading</div>
+        <div class="annotation present" style="height: 32px;">Finals week</div>
+        <div class="annotation" style="height: 16px;">Pre-finals</div>
+        <div class="annotation deadline" style="height: 5px;">Paper DDL</div>
+        <div class="annotation" style="height: 52px;">Post-holiday</div>
+        <div class="annotation" style="height: 32px;">Writing</div>
+        <div class="annotation" style="height: 16px;">Crunch</div>
+        <div class="annotation" style="height: 10px;">Critical</div>
+        <div class="annotation deadline" style="height: 5px;">Grant DDL</div>
+        <div class="annotation" style="height: 52px;">Recovery</div>
+        <div class="annotation" style="height: 32px;">Teaching</div>
+        <div class="annotation" style="height: 16px;">Grading</div>
+        <div class="annotation deadline" style="height: 5px;">Conf. DDL</div>
+        <div class="annotation" style="height: 52px;">Open time</div>
+      </div>
+
+    </div>
+
+    <!-- Legend -->
+    <div class="legend-container">
+      <div class="legend-section">
+        <div class="legend-title">Pressure Levels</div>
+        <div class="legend-item">
+          <div class="legend-swatch spacious"></div>
+          <span class="legend-text">Spacious — breathing room</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch moderate"></div>
+          <span class="legend-text">Moderate — steady work</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch compressed"></div>
+          <span class="legend-text">Compressed — high pressure</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch unconformity"></div>
+          <span class="legend-text">Unconformity — deadline</span>
+        </div>
+      </div>
+
+      <div class="legend-section">
+        <div class="legend-title">Temporal Zone</div>
+        <div class="legend-item">
+          <div class="legend-swatch future-style"></div>
+          <span class="legend-text">Future — projected</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch present-style"></div>
+          <span class="legend-text">Present — active</span>
+        </div>
+      </div>
+
+      <div class="legend-section">
+        <div class="legend-title">Task Facies</div>
+        <div class="legend-item">
+          <div class="legend-swatch work"></div>
+          <span class="legend-text">Work (stipple)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch personal"></div>
+          <span class="legend-text">Personal (crosshatch)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch health"></div>
+          <span class="legend-text">Health (horizontal)</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="direction">
+    <div class="direction-arrow">
+      <span>Future</span>
+      <span>↑</span>
+    </div>
+    <span style="opacity: 0.5;">|</span>
+    <span style="color: var(--blue); font-weight: 500;">NOW</span>
+    <span style="opacity: 0.5;">|</span>
+    <div class="direction-arrow">
+      <span>↓</span>
+      <span>Past</span>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <strong>Hover</strong> over layers for details · <strong>Future</strong> shown semi-transparent · <strong>Fossils</strong> mark milestones
+  </div>
+
+  <script>
+    // Click to expand layer details (placeholder for future enhancement)
+    document.querySelectorAll('.stratum').forEach(stratum => {
+      stratum.addEventListener('click', function() {
+        this.classList.toggle('expanded');
+      });
+    });
+  </script>
+
+</body>
+</html>

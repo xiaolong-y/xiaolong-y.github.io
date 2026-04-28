@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Name Layout Prototypes</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@100;200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-950: #1C1B18;
+      --fx-base-200: #DAD8CE;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      padding: 40px;
+      min-height: 100vh;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body { background: var(--fx-base-950); }
+      .label { color: #878580; }
+      hr { border-color: #403E3C; }
+    }
+
+    .prototype {
+      margin-bottom: 60px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--fx-base-200);
+    }
+
+    .label {
+      font-size: 11px;
+      color: #878681;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 20px;
+    }
+
+    /* Shared title styling */
+    .title {
+      font-weight: 200;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    /* Color spans */
+    .c1 { color: #3C3F3A; } .c2 { color: #4C4F4A; }
+    .c3 { color: #5C5F5A; } .c4 { color: #6C6F6A; }
+    .c5 { color: #52554F; } .c6 { color: #62655F; }
+    .c7 { color: #72756F; } .c8 { color: #82857F; }
+    .y1 { color: #807862; } .y2 { color: #8A826A; }
+    .y3 { color: #948C72; } .y4 { color: #9E967A; }
+
+    @media (prefers-color-scheme: dark) {
+      .c1 { color: #A8ABA5; } .c2 { color: #989B95; }
+      .c3 { color: #888B85; } .c4 { color: #787B75; }
+      .c5 { color: #909590; } .c6 { color: #808580; }
+      .c7 { color: #707570; } .c8 { color: #606560; }
+      .y1 { color: #A09878; } .y2 { color: #AA9E80; }
+      .y3 { color: #B4A888; } .y4 { color: #BEB290; }
+    }
+
+    /* ========== PROTOTYPE A: Current (single line) ========== */
+    .proto-a .title {
+      font-size: 1.8em;
+    }
+
+    /* ========== PROTOTYPE B: Stacked centered ========== */
+    .proto-b .title {
+      font-size: 1.8em;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .proto-b .line { display: block; }
+
+    /* ========== PROTOTYPE C: Stacked left, same size ========== */
+    .proto-c .title {
+      font-size: 1.8em;
+      line-height: 1.3;
+    }
+    .proto-c .line { display: block; }
+
+    /* ========== PROTOTYPE D: Stacked, YANG smaller ========== */
+    .proto-d .title {
+      font-size: 1.8em;
+      line-height: 1.4;
+    }
+    .proto-d .line { display: block; }
+    .proto-d .line-yang {
+      font-size: 0.7em;
+      letter-spacing: 0.2em;
+    }
+
+    /* ========== PROTOTYPE E: Stacked, XIAOLONG smaller ========== */
+    .proto-e .title {
+      line-height: 1.2;
+    }
+    .proto-e .line { display: block; }
+    .proto-e .line-xiaolong {
+      font-size: 1.2em;
+      letter-spacing: 0.18em;
+    }
+    .proto-e .line-yang {
+      font-size: 2.2em;
+      letter-spacing: 0.1em;
+    }
+
+    /* ========== PROTOTYPE F: Stacked tight ========== */
+    .proto-f .title {
+      font-size: 1.6em;
+      line-height: 1.1;
+    }
+    .proto-f .line { display: block; }
+
+    /* ========== PROTOTYPE G: Stacked with indent ========== */
+    .proto-g .title {
+      font-size: 1.8em;
+      line-height: 1.3;
+    }
+    .proto-g .line { display: block; }
+    .proto-g .line-yang {
+      padding-left: 0.5em;
+    }
+
+    /* ========== PROTOTYPE H: Vertical rhythm, centered ========== */
+    .proto-h .title {
+      font-size: 1.5em;
+      text-align: center;
+      line-height: 1.5;
+      letter-spacing: 0.25em;
+    }
+    .proto-h .line { display: block; }
+
+    /* ========== PROTOTYPE I: Minimal, light weight ========== */
+    .proto-i .title {
+      font-size: 2em;
+      font-weight: 100;
+      line-height: 1.2;
+      letter-spacing: 0.2em;
+    }
+    .proto-i .line { display: block; }
+
+    /* ========== PROTOTYPE J: Right-aligned YANG ========== */
+    .proto-j .title-container {
+      display: inline-block;
+    }
+    .proto-j .title {
+      font-size: 1.8em;
+      line-height: 1.3;
+    }
+    .proto-j .line { display: block; }
+    .proto-j .line-yang {
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- A: Current single line -->
+  <div class="prototype proto-a">
+    <div class="label">A. Current (single line)</div>
+    <h1 class="title">
+      <span class="c1">X</span><span class="c2">i</span><span class="c3">a</span><span class="c4">o</span><span class="c5">l</span><span class="c6">o</span><span class="c7">n</span><span class="c8">g</span> <span class="y1">Y</span><span class="y2">a</span><span class="y3">n</span><span class="y4">g</span>
+    </h1>
+  </div>
+
+  <!-- B: Stacked centered -->
+  <div class="prototype proto-b">
+    <div class="label">B. Stacked centered</div>
+    <h1 class="title">
+      <span class="line line-xiaolong"><span class="c1">X</span><span class="c2">i</span><span class="c3">a</span><span class="c4">o</span><span class="c5">l</span><span class="c6">o</span><span class="c7">n</span><span class="c8">g</span></span>
+      <span class="line line-yang"><span class="y1">Y</span><span class="y2">a</span><span class="y3">n</span><span class="y4">g</span></span>
+    </h1>
+  </div>
+
+  <!-- C: Stacked left -->
+  <div class="prototype proto-c">
+    <div class="label">C. Stacked left-aligned</div>
+    <h1 class="title">
+      <span class="line line-xiaolong"><span class="c1">X</span><span class="c2">i</span><span class="c3">a</span><span class="c4">o</span><span class="c5">l</span><span class="c6">o</span><span class="c7">n</span><span class="c8">g</span></span>
+      <span class="line line-yang"><span class="y1">Y</span><span class="y2">a</span><span class="y3">n</span><span class="y4">g</span></span>
+    </h1>
+  </div>
+
+  <!-- D: YANG smaller -->
+  <div class="prototype proto-d">
+    <div class="label">D. Stacked, YANG smaller</div>
+    <h1 class="title">
+      <span class="line line-xiaolong"><span class="c1">X</span><span class="c2">i</span><span class="c3">a</span><span class="c4">o</span><span class="c5">l</span><span class="c6">o</span><span class="c7">n</span><span class="c8">g</span></span>
+      <span class="line line-yang"><span class="y1">Y</span><span class="y2">a</span><span class="y3">n</span><span class="y4">g</span></span>
+    </h1>
+  </div>
+
+  <!-- E: XIAOLONG smaller, YANG prominent -->
+  <div class="prototype proto-e">
+    <div class="label">E. YANG prominent</div>
+    <h1 class="title">
+      <span class="line line-xiaolong"><span class="c1">X</span><span class="c2">i</span><span class="c3">a</span><span class="c4">o</span><span class="c5">l</span><span class="c6">o</span><span class="c7">n</span><span class="c8">g</span></span>
+      <span class="line line-yang"><span class="y1">Y</span><span class="y2">a</span><span class="y3">n</span><span class="y4">g</span></span>
+    </h1>
+  </div>
+
+  <!-- F: Tight stacking -->
+  <div class="prototype proto-f">
+    <div class="label">F. Tight stacking</div>
+    <h1 class="title">
+      <span class="line line-xiaolong"><span class="c1">X</span><span class="c2">i</span><span class="c3">a</span><span class="c4">o</span><span class="c5">l</span><span class="c6">o</span><span class="c7">n</span><span class="c8">g</span></span>
+      <span class="line line-yang"><span class="y1">Y</span><span class="y2">a</span><span class="y3">n</span><span class="y4">g</span></span>
+    </h1>
+  </div>
+
+  <!-- G: Indented YANG -->
+  <div class="prototype proto-g">
+    <div class="label">G. Indented YANG</div>
+    <h1 class="title">
+      <span class="line line-xiaolong"><span class="c1">X</span><span class="c2">i</span><span class="c3">a</span><span class="c4">o</span><span class="c5">l</span><span class="c6">o</span><span class="c7">n</span><span class="c8">g</span></span>
+      <span class="line line-yang"><span class="y1">Y</span><span class="y2">a</span><span class="y3">n</span><span class="y4">g</span></span>
+    </h1>
+  </div>
+
+  <!-- H: Wide letter-spacing centered -->
+  <div class="prototype proto-h">
+    <div class="label">H. Wide spacing, centered</div>
+    <h1 class="title">
+      <span class="line line-xiaolong"><span class="c1">X</span><span class="c2">i</span><span class="c3">a</span><span class="c4">o</span><span class="c5">l</span><span class="c6">o</span><span class="c7">n</span><span class="c8">g</span></span>
+      <span class="line line-yang"><span class="y1">Y</span><span class="y2">a</span><span class="y3">n</span><span class="y4">g</span></span>
+    </h1>
+  </div>
+
+  <!-- I: Ultra light -->
+  <div class="prototype proto-i">
+    <div class="label">I. Ultra light weight</div>
+    <h1 class="title">
+      <span class="line line-xiaolong"><span class="c1">X</span><span class="c2">i</span><span class="c3">a</span><span class="c4">o</span><span class="c5">l</span><span class="c6">o</span><span class="c7">n</span><span class="c8">g</span></span>
+      <span class="line line-yang"><span class="y1">Y</span><span class="y2">a</span><span class="y3">n</span><span class="y4">g</span></span>
+    </h1>
+  </div>
+
+  <!-- J: Right-aligned YANG -->
+  <div class="prototype proto-j">
+    <div class="label">J. Right-aligned YANG</div>
+    <div class="title-container">
+      <h1 class="title">
+        <span class="line line-xiaolong"><span class="c1">X</span><span class="c2">i</span><span class="c3">a</span><span class="c4">o</span><span class="c5">l</span><span class="c6">o</span><span class="c7">n</span><span class="c8">g</span></span>
+        <span class="line line-yang"><span class="y1">Y</span><span class="y2">a</span><span class="y3">n</span><span class="y4">g</span></span>
+      </h1>
+    </div>
+  </div>
+
+</body>
+</html>

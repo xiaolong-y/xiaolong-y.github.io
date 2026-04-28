@@ -63,7 +63,7 @@
   }
 
   function loadBooks() {
-    fetch('assets/data/books.json')
+    fetch('/assets/data/books.json')
       .then(function(response) {
         if (!response.ok) throw new Error('Failed to load');
         return response.json();

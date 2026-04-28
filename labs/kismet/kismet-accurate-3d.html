@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kismet - Anatomically Accurate 3D Model</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      color: #e0e0e0;
+    }
+
+    h1 {
+      font-size: 0.85em;
+      font-weight: 300;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #8090a0;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      font-size: 0.7em;
+      color: #506070;
+      margin-bottom: 20px;
+    }
+
+    .main-container {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .stage {
+      width: 450px;
+      height: 620px;
+      background: radial-gradient(ellipse at center, #151520 0%, #0a0a10 100%);
+      border-radius: 12px;
+      border: 1px solid #2a3040;
+      box-shadow:
+        0 10px 40px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.03);
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    .stage svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Control Panel */
+    .controls {
+      width: 320px;
+      background: rgba(20, 25, 35, 0.9);
+      border-radius: 12px;
+      border: 1px solid #2a3040;
+      padding: 20px;
+    }
+
+    .control-section {
+      margin-bottom: 20px;
+    }
+
+    .control-section h3 {
+      font-size: 0.7em;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #6080a0;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #2a3040;
+    }
+
+    .dof-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .dof-item {
+      background: rgba(30, 40, 55, 0.6);
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.65em;
+    }
+
+    .dof-label {
+      color: #708090;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .dof-value {
+      color: #a0c0e0;
+      font-weight: 500;
+      font-size: 1.1em;
+    }
+
+    .emotion-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .emotion-btn {
+      background: rgba(40, 60, 90, 0.4);
+      border: 1px solid #3a5070;
+      color: #90b0d0;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 0.7em;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .emotion-btn:hover {
+      background: rgba(60, 90, 130, 0.5);
+      border-color: #5080b0;
+    }
+
+    .emotion-btn.active {
+      background: rgba(80, 130, 180, 0.4);
+      border-color: #70a0d0;
+      color: #c0e0ff;
+    }
+
+    .status-bar {
+      margin-top: 15px;
+      padding: 10px;
+      background: rgba(20, 30, 40, 0.8);
+      border-radius: 6px;
+      font-size: 0.65em;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .status-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .status-label {
+      color: #607080;
+    }
+
+    .status-value {
+      color: #80c0a0;
+    }
+
+    /* Instructions */
+    .instructions {
+      margin-top: 20px;
+      font-size: 0.65em;
+      color: #506070;
+      text-align: center;
+      max-width: 600px;
+      line-height: 1.6;
+    }
+
+    .instructions strong {
+      color: #7090a0;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Kismet - 21 DOF Interactive Model</h1>
+<p class="subtitle">Anatomically accurate recreation based on MIT AI Lab specifications</p>
+
+<div class="main-container">
+  <div class="stage" id="stage">
+    <svg viewBox="0 0 450 620" id="kismetSvg">
+      <defs>
+        <!-- Gradients -->
+        <radialGradient id="eyeballGrad" cx="35%" cy="35%">
+          <stop offset="0%" stop-color="#3080c0"/>
+          <stop offset="60%" stop-color="#1a5090"/>
+          <stop offset="100%" stop-color="#0a2040"/>
+        </radialGradient>
+        <radialGradient id="irisGrad" cx="40%" cy="40%">
+          <stop offset="0%" stop-color="#40a0e0"/>
+          <stop offset="100%" stop-color="#1060a0"/>
+        </radialGradient>
+        <linearGradient id="metalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#606878"/>
+          <stop offset="50%" stop-color="#404850"/>
+          <stop offset="100%" stop-color="#303840"/>
+        </linearGradient>
+        <linearGradient id="earGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#e8a080"/>
+          <stop offset="100%" stop-color="#c08060"/>
+        </linearGradient>
+        <linearGradient id="lipGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#d06060"/>
+          <stop offset="100%" stop-color="#a04040"/>
+        </linearGradient>
+
+        <!-- Filters -->
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        <filter id="softGlow">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        </filter>
+      </defs>
+
+      <!-- ============================================ -->
+      <!-- BODY BASE - Triangulated wireframe box -->
+      <!-- ============================================ -->
+      <g id="bodyBase" transform="translate(225, 520)">
+        <!-- Main box structure - 3D wireframe appearance -->
+        <!-- Front face -->
+        <rect x="-90" y="0" width="180" height="90" fill="#101215" stroke="#3a6a5a" stroke-width="1.5"/>
+
+        <!-- Top face (perspective) -->
+        <path d="M-90,0 L-70,-25 L110,-25 L90,0" fill="#151820" stroke="#3a6a5a" stroke-width="1.5"/>
+
+        <!-- Right side face -->
+        <path d="M90,0 L110,-25 L110,65 L90,90" fill="#0c0f12" stroke="#3a6a5a" stroke-width="1.5"/>
+
+        <!-- Triangulated wireframe pattern on front face -->
+        <!-- Horizontal lines -->
+        <line x1="-90" y1="30" x2="90" y2="30" stroke="#4a8a6a" stroke-width="1"/>
+        <line x1="-90" y1="60" x2="90" y2="60" stroke="#4a8a6a" stroke-width="1"/>
+
+        <!-- Vertical lines -->
+        <line x1="-45" y1="0" x2="-45" y2="90" stroke="#4a8a6a" stroke-width="1"/>
+        <line x1="0" y1="0" x2="0" y2="90" stroke="#4a8a6a" stroke-width="1"/>
+        <line x1="45" y1="0" x2="45" y2="90" stroke="#4a8a6a" stroke-width="1"/>
+
+        <!-- Diagonal triangulation - row 1 -->
+        <line x1="-90" y1="0" x2="-45" y2="30" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="-45" y1="0" x2="-90" y2="30" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="-45" y1="0" x2="0" y2="30" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="0" y1="0" x2="-45" y2="30" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="0" y1="0" x2="45" y2="30" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="45" y1="0" x2="0" y2="30" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="45" y1="0" x2="90" y2="30" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="90" y1="0" x2="45" y2="30" stroke="#5a9a7a" stroke-width="1"/>
+
+        <!-- Diagonal triangulation - row 2 -->
+        <line x1="-90" y1="30" x2="-45" y2="60" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="-45" y1="30" x2="-90" y2="60" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="-45" y1="30" x2="0" y2="60" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="0" y1="30" x2="-45" y2="60" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="0" y1="30" x2="45" y2="60" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="45" y1="30" x2="0" y2="60" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="45" y1="30" x2="90" y2="60" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="90" y1="30" x2="45" y2="60" stroke="#5a9a7a" stroke-width="1"/>
+
+        <!-- Diagonal triangulation - row 3 -->
+        <line x1="-90" y1="60" x2="-45" y2="90" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="-45" y1="60" x2="-90" y2="90" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="-45" y1="60" x2="0" y2="90" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="0" y1="60" x2="-45" y2="90" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="0" y1="60" x2="45" y2="90" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="45" y1="60" x2="0" y2="90" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="45" y1="60" x2="90" y2="90" stroke="#5a9a7a" stroke-width="1"/>
+        <line x1="90" y1="60" x2="45" y2="90" stroke="#5a9a7a" stroke-width="1"/>
+
+        <!-- Node points at intersections (colored) -->
+        <!-- Row 0 -->
+        <circle cx="-90" cy="0" r="3" fill="#c05040" stroke="#d06050" stroke-width="1"/>
+        <circle cx="-45" cy="0" r="3" fill="#40a060" stroke="#50b070" stroke-width="1"/>
+        <circle cx="0" cy="0" r="3" fill="#c05040" stroke="#d06050" stroke-width="1"/>
+        <circle cx="45" cy="0" r="3" fill="#40a060" stroke="#50b070" stroke-width="1"/>
+        <circle cx="90" cy="0" r="3" fill="#c05040" stroke="#d06050" stroke-width="1"/>
+
+        <!-- Row 1 -->
+        <circle cx="-90" cy="30" r="3" fill="#40a060" stroke="#50b070" stroke-width="1"/>
+        <circle cx="-45" cy="30" r="3" fill="#c05040" stroke="#d06050" stroke-width="1"/>
+        <circle cx="0" cy="30" r="3" fill="#40a060" stroke="#50b070" stroke-width="1"/>
+        <circle cx="45" cy="30" r="3" fill="#c05040" stroke="#d06050" stroke-width="1"/>
+        <circle cx="90" cy="30" r="3" fill="#40a060" stroke="#50b070" stroke-width="1"/>
+
+        <!-- Row 2 -->
+        <circle cx="-90" cy="60" r="3" fill="#c05040" stroke="#d06050" stroke-width="1"/>
+        <circle cx="-45" cy="60" r="3" fill="#40a060" stroke="#50b070" stroke-width="1"/>
+        <circle cx="0" cy="60" r="3" fill="#c05040" stroke="#d06050" stroke-width="1"/>
+        <circle cx="45" cy="60" r="3" fill="#40a060" stroke="#50b070" stroke-width="1"/>
+        <circle cx="90" cy="60" r="3" fill="#c05040" stroke="#d06050" stroke-width="1"/>
+
+        <!-- Row 3 -->
+        <circle cx="-90" cy="90" r="3" fill="#40a060" stroke="#50b070" stroke-width="1"/>
+        <circle cx="-45" cy="90" r="3" fill="#c05040" stroke="#d06050" stroke-width="1"/>
+        <circle cx="0" cy="90" r="3" fill="#40a060" stroke="#50b070" stroke-width="1"/>
+        <circle cx="45" cy="90" r="3" fill="#c05040" stroke="#d06050" stroke-width="1"/>
+        <circle cx="90" cy="90" r="3" fill="#40a060" stroke="#50b070" stroke-width="1"/>
+
+        <!-- Top face triangulation -->
+        <line x1="-70" y1="-25" x2="-45" y2="0" stroke="#4a8a6a" stroke-width="1"/>
+        <line x1="20" y1="-25" x2="0" y2="0" stroke="#4a8a6a" stroke-width="1"/>
+        <line x1="110" y1="-25" x2="90" y2="0" stroke="#4a8a6a" stroke-width="1"/>
+
+        <!-- Control panel area on front -->
+        <rect x="-35" y="35" width="70" height="35" fill="#080a0c" stroke="#4080a0" stroke-width="1" rx="2"/>
+        <text x="0" y="57" text-anchor="middle" font-size="8" fill="#4080a0" font-family="monospace">COMPUTING</text>
+
+        <!-- Small indicator lights -->
+        <circle cx="-25" cy="45" r="2" fill="#40c080"/>
+        <circle cx="-15" cy="45" r="2" fill="#40c080"/>
+        <circle cx="15" cy="45" r="2" fill="#c04040"/>
+        <circle cx="25" cy="45" r="2" fill="#4080c0"/>
+      </g>
+
+      <!-- ============================================ -->
+      <!-- NECK - Full structure connecting head to body -->
+      <!-- ============================================ -->
+      <g id="neckBase" transform="translate(225, 435)">
+        <!-- Neck mounting to body -->
+        <ellipse cx="0" cy="85" rx="35" ry="10" fill="#202530" stroke="#3a6a5a" stroke-width="1.5"/>
+
+        <!-- Main neck column - exposed mechanical structure -->
+        <g id="neckMechanism">
+          <!-- Central spine/column - taller to reach body -->
+          <rect x="-15" y="-75" width="30" height="160" rx="3" fill="#252830" stroke="#5080a0" stroke-width="1.5"/>
+
+          <!-- Servo housings (visible servos) - tilt servos -->
+          <rect x="-30" y="-60" width="15" height="22" rx="2" fill="#202530" stroke="#4070a0" stroke-width="1.5"/>
+          <rect x="15" y="-60" width="15" height="22" rx="2" fill="#202530" stroke="#4070a0" stroke-width="1.5"/>
+          <circle cx="-22" cy="-49" r="5" fill="#3060a0" stroke="#5080b0" stroke-width="1"/>
+          <circle cx="22" cy="-49" r="5" fill="#3060a0" stroke="#5080b0" stroke-width="1"/>
+
+          <!-- Mid-neck servo (pan) -->
+          <rect x="-28" y="10" width="14" height="20" rx="2" fill="#202530" stroke="#4070a0" stroke-width="1.5"/>
+          <rect x="14" y="10" width="14" height="20" rx="2" fill="#202530" stroke="#4070a0" stroke-width="1.5"/>
+          <circle cx="-21" cy="20" r="4" fill="#3060a0" stroke="#5080b0" stroke-width="1"/>
+          <circle cx="21" cy="20" r="4" fill="#3060a0" stroke="#5080b0" stroke-width="1"/>
+
+          <!-- Horizontal support brackets -->
+          <line x1="-45" y1="-50" x2="-30" y2="-50" stroke="#5080a0" stroke-width="2"/>
+          <line x1="30" y1="-50" x2="45" y2="-50" stroke="#5080a0" stroke-width="2"/>
+          <line x1="-40" y1="20" x2="-28" y2="20" stroke="#5080a0" stroke-width="2"/>
+          <line x1="28" y1="20" x2="40" y2="20" stroke="#5080a0" stroke-width="2"/>
+          <line x1="-35" y1="60" x2="35" y2="60" stroke="#4070a0" stroke-width="1.5"/>
+
+          <!-- Neck segments/vertebrae with joints -->
+          <line x1="-12" y1="-65" x2="12" y2="-65" stroke="#607080" stroke-width="1"/>
+          <line x1="-12" y1="-45" x2="12" y2="-45" stroke="#607080" stroke-width="1"/>
+          <line x1="-12" y1="-25" x2="12" y2="-25" stroke="#607080" stroke-width="1"/>
+          <line x1="-12" y1="-5" x2="12" y2="-5" stroke="#607080" stroke-width="1"/>
+          <line x1="-12" y1="15" x2="12" y2="15" stroke="#607080" stroke-width="1"/>
+          <line x1="-12" y1="35" x2="12" y2="35" stroke="#607080" stroke-width="1"/>
+          <line x1="-12" y1="55" x2="12" y2="55" stroke="#607080" stroke-width="1"/>
+          <line x1="-12" y1="75" x2="12" y2="75" stroke="#607080" stroke-width="1"/>
+
+          <!-- Pan servo (horizontal rotation) at top -->
+          <ellipse cx="0" cy="-75" rx="22" ry="8" fill="#303840" stroke="#5080a0" stroke-width="1.5"/>
+          <circle cx="0" cy="-75" r="6" fill="#3060a0"/>
+
+          <!-- Side mounting points -->
+          <circle cx="-45" cy="-50" r="3" fill="#607080"/>
+          <circle cx="45" cy="-50" r="3" fill="#607080"/>
+          <circle cx="-40" cy="20" r="3" fill="#607080"/>
+          <circle cx="40" cy="20" r="3" fill="#607080"/>
+          <circle cx="-35" cy="60" r="2" fill="#506070"/>
+          <circle cx="35" cy="60" r="2" fill="#506070"/>
+
+          <!-- Wiring harness -->
+          <path d="M-22,-38 Q-28,-10 -22,10" fill="none" stroke="#c08050" stroke-width="1.5" opacity="0.7"/>
+          <path d="M22,-38 Q28,-10 22,10" fill="none" stroke="#c08050" stroke-width="1.5" opacity="0.7"/>
+          <path d="M-15,40 Q-20,60 -15,80" fill="none" stroke="#c08050" stroke-width="1" opacity="0.5"/>
+          <path d="M15,40 Q20,60 15,80" fill="none" stroke="#c08050" stroke-width="1" opacity="0.5"/>
+        </g>
+      </g>
+
+      <!-- NECK ASSEMBLY: 3 DOF (Pan, Tilt, Lean) -->
+      <g id="neckAssembly" transform="translate(225, 360)">
+
+        <!-- HEAD FRAME: Contains all facial features -->
+        <g id="headFrame">
+
+          <!-- Skull/frame outline - FLATTENED wider shape per feedback -->
+          <!-- Much wider (rx) than tall (ry) for flattened appearance -->
+          <path d="M-95,-50 Q-105,-20 -95,25 Q-75,55 0,65 Q75,55 95,25 Q105,-20 95,-50 Q70,-75 0,-80 Q-70,-75 -95,-50"
+                fill="none" stroke="#4080a0" stroke-width="1.5" opacity="0.5"/>
+
+          <!-- Inner frame rings - flattened ellipses -->
+          <ellipse cx="0" cy="-10" rx="90" ry="55" fill="none" stroke="#5090b0" stroke-width="1" opacity="0.3"/>
+          <ellipse cx="0" cy="-10" rx="80" ry="48" fill="none" stroke="#4080a0" stroke-width="1" opacity="0.25"/>
+
+          <!-- Cross-bracing structure to ears -->
+          <line x1="-90" y1="-15" x2="-100" y2="-10" stroke="#5090b0" stroke-width="1" opacity="0.4"/>
+          <line x1="90" y1="-15" x2="100" y2="-10" stroke="#5090b0" stroke-width="1" opacity="0.4"/>
+          <line x1="-75" y1="40" x2="-85" y2="45" stroke="#5090b0" stroke-width="1" opacity="0.4"/>
+          <line x1="75" y1="40" x2="85" y2="45" stroke="#5090b0" stroke-width="1" opacity="0.4"/>
+
+          <!-- Structural nodes -->
+          <circle cx="-95" cy="-50" r="2" fill="#5090b0" opacity="0.5"/>
+          <circle cx="95" cy="-50" r="2" fill="#5090b0" opacity="0.5"/>
+          <circle cx="-95" cy="25" r="2" fill="#5090b0" opacity="0.5"/>
+          <circle cx="95" cy="25" r="2" fill="#5090b0" opacity="0.5"/>
+          <circle cx="0" cy="-80" r="2" fill="#5090b0" opacity="0.5"/>
+          <circle cx="0" cy="65" r="2" fill="#5090b0" opacity="0.5"/>
+
+          <!-- === LEFT EAR: 2 DOF (Perk + Tilt) === -->
+          <!-- FLAPPY ears that extend HORIZONTALLY outward, can droop down -->
+          <g id="leftEarAssembly" transform="translate(-95, -20)">
+            <g id="leftEar">
+              <!-- Ear base servo mount (attaches to head) -->
+              <circle cx="0" cy="0" r="10" fill="#404850" stroke="#c08050" stroke-width="1.5"/>
+              <circle cx="0" cy="0" r="6" fill="#505860" stroke="#606870" stroke-width="1"/>
+
+              <!-- Flappy ear structure - extends OUTWARD horizontally with droop -->
+              <g id="leftEarShape">
+                <!-- Main ear segments - extending LEFT (outward from head) -->
+                <!-- Top edge of ear -->
+                <path d="M0,0 L-25,-8 L-50,-12 L-65,-8" fill="none" stroke="#c08050" stroke-width="1.5"/>
+                <!-- Upper-mid -->
+                <path d="M0,0 L-28,0 L-55,5 L-70,15" fill="none" stroke="#c08050" stroke-width="1.5"/>
+                <!-- Lower-mid -->
+                <path d="M0,0 L-25,10 L-50,25 L-62,38" fill="none" stroke="#c08050" stroke-width="1.5"/>
+                <!-- Bottom edge -->
+                <path d="M0,0 L-20,18 L-40,40 L-48,55" fill="none" stroke="#c08050" stroke-width="1.5"/>
+
+                <!-- Cross-bracing wires connecting segments -->
+                <path d="M-25,-8 L-28,0 L-25,10 L-20,18" fill="none" stroke="#d09060" stroke-width="1"/>
+                <path d="M-50,-12 L-55,5 L-50,25 L-40,40" fill="none" stroke="#d09060" stroke-width="1"/>
+                <path d="M-65,-8 L-70,15 L-62,38 L-48,55" fill="none" stroke="#d09060" stroke-width="1"/>
+
+                <!-- Ear membrane (semi-transparent pink fill) -->
+                <path d="M0,0 L-25,-8 L-50,-12 L-65,-8 L-70,15 L-62,38 L-48,55 L-40,40 L-20,18 L0,0"
+                      fill="#e8a070" fill-opacity="0.3" stroke="none"/>
+
+                <!-- Tip nodes (at outer edge of ear) -->
+                <circle cx="-65" cy="-8" r="3" fill="#e0a060" stroke="#c08040" stroke-width="1"/>
+                <circle cx="-70" cy="15" r="3" fill="#e0a060" stroke="#c08040" stroke-width="1"/>
+                <circle cx="-62" cy="38" r="3" fill="#e0a060" stroke="#c08040" stroke-width="1"/>
+                <circle cx="-48" cy="55" r="3" fill="#e0a060" stroke="#c08040" stroke-width="1"/>
+
+                <!-- Joint nodes along structure -->
+                <circle cx="-50" cy="-12" r="2" fill="#d09050"/>
+                <circle cx="-55" cy="5" r="2" fill="#d09050"/>
+                <circle cx="-50" cy="25" r="2" fill="#d09050"/>
+                <circle cx="-40" cy="40" r="2" fill="#d09050"/>
+              </g>
+
+              <!-- Central pivot joint -->
+              <circle cx="0" cy="0" r="4" fill="#c08050"/>
+            </g>
+          </g>
+
+          <!-- === RIGHT EAR: 2 DOF (Perk + Tilt) === -->
+          <!-- Mirror of left ear - extends RIGHT -->
+          <g id="rightEarAssembly" transform="translate(95, -20)">
+            <g id="rightEar">
+              <circle cx="0" cy="0" r="10" fill="#404850" stroke="#c08050" stroke-width="1.5"/>
+              <circle cx="0" cy="0" r="6" fill="#505860" stroke="#606870" stroke-width="1"/>
+
+              <g id="rightEarShape">
+                <!-- Main ear segments - extending RIGHT -->
+                <path d="M0,0 L25,-8 L50,-12 L65,-8" fill="none" stroke="#c08050" stroke-width="1.5"/>
+                <path d="M0,0 L28,0 L55,5 L70,15" fill="none" stroke="#c08050" stroke-width="1.5"/>
+                <path d="M0,0 L25,10 L50,25 L62,38" fill="none" stroke="#c08050" stroke-width="1.5"/>
+                <path d="M0,0 L20,18 L40,40 L48,55" fill="none" stroke="#c08050" stroke-width="1.5"/>
+
+                <!-- Cross-bracing -->
+                <path d="M25,-8 L28,0 L25,10 L20,18" fill="none" stroke="#d09060" stroke-width="1"/>
+                <path d="M50,-12 L55,5 L50,25 L40,40" fill="none" stroke="#d09060" stroke-width="1"/>
+                <path d="M65,-8 L70,15 L62,38 L48,55" fill="none" stroke="#d09060" stroke-width="1"/>
+
+                <!-- Membrane -->
+                <path d="M0,0 L25,-8 L50,-12 L65,-8 L70,15 L62,38 L48,55 L40,40 L20,18 L0,0"
+                      fill="#e8a070" fill-opacity="0.3" stroke="none"/>
+
+                <!-- Tip nodes -->
+                <circle cx="65" cy="-8" r="3" fill="#e0a060" stroke="#c08040" stroke-width="1"/>
+                <circle cx="70" cy="15" r="3" fill="#e0a060" stroke="#c08040" stroke-width="1"/>
+                <circle cx="62" cy="38" r="3" fill="#e0a060" stroke="#c08040" stroke-width="1"/>
+                <circle cx="48" cy="55" r="3" fill="#e0a060" stroke="#c08040" stroke-width="1"/>
+
+                <!-- Joint nodes -->
+                <circle cx="50" cy="-12" r="2" fill="#d09050"/>
+                <circle cx="55" cy="5" r="2" fill="#d09050"/>
+                <circle cx="50" cy="25" r="2" fill="#d09050"/>
+                <circle cx="40" cy="40" r="2" fill="#d09050"/>
+              </g>
+
+              <circle cx="0" cy="0" r="4" fill="#c08050"/>
+            </g>
+          </g>
+
+          <!-- === LEFT EYEBROW: 2 DOF (Elevation + Arch) === -->
+          <g id="leftBrowAssembly" transform="translate(-35, -70)">
+            <g id="leftBrow">
+              <!-- Brow shape - thick, expressive -->
+              <path id="leftBrowPath" d="M-28,0 Q-15,-12 0,-14 Q15,-10 25,2"
+                    fill="none" stroke="#5a4a3a" stroke-width="6" stroke-linecap="round"/>
+              <!-- Joint points -->
+              <circle cx="-28" cy="0" r="3" fill="#7a6a5a" id="leftBrowOuter"/>
+              <circle cx="0" cy="-14" r="3" fill="#7a6a5a" id="leftBrowMid"/>
+              <circle cx="25" cy="2" r="3" fill="#7a6a5a" id="leftBrowInner"/>
+            </g>
+          </g>
+
+          <!-- === RIGHT EYEBROW: 2 DOF (Elevation + Arch) === -->
+          <g id="rightBrowAssembly" transform="translate(35, -70)">
+            <g id="rightBrow">
+              <path id="rightBrowPath" d="M28,0 Q15,-12 0,-14 Q-15,-10 -25,2"
+                    fill="none" stroke="#5a4a3a" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="28" cy="0" r="3" fill="#7a6a5a" id="rightBrowOuter"/>
+              <circle cx="0" cy="-14" r="3" fill="#7a6a5a" id="rightBrowMid"/>
+              <circle cx="-25" cy="2" r="3" fill="#7a6a5a" id="rightBrowInner"/>
+            </g>
+          </g>
+
+          <!-- === EYE SYSTEM: 3 DOF Total === -->
+          <!-- Shared tilt mechanism (both eyes tilt together) -->
+          <g id="eyeTiltMechanism" transform="translate(0, -35)">
+
+            <!-- === LEFT EYE: Independent Pan === -->
+            <!-- Concentric mechanical housing per schematic -->
+            <g id="leftEyeAssembly" transform="translate(-35, 0)">
+              <!-- Outer mechanical housing rings (cyan wireframe like schematic) -->
+              <circle cx="0" cy="0" r="38" fill="none" stroke="#4090b0" stroke-width="1" opacity="0.4"/>
+              <circle cx="0" cy="0" r="35" fill="none" stroke="#5090c0" stroke-width="1.5"/>
+              <circle cx="0" cy="0" r="32" fill="none" stroke="#4080b0" stroke-width="2"/>
+              <circle cx="0" cy="0" r="29" fill="none" stroke="#3070a0" stroke-width="1"/>
+
+              <!-- Mounting brackets (visible hardware) -->
+              <line x1="-38" y1="0" x2="-42" y2="0" stroke="#5090c0" stroke-width="2"/>
+              <line x1="38" y1="0" x2="42" y2="0" stroke="#5090c0" stroke-width="2"/>
+              <line x1="0" y1="-38" x2="0" y2="-42" stroke="#5090c0" stroke-width="2"/>
+              <circle cx="-42" cy="0" r="2" fill="#6090b0"/>
+              <circle cx="42" cy="0" r="2" fill="#6090b0"/>
+              <circle cx="0" cy="-42" r="2" fill="#6090b0"/>
+
+              <!-- Eyeball -->
+              <g id="leftEyeball">
+                <circle cx="0" cy="0" r="26" fill="#0a2040" stroke="#4080b0" stroke-width="1.5"/>
+
+                <!-- Inner blue rings (camera housing) -->
+                <circle cx="0" cy="0" r="23" fill="none" stroke="#3090c0" stroke-width="1"/>
+                <circle cx="0" cy="0" r="20" fill="none" stroke="#40a0d0" stroke-width="0.5"/>
+
+                <!-- Iris - prominent blue -->
+                <circle cx="0" cy="0" r="18" fill="url(#irisGrad)"/>
+                <circle cx="0" cy="0" r="15" fill="#2070b0"/>
+
+                <!-- Pupil (moves with gaze) -->
+                <circle id="leftPupil" cx="0" cy="0" r="9" fill="#051015"/>
+
+                <!-- Highlights -->
+                <circle cx="-6" cy="-7" r="5" fill="rgba(255,255,255,0.5)"/>
+                <circle cx="4" cy="5" r="2.5" fill="rgba(255,255,255,0.25)"/>
+              </g>
+
+              <!-- === LEFT EYELID: 1 DOF === -->
+              <g id="leftEyelidGroup">
+                <ellipse id="leftEyelid" cx="0" cy="-5" rx="28" ry="0" fill="#1a1a20"/>
+                <path d="M-28,-5 Q0,-32 28,-5" fill="none" stroke="#2a2a35" stroke-width="1" opacity="0.5"/>
+              </g>
+            </g>
+
+            <!-- === RIGHT EYE: Independent Pan === -->
+            <g id="rightEyeAssembly" transform="translate(35, 0)">
+              <!-- Outer mechanical housing rings -->
+              <circle cx="0" cy="0" r="38" fill="none" stroke="#4090b0" stroke-width="1" opacity="0.4"/>
+              <circle cx="0" cy="0" r="35" fill="none" stroke="#5090c0" stroke-width="1.5"/>
+              <circle cx="0" cy="0" r="32" fill="none" stroke="#4080b0" stroke-width="2"/>
+              <circle cx="0" cy="0" r="29" fill="none" stroke="#3070a0" stroke-width="1"/>
+
+              <!-- Mounting brackets -->
+              <line x1="-38" y1="0" x2="-42" y2="0" stroke="#5090c0" stroke-width="2"/>
+              <line x1="38" y1="0" x2="42" y2="0" stroke="#5090c0" stroke-width="2"/>
+              <line x1="0" y1="-38" x2="0" y2="-42" stroke="#5090c0" stroke-width="2"/>
+              <circle cx="-42" cy="0" r="2" fill="#6090b0"/>
+              <circle cx="42" cy="0" r="2" fill="#6090b0"/>
+              <circle cx="0" cy="-42" r="2" fill="#6090b0"/>
+
+              <g id="rightEyeball">
+                <circle cx="0" cy="0" r="26" fill="#0a2040" stroke="#4080b0" stroke-width="1.5"/>
+                <circle cx="0" cy="0" r="23" fill="none" stroke="#3090c0" stroke-width="1"/>
+                <circle cx="0" cy="0" r="20" fill="none" stroke="#40a0d0" stroke-width="0.5"/>
+                <circle cx="0" cy="0" r="18" fill="url(#irisGrad)"/>
+                <circle cx="0" cy="0" r="15" fill="#2070b0"/>
+                <circle id="rightPupil" cx="0" cy="0" r="9" fill="#051015"/>
+                <circle cx="-6" cy="-7" r="5" fill="rgba(255,255,255,0.5)"/>
+                <circle cx="4" cy="5" r="2.5" fill="rgba(255,255,255,0.25)"/>
+              </g>
+
+              <!-- === RIGHT EYELID: 1 DOF === -->
+              <g id="rightEyelidGroup">
+                <ellipse id="rightEyelid" cx="0" cy="-5" rx="28" ry="0" fill="#1a1a20"/>
+                <path d="M-28,-5 Q0,-32 28,-5" fill="none" stroke="#2a2a35" stroke-width="1" opacity="0.5"/>
+              </g>
+            </g>
+          </g>
+
+          <!-- Nose/sensor area -->
+          <g id="nose" transform="translate(0, 10)">
+            <path d="M0,-5 L-10,20 Q0,28 10,20 L0,-5" fill="#3a4550" stroke="#4a5560" stroke-width="1"/>
+            <circle cx="0" cy="15" r="4" fill="#506070"/>
+          </g>
+
+          <!-- === MOUTH SYSTEM: 5 DOF (Jaw 1 + Lips 4) === -->
+          <!-- Prominent thick red lips per schematic -->
+          <g id="mouthAssembly" transform="translate(0, 55)">
+
+            <!-- Mouth mechanical frame (cyan wireframe) -->
+            <ellipse cx="0" cy="5" rx="48" ry="25" fill="none" stroke="#4080a0" stroke-width="1"/>
+            <ellipse cx="0" cy="5" rx="44" ry="22" fill="none" stroke="#5090b0" stroke-width="1.5"/>
+
+            <!-- Jaw mounting bracket -->
+            <path d="M-40,18 L-45,30 L45,30 L40,18" fill="none" stroke="#c08050" stroke-width="1.5"/>
+            <circle cx="-45" cy="30" r="2" fill="#d09060"/>
+            <circle cx="45" cy="30" r="2" fill="#d09060"/>
+
+            <!-- === JAW: 1 DOF === -->
+            <g id="jawGroup">
+              <!-- Jaw background/interior (opens/closes) -->
+              <ellipse id="jawBg" cx="0" cy="8" rx="38" ry="14" fill="#120808"/>
+
+              <!-- === LIPS: 4 DOF (4 corners) === -->
+              <!-- Thick curved red lips - prominent like schematic -->
+              <g id="lipSystem">
+                <!-- Upper lip - thick, curved, red/orange -->
+                <path id="upperLip" d="M-38,-2 Q-20,-10 0,-12 Q20,-10 38,-2"
+                      fill="none" stroke="#d04030" stroke-width="8" stroke-linecap="round"/>
+                <!-- Upper lip highlight -->
+                <path d="M-35,-2 Q-18,-9 0,-11 Q18,-9 35,-2"
+                      fill="none" stroke="#e06050" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+
+                <!-- Lower lip - thick, curved -->
+                <path id="lowerLip" d="M-35,16 Q-18,24 0,26 Q18,24 35,16"
+                      fill="none" stroke="#c03020" stroke-width="7" stroke-linecap="round"/>
+                <!-- Lower lip shadow -->
+                <path d="M-32,18 Q-15,25 0,27 Q15,25 32,18"
+                      fill="none" stroke="#a02010" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+
+                <!-- Lip corner actuator points (visible joints) -->
+                <circle id="lipCornerUL" cx="-38" cy="-2" r="4" fill="#c04030" stroke="#e06050" stroke-width="1"/>
+                <circle id="lipCornerUR" cx="38" cy="-2" r="4" fill="#c04030" stroke="#e06050" stroke-width="1"/>
+                <circle id="lipCornerLL" cx="-35" cy="16" r="4" fill="#b03020" stroke="#d05040" stroke-width="1"/>
+                <circle id="lipCornerLR" cx="35" cy="16" r="4" fill="#b03020" stroke="#d05040" stroke-width="1"/>
+
+                <!-- Center control points -->
+                <circle cx="0" cy="-12" r="2.5" fill="#e06050"/>
+                <circle cx="0" cy="26" r="2.5" fill="#c04030"/>
+
+                <!-- Actuator connection lines -->
+                <line x1="-38" y1="-2" x2="-45" y2="5" stroke="#c08050" stroke-width="1" opacity="0.6"/>
+                <line x1="38" y1="-2" x2="45" y2="5" stroke="#c08050" stroke-width="1" opacity="0.6"/>
+              </g>
+            </g>
+          </g>
+
+          <!-- Chin structure -->
+          <path d="M-30,80 Q0,100 30,80" fill="none" stroke="#3a4550" stroke-width="1" opacity="0.5"/>
+
+        </g><!-- End headFrame -->
+      </g><!-- End neckAssembly -->
+
+      <!-- DOF Visualization overlay (optional debug) -->
+      <g id="dofOverlay" opacity="0">
+        <!-- Can be toggled to show joint positions -->
+      </g>
+
+    </svg>
+  </div>
+
+  <!-- Control Panel -->
+  <div class="controls">
+    <div class="control-section">
+      <h3>Emotion Presets</h3>
+      <div class="emotion-buttons">
+        <button class="emotion-btn active" data-emotion="neutral">Neutral</button>
+        <button class="emotion-btn" data-emotion="happy">Happy</button>
+        <button class="emotion-btn" data-emotion="sad">Sad</button>
+        <button class="emotion-btn" data-emotion="surprised">Surprised</button>
+        <button class="emotion-btn" data-emotion="angry">Angry</button>
+        <button class="emotion-btn" data-emotion="interested">Interested</button>
+        <button class="emotion-btn" data-emotion="disgusted">Disgusted</button>
+      </div>
+    </div>
+
+    <div class="control-section">
+      <h3>21 Degrees of Freedom</h3>
+      <div class="dof-grid">
+        <div class="dof-item">
+          <span class="dof-label">Neck Pan</span>
+          <span class="dof-value" id="dofNeckPan">0.0°</span>
+        </div>
+        <div class="dof-item">
+          <span class="dof-label">Neck Tilt</span>
+          <span class="dof-value" id="dofNeckTilt">0.0°</span>
+        </div>
+        <div class="dof-item">
+          <span class="dof-label">Neck Lean</span>
+          <span class="dof-value" id="dofNeckLean">0.0°</span>
+        </div>
+        <div class="dof-item">
+          <span class="dof-label">Eye Tilt</span>
+          <span class="dof-value" id="dofEyeTilt">0.0°</span>
+        </div>
+        <div class="dof-item">
+          <span class="dof-label">L Eye Pan</span>
+          <span class="dof-value" id="dofLEyePan">0.0°</span>
+        </div>
+        <div class="dof-item">
+          <span class="dof-label">R Eye Pan</span>
+          <span class="dof-value" id="dofREyePan">0.0°</span>
+        </div>
+        <div class="dof-item">
+          <span class="dof-label">L Ear Perk</span>
+          <span class="dof-value" id="dofLEarPerk">0.0°</span>
+        </div>
+        <div class="dof-item">
+          <span class="dof-label">R Ear Perk</span>
+          <span class="dof-value" id="dofREarPerk">0.0°</span>
+        </div>
+        <div class="dof-item">
+          <span class="dof-label">L Brow</span>
+          <span class="dof-value" id="dofLBrow">0.0</span>
+        </div>
+        <div class="dof-item">
+          <span class="dof-label">R Brow</span>
+          <span class="dof-value" id="dofRBrow">0.0</span>
+        </div>
+        <div class="dof-item">
+          <span class="dof-label">Jaw Open</span>
+          <span class="dof-value" id="dofJaw">0.0</span>
+        </div>
+        <div class="dof-item">
+          <span class="dof-label">Lip Curve</span>
+          <span class="dof-value" id="dofLips">0.0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div class="status-row">
+        <span class="status-label">Current Emotion:</span>
+        <span class="status-value" id="currentEmotion">Neutral</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Gaze Target:</span>
+        <span class="status-value" id="gazeTarget">Center</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Vergence:</span>
+        <span class="status-value" id="vergenceStatus">Parallel</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="instructions">
+  <strong>Mouse:</strong> Move to direct gaze and head orientation &nbsp;|&nbsp;
+  <strong>Click:</strong> Trigger blink &nbsp;|&nbsp;
+  <strong>Buttons:</strong> Set emotional expressions<br>
+  Based on Cynthia Breazeal's Kismet (MIT AI Lab, 1997-2000)
+</p>
+
+<script>
+// ===========================================
+// KISMET 21 DOF CONTROLLER
+// Anatomically accurate joint hierarchy
+// ===========================================
+
+class Kismet21DOF {
+  constructor() {
+    // All 21 degrees of freedom
+    this.dof = {
+      // Neck: 3 DOF
+      neckPan: 0,      // Horizontal rotation (yaw)
+      neckTilt: 0,     // Vertical nod (pitch)
+      neckLean: 0,     // Side lean (roll)
+
+      // Eyes: 3 DOF total
+      eyeTilt: 0,      // Shared vertical (both eyes)
+      leftEyePan: 0,   // Left eye horizontal (vergence)
+      rightEyePan: 0,  // Right eye horizontal (vergence)
+
+      // Eyelids: 2 DOF
+      leftLid: 0,      // 0 = open, 1 = closed
+      rightLid: 0,
+
+      // Ears: 4 DOF (2 per ear)
+      leftEarPerk: 0,  // Up/down (-1 to 1)
+      leftEarTilt: 0,  // Rotation
+      rightEarPerk: 0,
+      rightEarTilt: 0,
+
+      // Eyebrows: 4 DOF (2 per brow)
+      leftBrowInner: 0,   // Inner corner elevation
+      leftBrowOuter: 0,   // Outer corner elevation
+      rightBrowInner: 0,
+      rightBrowOuter: 0,
+
+      // Mouth: 5 DOF
+      jaw: 0,             // Jaw open amount (0-1)
+      lipCornerUL: 0,     // Upper left corner (-1 down, 1 up)
+      lipCornerUR: 0,     // Upper right corner
+      lipCornerLL: 0,     // Lower left corner
+      lipCornerLR: 0      // Lower right corner
+    };
+
+    // Animation targets (for smooth interpolation)
+    this.target = { ...this.dof };
+
+    // Blink state
+    this.isBlinking = false;
+    this.blinkTimer = null;
+
+    // Get DOM elements
+    this.elements = {
+      neckAssembly: document.getElementById('neckAssembly'),
+      headFrame: document.getElementById('headFrame'),
+
+      leftEar: document.getElementById('leftEar'),
+      rightEar: document.getElementById('rightEar'),
+      leftEarAssembly: document.getElementById('leftEarAssembly'),
+      rightEarAssembly: document.getElementById('rightEarAssembly'),
+
+      leftBrow: document.getElementById('leftBrow'),
+      rightBrow: document.getElementById('rightBrow'),
+      leftBrowPath: document.getElementById('leftBrowPath'),
+      rightBrowPath: document.getElementById('rightBrowPath'),
+
+      eyeTiltMechanism: document.getElementById('eyeTiltMechanism'),
+      leftPupil: document.getElementById('leftPupil'),
+      rightPupil: document.getElementById('rightPupil'),
+      leftEyelid: document.getElementById('leftEyelid'),
+      rightEyelid: document.getElementById('rightEyelid'),
+
+      upperLip: document.getElementById('upperLip'),
+      lowerLip: document.getElementById('lowerLip'),
+      jawBg: document.getElementById('jawBg'),
+      lipCornerUL: document.getElementById('lipCornerUL'),
+      lipCornerUR: document.getElementById('lipCornerUR'),
+      lipCornerLL: document.getElementById('lipCornerLL'),
+      lipCornerLR: document.getElementById('lipCornerLR')
+    };
+
+    // UI elements
+    this.dofDisplays = {
+      neckPan: document.getElementById('dofNeckPan'),
+      neckTilt: document.getElementById('dofNeckTilt'),
+      neckLean: document.getElementById('dofNeckLean'),
+      eyeTilt: document.getElementById('dofEyeTilt'),
+      leftEyePan: document.getElementById('dofLEyePan'),
+      rightEyePan: document.getElementById('dofREyePan'),
+      leftEarPerk: document.getElementById('dofLEarPerk'),
+      rightEarPerk: document.getElementById('dofREarPerk'),
+      leftBrow: document.getElementById('dofLBrow'),
+      rightBrow: document.getElementById('dofRBrow'),
+      jaw: document.getElementById('dofJaw'),
+      lips: document.getElementById('dofLips')
+    };
+
+    this.currentEmotionEl = document.getElementById('currentEmotion');
+    this.gazeTargetEl = document.getElementById('gazeTarget');
+    this.vergenceStatusEl = document.getElementById('vergenceStatus');
+
+    // Start animation loop
+    this.animate();
+
+    // Start random blinks
+    this.startBlinkCycle();
+  }
+
+  // Emotion presets matching Kismet's 7 emotions
+  setEmotion(emotion) {
+    const presets = {
+      neutral: {
+        leftBrowInner: 0, leftBrowOuter: 0,
+        rightBrowInner: 0, rightBrowOuter: 0,
+        leftEarPerk: 0, rightEarPerk: 0,
+        leftEarTilt: 0, rightEarTilt: 0,
+        lipCornerUL: 0, lipCornerUR: 0,
+        lipCornerLL: 0, lipCornerLR: 0,
+        jaw: 0
+      },
+      happy: {
+        leftBrowInner: -3, leftBrowOuter: -5,
+        rightBrowInner: -3, rightBrowOuter: -5,
+        leftEarPerk: 0.3, rightEarPerk: 0.3,
+        leftEarTilt: 10, rightEarTilt: -10,
+        lipCornerUL: 8, lipCornerUR: 8,
+        lipCornerLL: 4, lipCornerLR: 4,
+        jaw: 0.15
+      },
+      sad: {
+        leftBrowInner: 10, leftBrowOuter: -2,
+        rightBrowInner: 10, rightBrowOuter: -2,
+        leftEarPerk: -0.5, rightEarPerk: -0.5,
+        leftEarTilt: -15, rightEarTilt: 15,
+        lipCornerUL: -6, lipCornerUR: -6,
+        lipCornerLL: -4, lipCornerLR: -4,
+        jaw: 0.05
+      },
+      surprised: {
+        leftBrowInner: -15, leftBrowOuter: -12,
+        rightBrowInner: -15, rightBrowOuter: -12,
+        leftEarPerk: 0.8, rightEarPerk: 0.8,
+        leftEarTilt: 0, rightEarTilt: 0,
+        lipCornerUL: 0, lipCornerUR: 0,
+        lipCornerLL: 0, lipCornerLR: 0,
+        jaw: 0.6
+      },
+      angry: {
+        leftBrowInner: 8, leftBrowOuter: 12,
+        rightBrowInner: 8, rightBrowOuter: 12,
+        leftEarPerk: -0.3, rightEarPerk: -0.3,
+        leftEarTilt: -25, rightEarTilt: 25,
+        lipCornerUL: -3, lipCornerUR: -3,
+        lipCornerLL: 2, lipCornerLR: 2,
+        jaw: 0.1
+      },
+      interested: {
+        leftBrowInner: -8, leftBrowOuter: 0,
+        rightBrowInner: -5, rightBrowOuter: 0,
+        leftEarPerk: 0.6, rightEarPerk: 0.4,
+        leftEarTilt: 15, rightEarTilt: 5,
+        lipCornerUL: 2, lipCornerUR: 3,
+        lipCornerLL: 1, lipCornerLR: 2,
+        jaw: 0.05
+      },
+      disgusted: {
+        leftBrowInner: 5, leftBrowOuter: 8,
+        rightBrowInner: 5, rightBrowOuter: 8,
+        leftEarPerk: -0.4, rightEarPerk: -0.4,
+        leftEarTilt: -10, rightEarTilt: 10,
+        lipCornerUL: -5, lipCornerUR: -5,
+        lipCornerLL: 3, lipCornerLR: 3,
+        jaw: 0.08
+      }
+    };
+
+    if (presets[emotion]) {
+      Object.assign(this.target, presets[emotion]);
+      this.currentEmotionEl.textContent = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+
+      // Update button states
+      document.querySelectorAll('.emotion-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.emotion === emotion);
+      });
+    }
+  }
+
+  // Update gaze based on mouse position
+  updateGaze(mouseX, mouseY) {
+    // mouseX, mouseY are 0-1 normalized coordinates
+
+    // Neck movement (follows gaze with lag)
+    this.target.neckPan = (mouseX - 0.5) * 35;
+    this.target.neckTilt = (mouseY - 0.5) * -20;
+    this.target.neckLean = (mouseX - 0.5) * -8;
+
+    // Eye movement (faster than neck, independent pan for vergence)
+    const gazeX = (mouseX - 0.5) * 10;
+    const gazeY = (mouseY - 0.5) * 8;
+
+    this.target.eyeTilt = gazeY;
+
+    // Vergence: eyes converge slightly when looking at near targets
+    // (simulated by offsetting pan in opposite directions)
+    const vergence = Math.abs(mouseY - 0.5) * 2; // More vergence when looking up/down
+    this.target.leftEyePan = gazeX + vergence;
+    this.target.rightEyePan = gazeX - vergence;
+
+    // Update status displays
+    const quadrant = this.getGazeQuadrant(mouseX, mouseY);
+    this.gazeTargetEl.textContent = quadrant;
+    this.vergenceStatusEl.textContent = vergence > 0.5 ? 'Converging' : 'Parallel';
+  }
+
+  getGazeQuadrant(x, y) {
+    if (y < 0.33) {
+      if (x < 0.33) return 'Upper Left';
+      if (x > 0.66) return 'Upper Right';
+      return 'Up';
+    }
+    if (y > 0.66) {
+      if (x < 0.33) return 'Lower Left';
+      if (x > 0.66) return 'Lower Right';
+      return 'Down';
+    }
+    if (x < 0.33) return 'Left';
+    if (x > 0.66) return 'Right';
+    return 'Center';
+  }
+
+  // Blink both eyes
+  blink() {
+    if (this.isBlinking) return;
+    this.isBlinking = true;
+
+    this.target.leftLid = 1;
+    this.target.rightLid = 1;
+
+    setTimeout(() => {
+      this.target.leftLid = 0;
+      this.target.rightLid = 0;
+      setTimeout(() => {
+        this.isBlinking = false;
+      }, 80);
+    }, 100);
+  }
+
+  startBlinkCycle() {
+    const randomBlink = () => {
+      if (Math.random() < 0.3) {
+        this.blink();
+      }
+      setTimeout(randomBlink, 2000 + Math.random() * 3000);
+    };
+    setTimeout(randomBlink, 2000);
+  }
+
+  // Smooth interpolation
+  lerp(current, target, speed = 0.12) {
+    return current + (target - current) * speed;
+  }
+
+  // Main animation loop
+  animate() {
+    // Interpolate all DOF
+    for (let key in this.dof) {
+      if (this.target[key] !== undefined) {
+        const speed = key.includes('Lid') ? 0.4 : 0.12;
+        this.dof[key] = this.lerp(this.dof[key], this.target[key], speed);
+      }
+    }
+
+    // Apply to DOM
+    this.render();
+
+    // Update displays
+    this.updateDisplays();
+
+    requestAnimationFrame(() => this.animate());
+  }
+
+  render() {
+    const d = this.dof;
+    const el = this.elements;
+
+    // NECK: 3 DOF transform
+    if (el.neckAssembly) {
+      el.neckAssembly.setAttribute('transform',
+        `translate(225, 360) rotate(${d.neckPan * 0.4}) skewX(${d.neckLean})`);
+    }
+
+    // HEAD FRAME: Additional tilt
+    if (el.headFrame) {
+      el.headFrame.setAttribute('transform',
+        `rotate(${d.neckLean * 0.3}) translate(0, ${d.neckTilt * 0.5})`);
+    }
+
+    // LEFT EAR: 2 DOF - Flappy horizontal ears
+    // Perk = rotate up/down (positive = ear tips up, negative = drooping)
+    // Tilt = forward/back rotation
+    if (el.leftEarAssembly) {
+      const perkRotation = d.leftEarPerk * 25; // -25 to +25 degrees
+      const tilt = d.leftEarTilt;
+      el.leftEarAssembly.setAttribute('transform',
+        `translate(-95, -20) rotate(${perkRotation + tilt})`);
+    }
+
+    // RIGHT EAR: 2 DOF
+    if (el.rightEarAssembly) {
+      const perkRotation = d.rightEarPerk * 25;
+      const tilt = d.rightEarTilt;
+      el.rightEarAssembly.setAttribute('transform',
+        `translate(95, -20) rotate(${-perkRotation + tilt})`);
+    }
+
+    // LEFT EYEBROW: 2 DOF (inner + outer elevation)
+    if (el.leftBrowPath) {
+      const inner = d.leftBrowInner;
+      const outer = d.leftBrowOuter;
+      el.leftBrowPath.setAttribute('d',
+        `M-28,${outer} Q-15,${-12 + (inner + outer) / 2} 0,${-14 + inner} Q15,${-10 + inner} 25,${2 + inner}`);
+    }
+
+    // RIGHT EYEBROW: 2 DOF
+    if (el.rightBrowPath) {
+      const inner = d.rightBrowInner;
+      const outer = d.rightBrowOuter;
+      el.rightBrowPath.setAttribute('d',
+        `M28,${outer} Q15,${-12 + (inner + outer) / 2} 0,${-14 + inner} Q-15,${-10 + inner} -25,${2 + inner}`);
+    }
+
+    // EYE TILT: Shared vertical (1 DOF)
+    if (el.eyeTiltMechanism) {
+      el.eyeTiltMechanism.setAttribute('transform',
+        `translate(0, ${-35 + d.eyeTilt})`);
+    }
+
+    // LEFT PUPIL: Pan (1 DOF)
+    if (el.leftPupil) {
+      el.leftPupil.setAttribute('cx', d.leftEyePan);
+      el.leftPupil.setAttribute('cy', d.eyeTilt * 0.5);
+    }
+
+    // RIGHT PUPIL: Pan (1 DOF)
+    if (el.rightPupil) {
+      el.rightPupil.setAttribute('cx', d.rightEyePan);
+      el.rightPupil.setAttribute('cy', d.eyeTilt * 0.5);
+    }
+
+    // LEFT EYELID: 1 DOF
+    if (el.leftEyelid) {
+      el.leftEyelid.setAttribute('ry', d.leftLid * 26);
+    }
+
+    // RIGHT EYELID: 1 DOF
+    if (el.rightEyelid) {
+      el.rightEyelid.setAttribute('ry', d.rightLid * 26);
+    }
+
+    // JAW: 1 DOF
+    if (el.jawBg) {
+      const jawOpen = d.jaw * 12;
+      el.jawBg.setAttribute('ry', 14 + jawOpen);
+      el.jawBg.setAttribute('cy', 8 + jawOpen * 0.5);
+    }
+
+    // LIPS: 4 DOF (4 corners) - Updated for new lip geometry
+    // Upper lip path
+    if (el.upperLip) {
+      const ul = d.lipCornerUL;
+      const ur = d.lipCornerUR;
+      el.upperLip.setAttribute('d',
+        `M-38,${-2 - ul} Q-20,${-10 - (ul + ur) / 2} 0,${-12 - (ul + ur) / 3} Q20,${-10 - (ul + ur) / 2} 38,${-2 - ur}`);
+    }
+
+    // Lower lip path
+    if (el.lowerLip) {
+      const ll = d.lipCornerLL;
+      const lr = d.lipCornerLR;
+      const jawOffset = d.jaw * 10;
+      el.lowerLip.setAttribute('d',
+        `M-35,${16 + jawOffset - ll} Q-18,${24 + jawOffset} 0,${26 + jawOffset} Q18,${24 + jawOffset} 35,${16 + jawOffset - lr}`);
+    }
+
+    // Update lip corner indicators
+    if (el.lipCornerUL) el.lipCornerUL.setAttribute('cy', -2 - d.lipCornerUL);
+    if (el.lipCornerUR) el.lipCornerUR.setAttribute('cy', -2 - d.lipCornerUR);
+    if (el.lipCornerLL) el.lipCornerLL.setAttribute('cy', 16 + d.jaw * 10 - d.lipCornerLL);
+    if (el.lipCornerLR) el.lipCornerLR.setAttribute('cy', 16 + d.jaw * 10 - d.lipCornerLR);
+  }
+
+  updateDisplays() {
+    const d = this.dof;
+    const disp = this.dofDisplays;
+
+    if (disp.neckPan) disp.neckPan.textContent = d.neckPan.toFixed(1) + '°';
+    if (disp.neckTilt) disp.neckTilt.textContent = d.neckTilt.toFixed(1) + '°';
+    if (disp.neckLean) disp.neckLean.textContent = d.neckLean.toFixed(1) + '°';
+    if (disp.eyeTilt) disp.eyeTilt.textContent = d.eyeTilt.toFixed(1) + '°';
+    if (disp.leftEyePan) disp.leftEyePan.textContent = d.leftEyePan.toFixed(1) + '°';
+    if (disp.rightEyePan) disp.rightEyePan.textContent = d.rightEyePan.toFixed(1) + '°';
+    if (disp.leftEarPerk) disp.leftEarPerk.textContent = (d.leftEarPerk * 100).toFixed(0) + '%';
+    if (disp.rightEarPerk) disp.rightEarPerk.textContent = (d.rightEarPerk * 100).toFixed(0) + '%';
+    if (disp.leftBrow) disp.leftBrow.textContent = d.leftBrowInner.toFixed(1);
+    if (disp.rightBrow) disp.rightBrow.textContent = d.rightBrowInner.toFixed(1);
+    if (disp.jaw) disp.jaw.textContent = (d.jaw * 100).toFixed(0) + '%';
+    if (disp.lips) disp.lips.textContent = ((d.lipCornerUL + d.lipCornerUR) / 2).toFixed(1);
+  }
+
+  // Reset to neutral
+  reset() {
+    this.setEmotion('neutral');
+    this.target.neckPan = 0;
+    this.target.neckTilt = 0;
+    this.target.neckLean = 0;
+    this.target.eyeTilt = 0;
+    this.target.leftEyePan = 0;
+    this.target.rightEyePan = 0;
+  }
+}
+
+// ===========================================
+// INITIALIZATION
+// ===========================================
+
+const kismet = new Kismet21DOF();
+
+// Mouse interaction
+const stage = document.getElementById('stage');
+
+stage.addEventListener('mousemove', (e) => {
+  const rect = stage.getBoundingClientRect();
+  const mouseX = (e.clientX - rect.left) / rect.width;
+  const mouseY = (e.clientY - rect.top) / rect.height;
+  kismet.updateGaze(mouseX, mouseY);
+});
+
+stage.addEventListener('mouseleave', () => {
+  kismet.reset();
+});
+
+stage.addEventListener('click', () => {
+  kismet.blink();
+});
+
+// Emotion buttons
+document.querySelectorAll('.emotion-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    kismet.setEmotion(btn.dataset.emotion);
+  });
+});
+
+// Idle animation - small movements when not interacting
+let idleTimer = null;
+stage.addEventListener('mouseenter', () => {
+  clearInterval(idleTimer);
+});
+
+stage.addEventListener('mouseleave', () => {
+  idleTimer = setInterval(() => {
+    // Small random ear movements
+    kismet.target.leftEarTilt += (Math.random() - 0.5) * 5;
+    kismet.target.rightEarTilt += (Math.random() - 0.5) * 5;
+
+    // Clamp values
+    kismet.target.leftEarTilt = Math.max(-20, Math.min(20, kismet.target.leftEarTilt));
+    kismet.target.rightEarTilt = Math.max(-20, Math.min(20, kismet.target.rightEarTilt));
+
+    // Small eye movements
+    kismet.target.leftEyePan = (Math.random() - 0.5) * 4;
+    kismet.target.rightEyePan = (Math.random() - 0.5) * 4;
+  }, 2500);
+});
+
+// Start idle animation
+idleTimer = setInterval(() => {
+  kismet.target.leftEarTilt += (Math.random() - 0.5) * 5;
+  kismet.target.rightEarTilt += (Math.random() - 0.5) * 5;
+  kismet.target.leftEarTilt = Math.max(-20, Math.min(20, kismet.target.leftEarTilt));
+  kismet.target.rightEarTilt = Math.max(-20, Math.min(20, kismet.target.rightEarTilt));
+}, 2500);
+
+console.log('Kismet 21 DOF model initialized');
+console.log('DOF breakdown: Neck(3) + Eyes(3) + Eyelids(2) + Ears(4) + Brows(4) + Lips(4) + Jaw(1) = 21');
+</script>
+
+</body>
+</html>

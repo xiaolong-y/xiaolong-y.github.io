@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar Widget v2 | Work/Social Task Types</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+
+    /* Flexoki Color Palette */
+    :root {
+      --paper: #FFFCF0;
+      --ink: #2D2B28;
+      --muted: #878580;
+      --line: #DAD8CE;
+      --panel: #F2F0E5;
+
+      /* Task type colors */
+      --work-r: 32;
+      --work-g: 94;
+      --work-b: 166;
+      --social-r: 160;
+      --social-g: 47;
+      --social-b: 111;
+
+      --work: #205EA6;
+      --social: #A02F6F;
+      --mixed: #5E409D;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #100F0F;
+        --ink: #CECDC3;
+        --muted: #878580;
+        --line: #403E3C;
+        --panel: #1C1B1A;
+
+        /* Lighter variants for dark mode */
+        --work-r: 67;
+        --work-g: 133;
+        --work-b: 190;
+        --social-r: 206;
+        --social-g: 93;
+        --social-b: 151;
+
+        --work: #4385BE;
+        --social: #CE5D97;
+        --mixed: #8B7EC8;
+      }
+    }
+
+    /* Reset */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Demo page styling */
+    body {
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .demo-container {
+      max-width: 700px;
+      width: 100%;
+    }
+
+    .demo-title {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .demo-section {
+      margin: 40px 0;
+      padding: 24px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 3px;
+    }
+
+    .demo-label {
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    /* Calendar Strip Component */
+    .calendar-strip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    }
+
+    .calendar-days {
+      display: flex;
+      gap: 2px;
+      flex-wrap: nowrap;
+    }
+
+    .calendar-day {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .calendar-day:hover {
+      transform: scale(1.5);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      z-index: 10;
+      position: relative;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .calendar-day:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    /* Today marker */
+    .calendar-day.today {
+      border-bottom: 2px solid var(--ink);
+    }
+
+    /* Weekend styling - circular */
+    .calendar-day.weekend {
+      border-radius: 50%;
+    }
+
+    /* Border hints for dominant type */
+    .calendar-day.work-dominant {
+      border-color: rgba(var(--work-r), var(--work-g), var(--work-b), 0.5);
+    }
+
+    .calendar-day.social-dominant {
+      border-color: rgba(var(--social-r), var(--social-g), var(--social-b), 0.5);
+    }
+
+    .calendar-day.mixed-type {
+      border-color: var(--muted);
+    }
+
+    /* Tooltip */
+    .calendar-tooltip {
+      position: fixed;
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 9px;
+      padding: 5px 8px;
+      border-radius: 3px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      z-index: 1000;
+      white-space: nowrap;
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    }
+
+    .calendar-tooltip.visible {
+      opacity: 1;
+    }
+
+    .calendar-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: var(--ink);
+    }
+
+    /* Mini Legend */
+    .calendar-legend-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 8px;
+      color: var(--muted);
+      margin-left: 12px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .calendar-legend-mini.visible {
+      opacity: 1;
+    }
+
+    .legend-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 3px;
+    }
+
+    .legend-dot.work {
+      background: var(--work);
+    }
+
+    .legend-dot.social {
+      background: var(--social);
+    }
+
+    .legend-dot.mixed {
+      background: var(--mixed);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* Full Legend for Demo */
+    .calendar-legend {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 16px;
+      font-size: 8px;
+      color: var(--muted);
+    }
+
+    .calendar-legend .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      border: 1px solid var(--line);
+    }
+
+    .legend-swatch.work-light { background: rgba(var(--work-r), var(--work-g), var(--work-b), 0.25); }
+    .legend-swatch.work-heavy { background: rgba(var(--work-r), var(--work-g), var(--work-b), 0.6); }
+    .legend-swatch.social-light { background: rgba(var(--social-r), var(--social-g), var(--social-b), 0.25); }
+    .legend-swatch.social-heavy { background: rgba(var(--social-r), var(--social-g), var(--social-b), 0.6); }
+    .legend-swatch.mixed { background: rgba(93, 64, 157, 0.4); }
+    .legend-swatch.free { background: var(--paper); }
+
+    /* Toggle button */
+    .legend-toggle {
+      background: none;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 8px;
+      font-family: inherit;
+      padding: 2px 6px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .legend-toggle:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
+    /* Accessibility: Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .calendar-day,
+      .calendar-tooltip,
+      .calendar-legend-mini {
+        transition: none;
+      }
+
+      .calendar-day:hover {
+        transform: none;
+      }
+    }
+
+    /* Responsive: Stack on very small screens */
+    @media (max-width: 520px) {
+      .calendar-strip {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .calendar-days {
+        flex-wrap: wrap;
+        gap: 3px;
+      }
+
+      .calendar-day {
+        width: 14px;
+        height: 14px;
+      }
+
+      .calendar-legend-mini {
+        margin-left: 0;
+        margin-top: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="demo-container">
+  <p class="demo-title">30-Day Calendar with Task Types</p>
+
+  <!-- Calendar Strip Component -->
+  <div class="calendar-strip" id="calendar-strip" role="img" aria-label="30-day calendar showing work and social tasks">
+    <div class="calendar-days" id="calendar-days">
+      <!-- Days generated by JavaScript -->
+    </div>
+    <button class="legend-toggle" id="legend-toggle" aria-label="Toggle legend">?</button>
+    <div class="calendar-legend-mini" id="legend-mini">
+      <span class="legend-item"><span class="legend-dot work"></span>work</span>
+      <span class="legend-item"><span class="legend-dot social"></span>social</span>
+      <span class="legend-item"><span class="legend-dot mixed"></span>mixed</span>
+    </div>
+  </div>
+
+  <!-- Tooltip (positioned via JS) -->
+  <div class="calendar-tooltip" id="tooltip"></div>
+
+  <!-- Full Legend for Demo -->
+  <div class="demo-section">
+    <p class="demo-label">Color Legend</p>
+    <div class="calendar-legend">
+      <div class="legend-item"><span class="legend-swatch free"></span> Free</div>
+      <div class="legend-item"><span class="legend-swatch work-light"></span> Light Work</div>
+      <div class="legend-item"><span class="legend-swatch work-heavy"></span> Heavy Work</div>
+      <div class="legend-item"><span class="legend-swatch social-light"></span> Light Social</div>
+      <div class="legend-item"><span class="legend-swatch social-heavy"></span> Heavy Social</div>
+      <div class="legend-item"><span class="legend-swatch mixed"></span> Mixed</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * Calendar Widget v2 - Work/Social Task Type Distinction
+ *
+ * Each day shows a blend of work vs social tasks through color mixing.
+ * Work tasks: blue spectrum (#205EA6)
+ * Social tasks: magenta spectrum (#A02F6F)
+ * Mixed days: blended purple
+ */
+
+// ============================================
+// CONFIGURATION
+// ============================================
+
+const CALENDAR_CONFIG = {
+  type: 'simulated',
+  days: 30
+};
+
+// ============================================
+// COLOR CALCULATION
+// ============================================
+
+/**
+ * Get CSS color based on work/social hours blend
+ * @param {number} workHours - Hours of work tasks
+ * @param {number} socialHours - Hours of social tasks
+ * @returns {Object} Color info with background color and dominant type
+ */
+function getColorForDay(workHours, socialHours) {
+  const totalHours = workHours + socialHours;
+
+  // Free day - return paper color
+  if (totalHours < 0.5) {
+    return {
+      background: 'var(--paper)',
+      dominantType: 'free'
+    };
+  }
+
+  // Calculate work ratio (0 = all social, 1 = all work)
+  const workRatio = workHours / totalHours;
+
+  // Intensity based on total hours (0-8 scale)
+  const intensity = Math.min(totalHours / 8, 1);
+
+  // Determine dominant type for border hint
+  let dominantType;
+  if (workRatio > 0.65) {
+    dominantType = 'work';
+  } else if (workRatio < 0.35) {
+    dominantType = 'social';
+  } else {
+    dominantType = 'mixed';
+  }
+
+  // Use CSS variables for dark mode support
+  // We construct the color using calc() to pick up the right RGB values
+  const alpha = (0.2 + intensity * 0.5).toFixed(2);
+
+  // Generate the color blend formula
+  // This uses a weighted average based on workRatio
+  const background = `rgba(
+    calc(var(--work-r) * ${workRatio.toFixed(2)} + var(--social-r) * ${(1 - workRatio).toFixed(2)}),
+    calc(var(--work-g) * ${workRatio.toFixed(2)} + var(--social-g) * ${(1 - workRatio).toFixed(2)}),
+    calc(var(--work-b) * ${workRatio.toFixed(2)} + var(--social-b) * ${(1 - workRatio).toFixed(2)}),
+    ${alpha}
+  )`.replace(/\s+/g, ' ').trim();
+
+  return { background, dominantType };
+}
+
+/**
+ * Calculate the actual RGB values for inline style
+ * (CSS calc() in rgba doesn't work, so we compute it in JS)
+ */
+function computeBlendedColor(workHours, socialHours, isDark = false) {
+  const totalHours = workHours + socialHours;
+
+  if (totalHours < 0.5) {
+    return {
+      background: 'transparent',
+      dominantType: 'free'
+    };
+  }
+
+  const workRatio = workHours / totalHours;
+  const intensity = Math.min(totalHours / 8, 1);
+
+  // Base colors (light mode)
+  let workColor = { r: 32, g: 94, b: 166 };   // #205EA6
+  let socialColor = { r: 160, g: 47, b: 111 }; // #A02F6F
+
+  // Dark mode colors
+  if (isDark) {
+    workColor = { r: 67, g: 133, b: 190 };    // #4385BE
+    socialColor = { r: 206, g: 93, b: 151 };   // #CE5D97
+  }
+
+  // Blend colors based on work ratio
+  const r = Math.round(workColor.r * workRatio + socialColor.r * (1 - workRatio));
+  const g = Math.round(workColor.g * workRatio + socialColor.g * (1 - workRatio));
+  const b = Math.round(workColor.b * workRatio + socialColor.b * (1 - workRatio));
+
+  // Alpha based on intensity (0.2 to 0.7 range)
+  const alpha = 0.2 + intensity * 0.5;
+
+  // Determine dominant type
+  let dominantType;
+  if (workRatio > 0.65) {
+    dominantType = 'work';
+  } else if (workRatio < 0.35) {
+    dominantType = 'social';
+  } else {
+    dominantType = 'mixed';
+  }
+
+  return {
+    background: `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(2)})`,
+    dominantType,
+    workRatio,
+    intensity
+  };
+}
+
+// ============================================
+// DATA GENERATION
+// ============================================
+
+/**
+ * Generate realistic simulated calendar data with work/social split
+ * Patterns:
+ * - Weekdays: More work-heavy (meetings, deep work, admin)
+ * - Weekends: More social-heavy (events, gatherings) or free
+ * - Some mixed days (work dinners, networking)
+ * - Some pure work days (deadline crunches)
+ * - Some pure social days (parties)
+ * - Some completely free days
+ */
+function generateSimulatedData() {
+  const days = {};
+  const now = new Date();
+
+  // Use a seeded random for consistent display
+  const weekSeed = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+  let seedRandom = createSeededRandom(weekSeed);
+
+  for (let i = 0; i < CALENDAR_CONFIG.days; i++) {
+    const date = new Date(now);
+    date.setDate(date.getDate() + i);
+    const key = date.toISOString().split('T')[0];
+    const dayOfWeek = date.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+    let work = 0;
+    let social = 0;
+
+    const rand = seedRandom();
+
+    if (isWeekend) {
+      // Weekend patterns
+      if (rand < 0.3) {
+        // 30% pure social day (brunch, party, gathering)
+        social = 2 + seedRandom() * 4;
+      } else if (rand < 0.4) {
+        // 10% work catch-up
+        work = 1 + seedRandom() * 3;
+      } else if (rand < 0.5) {
+        // 10% mixed (work event, networking)
+        work = 1 + seedRandom() * 2;
+        social = 1 + seedRandom() * 2;
+      }
+      // 50% completely free
+    } else {
+      // Weekday patterns
+      if (rand < 0.15) {
+        // 15% very busy work day (deadline)
+        work = 6 + seedRandom() * 3;
+      } else if (rand < 0.45) {
+        // 30% normal work day
+        work = 2 + seedRandom() * 4;
+      } else if (rand < 0.55) {
+        // 10% work + after-work social
+        work = 3 + seedRandom() * 3;
+        social = 1 + seedRandom() * 2;
+      } else if (rand < 0.65) {
+        // 10% mostly social day (vacation day, event)
+        social = 2 + seedRandom() * 3;
+        work = seedRandom() * 1;
+      } else if (rand < 0.75) {
+        // 10% light work day
+        work = 1 + seedRandom() * 2;
+      }
+      // 25% free or very light
+    }
+
+    days[key] = { work, social };
+  }
+
+  return days;
+}
+
+/**
+ * Simple seeded random number generator
+ */
+function createSeededRandom(seed) {
+  return function() {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return (seed / 0x7fffffff);
+  };
+}
+
+// ============================================
+// UI RENDERING
+// ============================================
+
+/**
+ * Format date for tooltip display
+ */
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const options = { weekday: 'short', month: 'short', day: 'numeric' };
+  return date.toLocaleDateString('en-US', options);
+}
+
+/**
+ * Detect if dark mode is active
+ */
+function isDarkMode() {
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+/**
+ * Render the calendar strip
+ */
+function renderCalendar() {
+  const container = document.getElementById('calendar-days');
+  const tooltip = document.getElementById('tooltip');
+
+  if (!container) return;
+
+  // Generate calendar data
+  const calendarData = generateSimulatedData();
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Get today's date key
+  const today = new Date().toISOString().split('T')[0];
+  const darkMode = isDarkMode();
+
+  // Create day squares
+  Object.entries(calendarData).forEach(([dateKey, data]) => {
+    const date = new Date(dateKey);
+    const dayOfWeek = date.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    const isToday = dateKey === today;
+
+    // Calculate color
+    const colorInfo = computeBlendedColor(data.work, data.social, darkMode);
+
+    const dayEl = document.createElement('div');
+    dayEl.className = 'calendar-day';
+
+    // Apply computed background color
+    if (colorInfo.background !== 'transparent') {
+      dayEl.style.background = colorInfo.background;
+    }
+
+    // Add type-based border class
+    if (colorInfo.dominantType === 'work') {
+      dayEl.classList.add('work-dominant');
+    } else if (colorInfo.dominantType === 'social') {
+      dayEl.classList.add('social-dominant');
+    } else if (colorInfo.dominantType === 'mixed') {
+      dayEl.classList.add('mixed-type');
+    }
+
+    if (isToday) dayEl.classList.add('today');
+    if (isWeekend) dayEl.classList.add('weekend');
+
+    // Accessibility
+    const totalHours = data.work + data.social;
+    let ariaLabel = formatDate(dateKey) + ': ';
+    if (totalHours < 0.5) {
+      ariaLabel += 'Free day';
+    } else {
+      ariaLabel += `${data.work.toFixed(1)}h work, ${data.social.toFixed(1)}h social`;
+    }
+    dayEl.setAttribute('role', 'gridcell');
+    dayEl.setAttribute('aria-label', ariaLabel);
+    dayEl.tabIndex = 0;
+
+    // Store data for tooltip
+    dayEl.dataset.date = dateKey;
+    dayEl.dataset.work = data.work.toFixed(1);
+    dayEl.dataset.social = data.social.toFixed(1);
+
+    // Tooltip handlers
+    dayEl.addEventListener('mouseenter', showTooltip);
+    dayEl.addEventListener('mouseleave', hideTooltip);
+    dayEl.addEventListener('focus', showTooltip);
+    dayEl.addEventListener('blur', hideTooltip);
+
+    container.appendChild(dayEl);
+  });
+}
+
+/**
+ * Show tooltip on hover/focus
+ */
+function showTooltip(event) {
+  const tooltip = document.getElementById('tooltip');
+  const target = event.currentTarget;
+
+  const date = target.dataset.date;
+  const work = parseFloat(target.dataset.work);
+  const social = parseFloat(target.dataset.social);
+  const total = work + social;
+
+  // Build tooltip content
+  let content = formatDate(date);
+  if (total >= 0.5) {
+    const parts = [];
+    if (work >= 0.5) parts.push(`${work.toFixed(0)}h work`);
+    if (social >= 0.5) parts.push(`${social.toFixed(0)}h social`);
+    content += ' \u2014 ' + parts.join(', ');
+  } else {
+    content += ' \u2014 Free';
+  }
+
+  tooltip.textContent = content;
+
+  // Position tooltip above the element
+  const rect = target.getBoundingClientRect();
+  tooltip.style.left = rect.left + rect.width / 2 - tooltip.offsetWidth / 2 + 'px';
+  tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
+
+  tooltip.classList.add('visible');
+}
+
+/**
+ * Hide tooltip
+ */
+function hideTooltip() {
+  const tooltip = document.getElementById('tooltip');
+  tooltip.classList.remove('visible');
+}
+
+/**
+ * Toggle mini legend visibility
+ */
+function setupLegendToggle() {
+  const toggle = document.getElementById('legend-toggle');
+  const legend = document.getElementById('legend-mini');
+
+  if (toggle && legend) {
+    toggle.addEventListener('click', () => {
+      legend.classList.toggle('visible');
+      toggle.textContent = legend.classList.contains('visible') ? '\u00d7' : '?';
+    });
+  }
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderCalendar();
+  setupLegendToggle();
+});
+
+// Re-render on color scheme change
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderCalendar);
+
+// Re-render at midnight to update "today" marker
+function scheduleNightlyRefresh() {
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 1, 0);
+
+  const msUntilMidnight = tomorrow - now;
+
+  setTimeout(() => {
+    renderCalendar();
+    scheduleNightlyRefresh();
+  }, msUntilMidnight);
+}
+
+scheduleNightlyRefresh();
+</script>
+
+<!--
+================================================================================
+CALENDAR WIDGET v2 - WORK/SOCIAL TASK TYPES
+================================================================================
+
+This enhanced calendar widget distinguishes between work and social tasks,
+showing a blended color based on the ratio of each type.
+
+COLOR SYSTEM:
+- Work-heavy days: Blue tones (#205EA6 light / #4385BE dark)
+- Social-heavy days: Magenta tones (#A02F6F light / #CE5D97 dark)
+- Mixed days: Blended purple
+- Free days: Paper color (transparent)
+
+VISUAL CUES:
+- Color intensity reflects total hours (more saturated = busier)
+- Border color hints at dominant type (blue/magenta/neutral)
+- Circular shape for weekends
+- Bottom border marks today
+
+DATA STRUCTURE:
+{
+  "2024-12-18": { work: 4.5, social: 1.0 },
+  "2024-12-19": { work: 0, social: 3.0 },
+  ...
+}
+
+EMBEDDING:
+1. Copy the CSS styles (calendar-strip, calendar-day, etc.)
+2. Copy the HTML structure
+3. Copy the JavaScript (or adapt for your data source)
+4. Replace generateSimulatedData() with your API fetch
+
+================================================================================
+-->
+
+</body>
+</html>

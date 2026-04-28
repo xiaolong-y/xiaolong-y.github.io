@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Energy Rhythm System | Dashboard</title>
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --paper: #FFFCF0;
+    --ink: #100F0F;
+    --muted: #6F6E69;
+    --line: #DAD8CE;
+    --panel: #F2F0E5;
+    --blue: #205EA6;
+    --cyan: #24837B;
+    --green: #66800B;
+    --orange: #DA702C;
+    --red: #D14D41;
+    --purple: #5E409D;
+    --yellow: #D0A215;
+    --magenta: #A02F6F;
+    --gray: #878580;
+    --sp: 12px;
+    --radius: 4px;
+  }
+
+  [data-theme="dark"] {
+    --paper: #100F0F;
+    --ink: #CECDC3;
+    --muted: #878580;
+    --line: #403E3C;
+    --panel: #1C1B1A;
+    --blue: #4385BE;
+    --cyan: #3AA99F;
+    --green: #879A39;
+    --orange: #DA702C;
+    --red: #D14D41;
+    --purple: #8B7EC8;
+    --yellow: #D0A215;
+    --magenta: #CE5D97;
+    --gray: #878580;
+  }
+
+  body {
+    font: 12px/1.5 'IBM Plex Mono', ui-monospace, monospace;
+    background: var(--paper);
+    color: var(--ink);
+    padding: var(--sp);
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--sp);
+    padding-bottom: var(--sp);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .header h1 {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .header-controls {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    font-family: inherit;
+    font-size: 11px;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+
+  /* Dashboard Grid */
+  .dashboard {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--sp);
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: var(--sp);
+  }
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--sp);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .panel-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+
+  .panel-stat {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .panel-stat strong {
+    color: var(--ink);
+  }
+
+  /* Two column layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp);
+  }
+
+  /* Three column layout */
+  .three-col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--sp);
+  }
+
+  @media (max-width: 900px) {
+    .two-col, .three-col {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* SVG Charts */
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  svg text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    fill: var(--muted);
+  }
+
+  svg .axis-label {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  svg .tick-label {
+    font-size: 8px;
+  }
+
+  svg .grid-line {
+    stroke: var(--line);
+    stroke-width: 0.5;
+    stroke-dasharray: 2, 2;
+  }
+
+  svg .axis-line {
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+
+  svg .threshold-line {
+    stroke: var(--red);
+    stroke-width: 1;
+    stroke-dasharray: 4, 4;
+    opacity: 0.6;
+  }
+
+  svg .energy-line {
+    fill: none;
+    stroke: var(--blue);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  svg .energy-area {
+    fill: var(--blue);
+    opacity: 0.15;
+  }
+
+  /* Heatmap */
+  .heatmap-cell {
+    rx: 2;
+  }
+
+  /* Energy Tank */
+  .tank-container {
+    display: flex;
+    align-items: center;
+    gap: var(--sp);
+  }
+
+  .tank {
+    width: 80px;
+    height: 32px;
+    border: 2px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--paper);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .tank-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+
+  .tank-label {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .tank-trend {
+    font-size: 10px;
+    color: var(--green);
+  }
+
+  .tank-trend.negative {
+    color: var(--red);
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .stat-item:last-child {
+    border-bottom: none;
+    padding-top: 8px;
+    margin-top: 4px;
+    border-top: 2px solid var(--line);
+    font-weight: 500;
+  }
+
+  .stat-value {
+    font-weight: 500;
+  }
+
+  .stat-value.positive {
+    color: var(--green);
+  }
+
+  .stat-value.negative {
+    color: var(--red);
+  }
+
+  /* Time breakdown bars */
+  .breakdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 10px;
+  }
+
+  .breakdown-bar-container {
+    flex: 1;
+    height: 12px;
+    background: var(--paper);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .breakdown-bar {
+    height: 100%;
+    border-radius: 2px;
+  }
+
+  .breakdown-label {
+    width: 55px;
+  }
+
+  .breakdown-value {
+    width: 35px;
+    text-align: right;
+    color: var(--muted);
+  }
+
+  /* Status indicator */
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+
+  .status-indicator.ok {
+    color: var(--green);
+  }
+
+  .status-indicator.caution {
+    color: var(--orange);
+  }
+
+  .status-indicator.danger {
+    color: var(--red);
+  }
+
+  .status-details {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    position: absolute;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 6px 10px;
+    border-radius: var(--radius);
+    font-size: 10px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  .tooltip.visible {
+    opacity: 1;
+  }
+
+  /* Heatmap legend */
+  .heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  .heatmap-legend-gradient {
+    width: 100px;
+    height: 10px;
+    border-radius: 2px;
+  }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Energy Rhythm System</h1>
+  <div class="header-controls">
+    <button class="btn" onclick="regenerateData()">Regenerate Data</button>
+    <button class="btn" onclick="toggleTheme()">Toggle Dark Mode</button>
+  </div>
+</div>
+
+<div class="dashboard">
+  <!-- View 1: Energy Balance Timeline -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Energy Balance Timeline (8 Weeks)</span>
+      <div class="tank-container">
+        <div class="tank">
+          <div class="tank-fill" id="tank-fill"></div>
+        </div>
+        <div>
+          <div class="tank-label" id="tank-label">72%</div>
+          <div class="tank-trend" id="tank-trend">+4/week</div>
+        </div>
+      </div>
+    </div>
+    <div id="timeline-chart"></div>
+  </div>
+
+  <!-- View 2: Activity Heatmap -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Activity Heatmap</span>
+      <span class="panel-stat">56 days of data</span>
+    </div>
+    <div id="heatmap-chart"></div>
+    <div class="heatmap-legend">
+      <span>Low load</span>
+      <canvas id="heatmap-gradient" class="heatmap-legend-gradient" width="100" height="10"></canvas>
+      <span>High load</span>
+    </div>
+  </div>
+
+  <!-- Views 3 & 4: Daily and Weekly Rhythm -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Daily Energy Rhythm</span>
+        <span class="panel-stat" id="daily-stats">Peak: 7am | Low: 11am</span>
+      </div>
+      <div id="daily-chart"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Weekly Energy Rhythm</span>
+        <span class="panel-stat" id="weekly-stats">Peak: Sat | Low: Tue</span>
+      </div>
+      <div id="weekly-chart"></div>
+    </div>
+  </div>
+
+  <!-- View 5: Sustainability Dashboard -->
+  <div class="three-col">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Weekly Balance</span>
+      </div>
+      <div class="stats-grid" id="balance-stats">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Time Breakdown</span>
+      </div>
+      <div id="breakdown-chart">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Sustainability Status</span>
+      </div>
+      <div id="sustainability-status">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- View 6: Category Legend -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Categories</span>
+    </div>
+    <div class="legend" id="category-legend">
+      <!-- Filled by JS -->
+    </div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// =====================================================
+// CONFIGURATION
+// =====================================================
+
+const CATEGORIES = {
+  meeting: { rate: -1.0, color: '#D14D41', label: 'Meeting' },
+  work:    { rate: -0.7, color: '#DA702C', label: 'Work' },
+  admin:   { rate: -0.4, color: '#D0A215', label: 'Admin' },
+  rest:    { rate: +0.5, color: '#66800B', label: 'Rest' },
+  sleep:   { rate: +1.0, color: '#205EA6', label: 'Sleep' },
+  vacant:  { rate: +0.3, color: '#878580', label: 'Vacant' }
+};
+
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const WEEKS = 8;
+const HOURS_PER_DAY = 24;
+const TOTAL_DAYS = WEEKS * 7;
+const TOTAL_HOURS = TOTAL_DAYS * HOURS_PER_DAY;
+
+// =====================================================
+// DATA GENERATION (High Variation)
+// =====================================================
+
+function generateWeekProfile() {
+  // Generate different week types with varying probabilities
+  const rand = Math.random();
+  if (rand < 0.10) return { type: 'crunch', meetingMult: 2.0, workMult: 1.5, restMult: 0.3 };
+  if (rand < 0.20) return { type: 'vacation', meetingMult: 0, workMult: 0.1, restMult: 2.0 };
+  if (rand < 0.35) return { type: 'heavy', meetingMult: 1.5, workMult: 1.3, restMult: 0.6 };
+  if (rand < 0.50) return { type: 'light', meetingMult: 0.5, workMult: 0.7, restMult: 1.3 };
+  if (rand < 0.65) return { type: 'meeting-heavy', meetingMult: 2.0, workMult: 0.8, restMult: 0.7 };
+  if (rand < 0.80) return { type: 'focus', meetingMult: 0.3, workMult: 1.5, restMult: 0.9 };
+  return { type: 'normal', meetingMult: 1.0, workMult: 1.0, restMult: 1.0 };
+}
+
+function generateDayProfile(dayOfWeek, weekProfile) {
+  // Day-specific variations on top of week profile
+  const isWeekend = dayOfWeek >= 5;
+  const isFriday = dayOfWeek === 4;
+  const isMonday = dayOfWeek === 0;
+
+  let profile = { ...weekProfile };
+
+  // Mondays often heavier (catch-up)
+  if (isMonday) {
+    profile.meetingMult *= 1.2 + Math.random() * 0.3;
+    profile.adminMult = 1.5;
+  }
+
+  // Fridays often lighter (wind-down)
+  if (isFriday && Math.random() < 0.6) {
+    profile.meetingMult *= 0.6;
+    profile.workMult *= 0.8;
+    profile.restMult *= 1.3;
+  }
+
+  // Weekends - high variation
+  if (isWeekend) {
+    if (weekProfile.type === 'crunch') {
+      // Crunch weeks bleed into weekends
+      profile.workMult = 0.5 + Math.random() * 0.5;
+    } else if (Math.random() < 0.15) {
+      // Occasional weekend work
+      profile.workMult = 0.3 + Math.random() * 0.4;
+    } else {
+      profile.meetingMult = 0;
+      profile.workMult = Math.random() < 0.2 ? 0.2 : 0;
+      profile.restMult = 1.5 + Math.random();
+    }
+  }
+
+  // Random "bad day" (everything goes wrong)
+  if (Math.random() < 0.08) {
+    profile.type = 'crisis';
+    profile.meetingMult *= 2.5;
+    profile.workMult *= 1.5;
+    profile.restMult *= 0.2;
+  }
+
+  // Random "great day" (lots of space)
+  if (Math.random() < 0.08) {
+    profile.type = 'spacious';
+    profile.meetingMult *= 0.2;
+    profile.workMult *= 0.5;
+    profile.restMult *= 2.0;
+  }
+
+  return profile;
+}
+
+function categorizeHour(dayOfWeek, hour, weekNum, dayProfile, trendFactor) {
+  const isWeekend = dayOfWeek >= 5;
+
+  // Sleep: varies between 10pm-midnight start, 6-8am wake
+  const sleepStart = 22 + Math.floor(Math.random() * 2);
+  const sleepEnd = 6 + Math.floor(Math.random() * 2);
+
+  if (hour >= sleepStart || hour < sleepEnd) {
+    // Occasionally poor sleep (less restorative)
+    if (Math.random() < 0.1) return 'vacant'; // restless night
+    return 'sleep';
+  }
+
+  // Weekend handling
+  if (isWeekend) {
+    if (dayProfile.workMult > 0.3 && hour >= 10 && hour < 16 && Math.random() < dayProfile.workMult * 0.3) {
+      return 'work';
+    }
+    if (hour >= 11 && hour < 14 && Math.random() < 0.5) return 'rest';
+    if (hour >= 17 && hour < 21 && Math.random() < 0.4) return 'rest';
+    return 'vacant';
+  }
+
+  // Apply trend factor (getting busier or easier over time)
+  const adjustedMeetingMult = dayProfile.meetingMult * trendFactor;
+  const adjustedWorkMult = dayProfile.workMult * trendFactor;
+
+  // Morning block (7-12)
+  if (hour >= 7 && hour < 12) {
+    // Early morning transition
+    if (hour === 7) return Math.random() < 0.7 ? 'vacant' : 'admin';
+
+    // Prime meeting time: 9-11
+    if (hour >= 9 && hour < 11) {
+      if (Math.random() < 0.25 * adjustedMeetingMult) return 'meeting';
+    }
+
+    // Late morning
+    if (hour === 11) {
+      const rand = Math.random();
+      if (rand < 0.2 * adjustedMeetingMult) return 'meeting';
+      if (rand < 0.4) return 'admin';
+      if (rand < 0.6 * adjustedWorkMult) return 'work';
+    }
+
+    // General morning
+    const rand = Math.random();
+    if (rand < 0.15 * adjustedMeetingMult) return 'meeting';
+    if (rand < 0.35 * adjustedWorkMult) return 'work';
+    if (rand < 0.45) return 'admin';
+    return 'vacant';
+  }
+
+  // Lunch (12-13) - usually rest
+  if (hour === 12) {
+    if (dayProfile.type === 'crunch' && Math.random() < 0.4) return 'work';
+    return Math.random() < 0.8 * dayProfile.restMult ? 'rest' : 'vacant';
+  }
+
+  // Afternoon block (13-17)
+  if (hour >= 13 && hour < 17) {
+    // Post-lunch slump (13-14)
+    if (hour === 13) {
+      if (Math.random() < 0.3) return 'admin';
+      if (Math.random() < 0.4 * adjustedWorkMult) return 'work';
+    }
+
+    // Prime focus time (14-16)
+    if (hour >= 14 && hour < 16) {
+      if (dayProfile.type === 'meeting-heavy' && Math.random() < 0.35) return 'meeting';
+      if (Math.random() < 0.5 * adjustedWorkMult) return 'work';
+      if (Math.random() < 0.2 * adjustedMeetingMult) return 'meeting';
+    }
+
+    // Late afternoon (16-17)
+    if (hour === 16) {
+      const rand = Math.random();
+      if (rand < 0.2 * adjustedMeetingMult) return 'meeting';
+      if (rand < 0.4 * adjustedWorkMult) return 'work';
+      if (rand < 0.5) return 'admin';
+    }
+
+    // General afternoon
+    const rand = Math.random();
+    if (rand < 0.12 * adjustedMeetingMult) return 'meeting';
+    if (rand < 0.4 * adjustedWorkMult) return 'work';
+    if (rand < 0.5) return 'admin';
+    return 'vacant';
+  }
+
+  // Evening transition (17-19)
+  if (hour >= 17 && hour < 19) {
+    if (dayProfile.type === 'crunch' && Math.random() < 0.5) return 'work';
+    if (Math.random() < 0.3 * dayProfile.restMult) return 'rest';
+    if (Math.random() < 0.15 * adjustedWorkMult) return 'work';
+    return 'vacant';
+  }
+
+  // Evening (19-22)
+  if (hour >= 19 && hour < 22) {
+    // Occasional evening work (crunch or deadline)
+    if (dayProfile.type === 'crunch' && Math.random() < 0.4) return 'work';
+    if (Math.random() < 0.4 * dayProfile.restMult) return 'rest';
+    return 'vacant';
+  }
+
+  return 'vacant';
+}
+
+function generateData() {
+  const hours = [];
+  const weekProfiles = [];
+
+  // Generate week profiles with some narrative arc
+  // e.g., building toward a deadline, then recovery
+  let narrativePhase = Math.random(); // 0-1 determines overall arc
+
+  for (let w = 0; w < WEEKS; w++) {
+    let profile = generateWeekProfile();
+
+    // Narrative arc: deadline crunch in weeks 3-4, recovery in week 5
+    if (narrativePhase < 0.4) {
+      // Building tension narrative
+      if (w === 3 || w === 4) profile = { type: 'crunch', meetingMult: 1.8, workMult: 1.6, restMult: 0.4 };
+      if (w === 5) profile = { type: 'recovery', meetingMult: 0.4, workMult: 0.5, restMult: 1.8 };
+    } else if (narrativePhase < 0.6) {
+      // Steady state with occasional spikes
+      if (w === 2 && Math.random() < 0.7) profile = { type: 'heavy', meetingMult: 1.6, workMult: 1.4, restMult: 0.6 };
+      if (w === 6 && Math.random() < 0.7) profile = { type: 'heavy', meetingMult: 1.5, workMult: 1.5, restMult: 0.5 };
+    } else if (narrativePhase < 0.8) {
+      // Getting progressively busier
+      profile.meetingMult *= (1 + w * 0.1);
+      profile.workMult *= (1 + w * 0.08);
+    } else {
+      // Getting progressively lighter (wind-down)
+      profile.meetingMult *= (1.5 - w * 0.1);
+      profile.workMult *= (1.4 - w * 0.08);
+      profile.restMult *= (0.8 + w * 0.1);
+    }
+
+    weekProfiles.push(profile);
+  }
+
+  // Trend factor: overall busyness trend across the 8 weeks
+  const trendDirection = (Math.random() - 0.5) * 0.4; // -0.2 to +0.2
+
+  for (let day = 0; day < TOTAL_DAYS; day++) {
+    const weekNum = Math.floor(day / 7);
+    const dayOfWeek = day % 7;
+    const weekProfile = weekProfiles[weekNum];
+    const dayProfile = generateDayProfile(dayOfWeek, weekProfile);
+
+    // Trend factor increases or decreases over time
+    const trendFactor = 1 + (trendDirection * (day / TOTAL_DAYS));
+
+    for (let hour = 0; hour < HOURS_PER_DAY; hour++) {
+      const category = categorizeHour(dayOfWeek, hour, weekNum, dayProfile, trendFactor);
+      hours.push({
+        dayIndex: day,
+        weekIndex: weekNum,
+        dayOfWeek: dayOfWeek,
+        hourOfDay: hour,
+        category: category,
+        weekType: weekProfile.type,
+        dayType: dayProfile.type
+      });
+    }
+  }
+
+  // Add special one-off events (conferences, sick days, etc.)
+  addSpecialEvents(hours);
+
+  return hours;
+}
+
+function addSpecialEvents(hours) {
+  const numSpecialDays = 3 + Math.floor(Math.random() * 5); // 3-7 special days
+
+  for (let i = 0; i < numSpecialDays; i++) {
+    const targetDay = Math.floor(Math.random() * TOTAL_DAYS);
+    const eventType = Math.random();
+
+    // Get hours for this day
+    const dayStart = targetDay * HOURS_PER_DAY;
+    const dayEnd = dayStart + HOURS_PER_DAY;
+
+    if (eventType < 0.25) {
+      // All-day conference/workshop (meeting heavy)
+      for (let h = dayStart + 8; h < dayStart + 18 && h < dayEnd; h++) {
+        if (hours[h] && hours[h].hourOfDay >= 9 && hours[h].hourOfDay < 17) {
+          hours[h].category = Math.random() < 0.7 ? 'meeting' : 'rest';
+        }
+      }
+    } else if (eventType < 0.45) {
+      // Sick day / mental health day (mostly rest)
+      for (let h = dayStart; h < dayEnd; h++) {
+        if (hours[h] && hours[h].hourOfDay >= 7 && hours[h].hourOfDay < 22) {
+          hours[h].category = Math.random() < 0.6 ? 'rest' : 'vacant';
+        }
+      }
+    } else if (eventType < 0.65) {
+      // Deadline day (intense work)
+      for (let h = dayStart + 7; h < dayStart + 23 && h < dayEnd; h++) {
+        if (hours[h] && hours[h].hourOfDay >= 7) {
+          const rand = Math.random();
+          if (rand < 0.6) hours[h].category = 'work';
+          else if (rand < 0.75) hours[h].category = 'meeting';
+          else if (rand < 0.85) hours[h].category = 'admin';
+        }
+      }
+    } else if (eventType < 0.8) {
+      // Social/networking day
+      for (let h = dayStart + 9; h < dayStart + 20 && h < dayEnd; h++) {
+        if (hours[h] && hours[h].hourOfDay >= 9 && hours[h].hourOfDay < 20) {
+          hours[h].category = Math.random() < 0.5 ? 'meeting' : 'rest';
+        }
+      }
+    } else {
+      // Admin catch-up day
+      for (let h = dayStart + 8; h < dayStart + 17 && h < dayEnd; h++) {
+        if (hours[h] && hours[h].hourOfDay >= 8 && hours[h].hourOfDay < 17) {
+          hours[h].category = Math.random() < 0.6 ? 'admin' : 'work';
+        }
+      }
+    }
+  }
+}
+
+// =====================================================
+// ENERGY COMPUTATION
+// =====================================================
+
+function computeEnergy(hours) {
+  let energy = 80; // Starting energy
+  const timeline = [];
+
+  for (const hour of hours) {
+    const rate = CATEGORIES[hour.category].rate;
+    energy = Math.max(0, Math.min(100, energy + rate));
+    timeline.push({ ...hour, energy: energy });
+  }
+
+  return timeline;
+}
+
+function computeDailyLoad(timeline) {
+  const days = [];
+
+  for (let d = 0; d < TOTAL_DAYS; d++) {
+    const dayHours = timeline.slice(d * HOURS_PER_DAY, (d + 1) * HOURS_PER_DAY);
+    const drain = dayHours
+      .filter(h => CATEGORIES[h.category].rate < 0)
+      .reduce((sum, h) => sum + Math.abs(CATEGORIES[h.category].rate), 0);
+
+    const avgEnergy = dayHours.reduce((sum, h) => sum + h.energy, 0) / HOURS_PER_DAY;
+
+    days.push({
+      dayIndex: d,
+      weekIndex: Math.floor(d / 7),
+      dayOfWeek: d % 7,
+      drain: drain,
+      avgEnergy: avgEnergy
+    });
+  }
+
+  return days;
+}
+
+function computeDailyRhythm(timeline) {
+  const hourlySum = new Array(HOURS_PER_DAY).fill(0);
+  const counts = new Array(HOURS_PER_DAY).fill(0);
+
+  for (const hour of timeline) {
+    hourlySum[hour.hourOfDay] += hour.energy;
+    counts[hour.hourOfDay]++;
+  }
+
+  return hourlySum.map((sum, i) => counts[i] > 0 ? sum / counts[i] : 0);
+}
+
+function computeWeeklyRhythm(timeline) {
+  const daySum = new Array(7).fill(0);
+  const counts = new Array(7).fill(0);
+
+  for (const hour of timeline) {
+    daySum[hour.dayOfWeek] += hour.energy;
+    counts[hour.dayOfWeek]++;
+  }
+
+  return daySum.map((sum, i) => counts[i] > 0 ? sum / counts[i] : 0);
+}
+
+function computeTimeBreakdown(hours) {
+  const breakdown = {};
+
+  for (const cat of Object.keys(CATEGORIES)) {
+    breakdown[cat] = 0;
+  }
+
+  for (const hour of hours) {
+    breakdown[hour.category]++;
+  }
+
+  // Convert to weekly average
+  for (const cat of Object.keys(breakdown)) {
+    breakdown[cat] = Math.round(breakdown[cat] / WEEKS);
+  }
+
+  return breakdown;
+}
+
+function computeWeeklyBalance(hours) {
+  let drainHours = 0;
+  let restoreHours = 0;
+
+  for (const hour of hours) {
+    const rate = CATEGORIES[hour.category].rate;
+    if (rate < 0) {
+      drainHours += Math.abs(rate);
+    } else {
+      restoreHours += rate;
+    }
+  }
+
+  // Weekly average
+  return {
+    drained: Math.round(drainHours / WEEKS),
+    restored: Math.round(restoreHours / WEEKS),
+    net: Math.round((restoreHours - drainHours) / WEEKS)
+  };
+}
+
+// =====================================================
+// CHART RENDERING
+// =====================================================
+
+function createSVG(width, height, viewBox) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', viewBox || `0 0 ${width} ${height}`);
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  return svg;
+}
+
+function renderTimelineChart(timeline, dailyLoad) {
+  const container = document.getElementById('timeline-chart');
+  container.innerHTML = '';
+
+  const width = 800;
+  const height = 180;
+  const padding = { top: 20, right: 20, bottom: 30, left: 40 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+
+  const svg = createSVG(width, height);
+
+  // Grid lines
+  for (let i = 0; i <= 4; i++) {
+    const y = padding.top + (chartHeight / 4) * i;
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', padding.left);
+    line.setAttribute('x2', width - padding.right);
+    line.setAttribute('y1', y);
+    line.setAttribute('y2', y);
+    line.setAttribute('class', 'grid-line');
+    svg.appendChild(line);
+
+    // Y-axis labels
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', padding.left - 8);
+    text.setAttribute('y', y + 3);
+    text.setAttribute('text-anchor', 'end');
+    text.setAttribute('class', 'tick-label');
+    text.textContent = 100 - i * 25;
+    svg.appendChild(text);
+  }
+
+  // Burnout threshold line at 25%
+  const thresholdY = padding.top + chartHeight * 0.75;
+  const threshold = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  threshold.setAttribute('x1', padding.left);
+  threshold.setAttribute('x2', width - padding.right);
+  threshold.setAttribute('y1', thresholdY);
+  threshold.setAttribute('y2', thresholdY);
+  threshold.setAttribute('class', 'threshold-line');
+  svg.appendChild(threshold);
+
+  // X-axis labels (weeks)
+  for (let w = 0; w < WEEKS; w++) {
+    const x = padding.left + (chartWidth / WEEKS) * (w + 0.5);
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', x);
+    text.setAttribute('y', height - 8);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('class', 'tick-label');
+    text.textContent = `W${w + 1}`;
+    svg.appendChild(text);
+  }
+
+  // Energy line path (daily aggregates)
+  const points = [];
+  for (let d = 0; d < TOTAL_DAYS; d++) {
+    const x = padding.left + (chartWidth / TOTAL_DAYS) * (d + 0.5);
+    const y = padding.top + chartHeight * (1 - dailyLoad[d].avgEnergy / 100);
+    points.push(`${x},${y}`);
+  }
+
+  // Area under line
+  const areaPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  const areaD = `M ${padding.left},${padding.top + chartHeight} L ${points.join(' L ')} L ${width - padding.right},${padding.top + chartHeight} Z`;
+  areaPath.setAttribute('d', areaD);
+  areaPath.setAttribute('class', 'energy-area');
+  svg.appendChild(areaPath);
+
+  // Line
+  const linePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  linePath.setAttribute('d', `M ${points.join(' L ')}`);
+  linePath.setAttribute('class', 'energy-line');
+  svg.appendChild(linePath);
+
+  container.appendChild(svg);
+
+  // Update tank
+  const currentEnergy = Math.round(dailyLoad[dailyLoad.length - 1].avgEnergy);
+  const tankFill = document.getElementById('tank-fill');
+  tankFill.style.width = `${currentEnergy}%`;
+  tankFill.style.background = getEnergyColor(currentEnergy);
+
+  document.getElementById('tank-label').textContent = `${currentEnergy}%`;
+
+  const weeklyBalance = computeWeeklyBalance(timeline);
+  const trendEl = document.getElementById('tank-trend');
+  trendEl.textContent = `${weeklyBalance.net >= 0 ? '+' : ''}${weeklyBalance.net}/week`;
+  trendEl.className = weeklyBalance.net >= 0 ? 'tank-trend' : 'tank-trend negative';
+}
+
+function renderHeatmap(dailyLoad) {
+  const container = document.getElementById('heatmap-chart');
+  container.innerHTML = '';
+
+  const cellSize = 18;
+  const cellGap = 3;
+  const padding = { top: 20, right: 10, bottom: 10, left: 35 };
+  const width = padding.left + (WEEKS * (cellSize + cellGap)) + padding.right;
+  const height = padding.top + (7 * (cellSize + cellGap)) + padding.bottom;
+
+  const svg = createSVG(width, height);
+
+  // Day labels
+  DAYS.forEach((day, i) => {
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', padding.left - 5);
+    text.setAttribute('y', padding.top + i * (cellSize + cellGap) + cellSize / 2 + 3);
+    text.setAttribute('text-anchor', 'end');
+    text.setAttribute('class', 'tick-label');
+    text.textContent = day;
+    svg.appendChild(text);
+  });
+
+  // Week labels
+  for (let w = 0; w < WEEKS; w++) {
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', padding.left + w * (cellSize + cellGap) + cellSize / 2);
+    text.setAttribute('y', padding.top - 6);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('class', 'tick-label');
+    text.textContent = `W${w + 1}`;
+    svg.appendChild(text);
+  }
+
+  // Find max drain for scaling
+  const maxDrain = Math.max(...dailyLoad.map(d => d.drain));
+
+  // Cells
+  dailyLoad.forEach((day, i) => {
+    const weekIndex = day.weekIndex;
+    const dayOfWeek = day.dayOfWeek;
+
+    const x = padding.left + weekIndex * (cellSize + cellGap);
+    const y = padding.top + dayOfWeek * (cellSize + cellGap);
+
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', x);
+    rect.setAttribute('y', y);
+    rect.setAttribute('width', cellSize);
+    rect.setAttribute('height', cellSize);
+    rect.setAttribute('class', 'heatmap-cell');
+    rect.setAttribute('fill', getHeatmapColor(day.drain, maxDrain));
+    rect.setAttribute('data-day', i);
+
+    rect.addEventListener('mouseenter', (e) => showTooltip(e, `${DAYS[dayOfWeek]} W${weekIndex + 1}: ${day.drain.toFixed(1)}h drain, ${Math.round(day.avgEnergy)}% avg energy`));
+    rect.addEventListener('mouseleave', hideTooltip);
+
+    svg.appendChild(rect);
+  });
+
+  container.appendChild(svg);
+
+  // Gradient legend
+  const canvas = document.getElementById('heatmap-gradient');
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 100, 0);
+  gradient.addColorStop(0, getComputedStyle(document.documentElement).getPropertyValue('--panel').trim());
+  gradient.addColorStop(1, getComputedStyle(document.documentElement).getPropertyValue('--red').trim());
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 100, 10);
+}
+
+function renderDailyChart(dailyRhythm) {
+  const container = document.getElementById('daily-chart');
+  container.innerHTML = '';
+
+  const width = 380;
+  const height = 150;
+  const padding = { top: 10, right: 10, bottom: 25, left: 35 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+
+  const svg = createSVG(width, height);
+
+  const barWidth = chartWidth / 24 - 2;
+  const maxEnergy = Math.max(...dailyRhythm);
+  const minEnergy = Math.min(...dailyRhythm);
+
+  // Bars
+  dailyRhythm.forEach((energy, hour) => {
+    const x = padding.left + (chartWidth / 24) * hour + 1;
+    const barHeight = (energy / 100) * chartHeight;
+    const y = padding.top + chartHeight - barHeight;
+
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', x);
+    rect.setAttribute('y', y);
+    rect.setAttribute('width', barWidth);
+    rect.setAttribute('height', barHeight);
+    rect.setAttribute('fill', getEnergyColor(energy));
+    rect.setAttribute('rx', '2');
+
+    rect.addEventListener('mouseenter', (e) => showTooltip(e, `${hour}:00 - ${Math.round(energy)}% avg energy`));
+    rect.addEventListener('mouseleave', hideTooltip);
+
+    svg.appendChild(rect);
+  });
+
+  // X-axis labels
+  [0, 6, 12, 18, 24].forEach(hour => {
+    const x = padding.left + (chartWidth / 24) * hour;
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', x);
+    text.setAttribute('y', height - 5);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('class', 'tick-label');
+    text.textContent = hour === 24 ? '24' : hour;
+    svg.appendChild(text);
+  });
+
+  container.appendChild(svg);
+
+  // Update stats
+  const peakHour = dailyRhythm.indexOf(maxEnergy);
+  const lowHour = dailyRhythm.indexOf(minEnergy);
+  document.getElementById('daily-stats').textContent = `Peak: ${peakHour}:00 | Low: ${lowHour}:00`;
+}
+
+function renderWeeklyChart(weeklyRhythm) {
+  const container = document.getElementById('weekly-chart');
+  container.innerHTML = '';
+
+  const width = 380;
+  const height = 150;
+  const padding = { top: 10, right: 50, bottom: 10, left: 35 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+
+  const svg = createSVG(width, height);
+
+  const barHeight = chartHeight / 7 - 4;
+  const maxEnergy = Math.max(...weeklyRhythm);
+  const minEnergy = Math.min(...weeklyRhythm);
+
+  // Bars
+  weeklyRhythm.forEach((energy, day) => {
+    const y = padding.top + (chartHeight / 7) * day + 2;
+    const barWidth = (energy / 100) * chartWidth;
+
+    // Day label
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', padding.left - 5);
+    label.setAttribute('y', y + barHeight / 2 + 3);
+    label.setAttribute('text-anchor', 'end');
+    label.setAttribute('class', 'tick-label');
+    label.textContent = DAYS[day];
+    svg.appendChild(label);
+
+    // Bar
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', padding.left);
+    rect.setAttribute('y', y);
+    rect.setAttribute('width', barWidth);
+    rect.setAttribute('height', barHeight);
+    rect.setAttribute('fill', getEnergyColor(energy));
+    rect.setAttribute('rx', '2');
+
+    rect.addEventListener('mouseenter', (e) => showTooltip(e, `${DAYS[day]}: ${Math.round(energy)}% avg energy`));
+    rect.addEventListener('mouseleave', hideTooltip);
+
+    svg.appendChild(rect);
+
+    // Percentage label
+    const pct = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    pct.setAttribute('x', padding.left + barWidth + 5);
+    pct.setAttribute('y', y + barHeight / 2 + 3);
+    pct.setAttribute('class', 'tick-label');
+    let suffix = '';
+    if (energy === maxEnergy) suffix = ' (peak)';
+    if (energy === minEnergy) suffix = ' (low)';
+    pct.textContent = `${Math.round(energy)}%${suffix}`;
+    svg.appendChild(pct);
+  });
+
+  container.appendChild(svg);
+
+  // Update stats
+  const peakDay = DAYS[weeklyRhythm.indexOf(maxEnergy)];
+  const lowDay = DAYS[weeklyRhythm.indexOf(minEnergy)];
+  document.getElementById('weekly-stats').textContent = `Peak: ${peakDay} | Low: ${lowDay}`;
+}
+
+function renderBalanceStats(balance) {
+  const container = document.getElementById('balance-stats');
+  container.innerHTML = `
+    <div class="stat-item">
+      <span>Drained</span>
+      <span class="stat-value">${balance.drained}h</span>
+    </div>
+    <div class="stat-item">
+      <span>Restored</span>
+      <span class="stat-value">${balance.restored}h</span>
+    </div>
+    <div class="stat-item">
+      <span>Net</span>
+      <span class="stat-value ${balance.net >= 0 ? 'positive' : 'negative'}">${balance.net >= 0 ? '+' : ''}${balance.net}h</span>
+    </div>
+  `;
+}
+
+function renderBreakdown(breakdown) {
+  const container = document.getElementById('breakdown-chart');
+  container.innerHTML = '';
+
+  const total = Object.values(breakdown).reduce((a, b) => a + b, 0);
+  const maxHours = Math.max(...Object.values(breakdown));
+
+  // Sort by drain first, then restore
+  const order = ['meeting', 'work', 'admin', 'rest', 'sleep', 'vacant'];
+
+  order.forEach(cat => {
+    const hours = breakdown[cat];
+    const pct = (hours / maxHours) * 100;
+
+    const item = document.createElement('div');
+    item.className = 'breakdown-item';
+    item.innerHTML = `
+      <span class="breakdown-label">${CATEGORIES[cat].label}</span>
+      <div class="breakdown-bar-container">
+        <div class="breakdown-bar" style="width: ${pct}%; background: ${CATEGORIES[cat].color}"></div>
+      </div>
+      <span class="breakdown-value">${hours}h</span>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function renderSustainability(balance, timeline) {
+  const container = document.getElementById('sustainability-status');
+  container.innerHTML = '';
+
+  let status, statusClass, statusIcon;
+  if (balance.net >= 0) {
+    status = 'Sustainable';
+    statusClass = 'ok';
+    statusIcon = '&#10003;';
+  } else if (balance.net > -5) {
+    status = 'Caution';
+    statusClass = 'caution';
+    statusIcon = '&#9888;';
+  } else {
+    status = 'Unsustainable';
+    statusClass = 'danger';
+    statusIcon = '&#10007;';
+  }
+
+  const currentEnergy = timeline[timeline.length - 1].energy;
+  const trend = balance.net >= 0 ? 'stable/improving' : 'declining';
+
+  container.innerHTML = `
+    <div class="status-indicator ${statusClass}">
+      <span>${statusIcon}</span>
+      <span>${status}</span>
+    </div>
+    <div class="status-details">
+      <div>Net: ${balance.net >= 0 ? '+' : ''}${balance.net}h/week</div>
+      <div>Trend: ${trend}</div>
+      <div>Current: ${Math.round(currentEnergy)}%</div>
+    </div>
+  `;
+}
+
+function renderCategoryLegend() {
+  const container = document.getElementById('category-legend');
+  container.innerHTML = '';
+
+  Object.entries(CATEGORIES).forEach(([key, cat]) => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `
+      <span class="legend-dot" style="background: ${cat.color}"></span>
+      <span>${cat.label} (${cat.rate >= 0 ? '+' : ''}${cat.rate}/hr)</span>
+    `;
+    container.appendChild(item);
+  });
+}
+
+// =====================================================
+// UTILITY FUNCTIONS
+// =====================================================
+
+function getEnergyColor(energy) {
+  // Red (low) -> Yellow (mid) -> Green (high)
+  if (energy < 50) {
+    const t = energy / 50;
+    return interpolateColor('#D14D41', '#D0A215', t);
+  } else {
+    const t = (energy - 50) / 50;
+    return interpolateColor('#D0A215', '#66800B', t);
+  }
+}
+
+function getHeatmapColor(drain, maxDrain) {
+  const intensity = drain / maxDrain;
+  const style = getComputedStyle(document.documentElement);
+  const baseColor = style.getPropertyValue('--panel').trim();
+  const maxColor = style.getPropertyValue('--red').trim();
+  return interpolateColor(baseColor, maxColor, intensity);
+}
+
+function interpolateColor(color1, color2, t) {
+  const c1 = hexToRgb(color1);
+  const c2 = hexToRgb(color2);
+
+  const r = Math.round(c1.r + (c2.r - c1.r) * t);
+  const g = Math.round(c1.g + (c2.g - c1.g) * t);
+  const b = Math.round(c1.b + (c2.b - c1.b) * t);
+
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('');
+  }
+  const result = /^([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : { r: 0, g: 0, b: 0 };
+}
+
+function showTooltip(e, text) {
+  const tooltip = document.getElementById('tooltip');
+  tooltip.textContent = text;
+  tooltip.style.left = `${e.pageX + 10}px`;
+  tooltip.style.top = `${e.pageY - 25}px`;
+  tooltip.classList.add('visible');
+}
+
+function hideTooltip() {
+  document.getElementById('tooltip').classList.remove('visible');
+}
+
+function toggleTheme() {
+  const body = document.body;
+  const currentTheme = body.getAttribute('data-theme');
+
+  if (currentTheme === 'dark') {
+    body.removeAttribute('data-theme');
+  } else {
+    body.setAttribute('data-theme', 'dark');
+  }
+
+  // Re-render heatmap for updated colors
+  renderAll();
+}
+
+// =====================================================
+// MAIN
+// =====================================================
+
+let currentData = null;
+
+function renderAll() {
+  if (!currentData) return;
+
+  const { timeline, dailyLoad, dailyRhythm, weeklyRhythm, breakdown, balance } = currentData;
+
+  renderTimelineChart(timeline, dailyLoad);
+  renderHeatmap(dailyLoad);
+  renderDailyChart(dailyRhythm);
+  renderWeeklyChart(weeklyRhythm);
+  renderBalanceStats(balance);
+  renderBreakdown(breakdown);
+  renderSustainability(balance, timeline);
+  renderCategoryLegend();
+}
+
+function regenerateData() {
+  const hours = generateData();
+  const timeline = computeEnergy(hours);
+  const dailyLoad = computeDailyLoad(timeline);
+  const dailyRhythm = computeDailyRhythm(timeline);
+  const weeklyRhythm = computeWeeklyRhythm(timeline);
+  const breakdown = computeTimeBreakdown(hours);
+  const balance = computeWeeklyBalance(hours);
+
+  currentData = { timeline, dailyLoad, dailyRhythm, weeklyRhythm, breakdown, balance };
+
+  renderAll();
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', regenerateData);
+</script>
+
+</body>
+</html>

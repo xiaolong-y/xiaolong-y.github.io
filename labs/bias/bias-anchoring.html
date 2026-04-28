@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anchoring Bias</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-orange);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .canvas-container {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 400px;
+      cursor: grab;
+    }
+
+    canvas:active { cursor: grabbing; }
+
+    .controls {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .instruction {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 12px;
+    }
+
+    .scenario {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .scenario-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8em;
+      padding: 8px 14px;
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--fx-base-900);
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+
+    .scenario-btn:hover {
+      border-color: var(--fx-blue);
+      color: var(--fx-blue);
+    }
+
+    .scenario-btn.active {
+      background: var(--fx-yellow);
+      border-color: var(--fx-yellow);
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 12px;
+      background: var(--fx-paper);
+      border-radius: 3px;
+      border-left: 3px solid var(--fx-yellow);
+    }
+
+    @media (max-width: 600px) {
+      canvas { height: 350px; }
+      h1 { font-size: 1.2em; }
+      .scenario { gap: 6px; }
+      .scenario-btn {
+        padding: 12px 16px;
+        font-size: 0.75em;
+        min-height: 44px;
+        min-width: 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../../cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Anchoring Bias</h1>
+    <p class="description">
+      The first number we encounter becomes an unconscious reference point that distorts our judgment of subsequent values—even when the anchor is arbitrary. Drag the anchor to see how the same prices feel different depending on where you start.
+    </p>
+
+    <div class="canvas-container">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <p class="instruction">Drag the anchor along the scale. Watch how prices near the anchor feel "reasonable" while distant prices feel "extreme."</p>
+      <div class="scenario">
+        <button class="scenario-btn active" data-anchor="200">High Anchor ($200)</button>
+        <button class="scenario-btn" data-anchor="50">Low Anchor ($50)</button>
+        <button class="scenario-btn" data-anchor="100">Middle ($100)</button>
+      </div>
+      <p class="insight" id="insight">With a $200 anchor, $80 feels like a bargain. The same $80 feels expensive with a $50 anchor.</p>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+
+    const getColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--fx-${name}`).trim();
+
+    // State
+    let anchorValue = 200;
+    let dragging = false;
+    const minValue = 0;
+    const maxValue = 250;
+
+    // Price points to show - staggered rows to avoid overlap
+    const prices = [
+      { value: 20, row: 0 },
+      { value: 50, row: 1 },
+      { value: 80, row: 0, highlight: true },
+      { value: 120, row: 1 },
+      { value: 150, row: 0 },
+      { value: 200, row: 1 },
+    ];
+
+    function valueToX(value) {
+      const padding = 60;
+      return padding + (value / maxValue) * (width - padding * 2);
+    }
+
+    function xToValue(x) {
+      const padding = 60;
+      const value = ((x - padding) / (width - padding * 2)) * maxValue;
+      return Math.max(minValue, Math.min(maxValue, value));
+    }
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function getPerceptionLabel(price) {
+      const diff = price - anchorValue;
+      const ratio = Math.abs(diff) / Math.max(anchorValue, 1);
+
+      if (Math.abs(diff) < 10) return { text: 'Fair', color: getColor('base-700') };
+
+      if (diff < 0) {
+        if (ratio > 0.5) return { text: 'Bargain!', color: getColor('green') };
+        if (ratio > 0.2) return { text: 'Good deal', color: getColor('cyan') };
+        return { text: 'Fair', color: getColor('base-700') };
+      } else {
+        if (ratio > 0.5) return { text: 'Too much', color: getColor('red') };
+        if (ratio > 0.2) return { text: 'Pricey', color: getColor('orange') };
+        return { text: 'Fair', color: getColor('base-700') };
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = getColor('paper');
+      ctx.fillRect(0, 0, width, height);
+
+      const scaleY = height * 0.6;
+      const padding = 60;
+
+      // Draw "reasonable zone" gradient based on anchor
+      const ax = valueToX(anchorValue);
+      const zoneWidth = width * 0.22;
+      const gradient = ctx.createLinearGradient(ax - zoneWidth, 0, ax + zoneWidth, 0);
+      gradient.addColorStop(0, getColor('yellow') + '00');
+      gradient.addColorStop(0.3, getColor('yellow') + '12');
+      gradient.addColorStop(0.5, getColor('yellow') + '20');
+      gradient.addColorStop(0.7, getColor('yellow') + '12');
+      gradient.addColorStop(1, getColor('yellow') + '00');
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(ax - zoneWidth, 60, zoneWidth * 2, scaleY - 40);
+
+      // Draw scale line
+      ctx.strokeStyle = getColor('base-200');
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(padding, scaleY);
+      ctx.lineTo(width - padding, scaleY);
+      ctx.stroke();
+
+      // Draw tick marks
+      ctx.font = '10px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = getColor('base-700');
+
+      for (let v = 0; v <= maxValue; v += 50) {
+        const x = valueToX(v);
+        ctx.beginPath();
+        ctx.moveTo(x, scaleY - 5);
+        ctx.lineTo(x, scaleY + 5);
+        ctx.stroke();
+        ctx.fillText('$' + v, x, scaleY + 20);
+      }
+
+      // Draw price points (ABOVE the scale line with staggered rows)
+      const baseY = scaleY - 45;
+      const rowSpacing = 55;
+
+      prices.forEach(priceData => {
+        const price = priceData.value;
+        const x = valueToX(price);
+        const distFromAnchor = Math.abs(price - anchorValue);
+        const normalizedDist = distFromAnchor / maxValue;
+
+        // Size and opacity based on distance from anchor
+        const size = Math.max(12, 20 - normalizedDist * 18);
+        const opacity = Math.max(0.4, 1 - normalizedDist * 0.8);
+
+        const perception = getPerceptionLabel(price);
+
+        // Y position based on row
+        const y = baseY - priceData.row * rowSpacing;
+
+        ctx.globalAlpha = opacity;
+
+        // Draw connecting line to scale
+        ctx.strokeStyle = getColor('base-200');
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 2]);
+        ctx.beginPath();
+        ctx.moveTo(x, y + size + 3);
+        ctx.lineTo(x, scaleY - 8);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Draw price circle
+        ctx.fillStyle = priceData.highlight ? getColor('blue') : getColor('base-700');
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Price label inside circle
+        ctx.fillStyle = getColor('paper');
+        ctx.font = `bold ${Math.max(9, size * 0.5)}px IBM Plex Mono`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('$' + price, x, y);
+
+        ctx.globalAlpha = 1;
+
+        // Perception label below circle
+        ctx.fillStyle = perception.color;
+        ctx.font = '9px IBM Plex Mono';
+        ctx.textBaseline = 'top';
+        ctx.fillText(perception.text, x, y + size + 5);
+      });
+
+      // Draw anchor (BELOW the scale line)
+      ctx.fillStyle = getColor('yellow');
+
+      // Anchor triangle pointing up to scale
+      ctx.beginPath();
+      ctx.moveTo(ax, scaleY + 8);
+      ctx.lineTo(ax + 12, scaleY + 28);
+      ctx.lineTo(ax - 12, scaleY + 28);
+      ctx.closePath();
+      ctx.fill();
+
+      // Anchor label
+      ctx.font = 'bold 11px IBM Plex Mono';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = getColor('yellow');
+      ctx.fillText('$' + Math.round(anchorValue), ax, scaleY + 32);
+
+      ctx.font = '9px IBM Plex Mono';
+      ctx.fillStyle = getColor('base-700');
+      ctx.fillText('ANCHOR', ax, scaleY + 46);
+      ctx.font = '8px IBM Plex Mono';
+      ctx.fillText('(drag to move)', ax, scaleY + 58);
+
+      // Target indicator
+      ctx.fillStyle = getColor('blue');
+      ctx.font = '11px IBM Plex Mono';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText('Evaluating: $80 headphones', 20, 20);
+
+      // Legend
+      ctx.fillStyle = getColor('base-700');
+      ctx.font = '9px IBM Plex Mono';
+      ctx.textAlign = 'right';
+      ctx.fillText('Yellow zone = "feels reasonable"', width - 20, 20);
+    }
+
+    function updateInsight() {
+      const insight = document.getElementById('insight');
+      if (anchorValue > 150) {
+        insight.textContent = `With a $${Math.round(anchorValue)} anchor, $80 feels like a bargain—more than 50% off! You're likely to buy.`;
+      } else if (anchorValue < 60) {
+        insight.textContent = `With a $${Math.round(anchorValue)} anchor, $80 feels expensive—60% more than expected! You hesitate.`;
+      } else {
+        insight.textContent = `With a $${Math.round(anchorValue)} anchor, $80 feels about right—close to your reference point.`;
+      }
+    }
+
+    // Mouse interactions
+    canvas.addEventListener('mousedown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const ax = valueToX(anchorValue);
+      const scaleY = height * 0.6;
+
+      // Check if click is near anchor (below scale line)
+      if (Math.abs(x - ax) < 40 && y > scaleY) {
+        dragging = true;
+      }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      anchorValue = xToValue(x);
+      updateInsight();
+      draw();
+    });
+
+    canvas.addEventListener('mouseup', () => { dragging = false; });
+    canvas.addEventListener('mouseleave', () => { dragging = false; });
+
+    // Touch support
+    canvas.addEventListener('touchstart', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.touches[0].clientX - rect.left;
+      const y = e.touches[0].clientY - rect.top;
+      const ax = valueToX(anchorValue);
+      const scaleY = height * 0.6;
+
+      if (Math.abs(x - ax) < 50 && y > scaleY - 20) {
+        dragging = true;
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      if (!dragging) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.touches[0].clientX - rect.left;
+      anchorValue = xToValue(x);
+      updateInsight();
+      draw();
+      e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', () => { dragging = false; });
+
+    // Scenario buttons
+    document.querySelectorAll('.scenario-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        anchorValue = parseInt(btn.dataset.anchor);
+        updateInsight();
+        draw();
+      });
+    });
+
+    resize();
+    window.addEventListener('resize', () => { resize(); draw(); });
+    draw();
+    updateInsight();
+  </script>
+</body>
+</html>

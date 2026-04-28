@@ -1,3 +1,5 @@
+---
+---
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RQC3VEC49K"></script>
 <script>
@@ -429,6 +431,7 @@
       break-inside: avoid;
     }
   }
+
 </style>
 
 <div class="quotes-page">

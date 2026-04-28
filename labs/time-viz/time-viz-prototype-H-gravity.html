@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option H: Gravitational Wells | Time Visualization Prototype</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0a0a12;
+      --grid-base: #1a1a2e;
+      --grid-line: #2d2d4a;
+      --text: #e0e0e0;
+      --text-muted: #888;
+      --well-shallow: #f4a261;
+      --well-medium: #e76f51;
+      --well-deep: #d62828;
+      --lagrange: #2a9d8f;
+      --lagrange-glow: rgba(42, 157, 143, 0.3);
+      --today: #4cc9f0;
+    }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 2rem;
+    }
+
+    .viz-container {
+      width: 100%;
+      max-width: 1000px;
+      background: linear-gradient(180deg, var(--bg) 0%, #0f0f1a 100%);
+      border: 1px solid var(--grid-line);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .main-viz {
+      width: 100%;
+      height: 500px;
+    }
+
+    /* Grid lines base styling */
+    .grid-line {
+      stroke: var(--grid-line);
+      stroke-width: 1;
+      fill: none;
+    }
+
+    .grid-line-vertical {
+      stroke: var(--grid-line);
+      stroke-width: 0.5;
+      fill: none;
+      opacity: 0.6;
+    }
+
+    /* Well gradients */
+    .well-gradient-shallow {
+      stop-color: var(--well-shallow);
+    }
+
+    .well-gradient-medium {
+      stop-color: var(--well-medium);
+    }
+
+    .well-gradient-deep {
+      stop-color: var(--well-deep);
+    }
+
+    /* Deadline markers */
+    .deadline-marker {
+      fill: var(--well-deep);
+      filter: drop-shadow(0 0 8px var(--well-deep));
+    }
+
+    .deadline-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      fill: var(--text);
+      text-anchor: middle;
+    }
+
+    .deadline-date {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      fill: var(--text-muted);
+      text-anchor: middle;
+    }
+
+    /* Lagrange points */
+    .lagrange-zone {
+      fill: var(--lagrange-glow);
+      filter: blur(8px);
+    }
+
+    .lagrange-marker {
+      fill: var(--lagrange);
+      filter: drop-shadow(0 0 6px var(--lagrange));
+    }
+
+    .lagrange-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      fill: var(--lagrange);
+      text-anchor: middle;
+    }
+
+    /* Today marker */
+    .today-line {
+      stroke: var(--today);
+      stroke-width: 2;
+      stroke-dasharray: 8 4;
+    }
+
+    .today-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      fill: var(--today);
+      text-anchor: middle;
+    }
+
+    /* Timeline */
+    .timeline-axis {
+      stroke: var(--grid-line);
+      stroke-width: 1;
+    }
+
+    .timeline-tick {
+      stroke: var(--grid-line);
+      stroke-width: 1;
+    }
+
+    .timeline-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      fill: var(--text-muted);
+      text-anchor: middle;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      padding: 1.25rem 1.5rem;
+      border-top: 1px solid var(--grid-line);
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+    }
+
+    .legend-color.shallow {
+      background: linear-gradient(180deg, var(--well-shallow) 0%, var(--bg) 100%);
+    }
+
+    .legend-color.deep {
+      background: linear-gradient(180deg, var(--well-deep) 0%, var(--bg) 100%);
+    }
+
+    .legend-color.lagrange {
+      background: var(--lagrange);
+      box-shadow: 0 0 8px var(--lagrange);
+    }
+
+    .legend-color.today {
+      background: var(--today);
+      width: 3px;
+      height: 16px;
+    }
+
+    .legend-color.grid {
+      background: transparent;
+      border: 1px solid var(--grid-line);
+      position: relative;
+    }
+
+    .legend-color.grid::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--grid-line);
+    }
+
+    /* Depth indicator */
+    .depth-scale {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .depth-bar {
+      width: 8px;
+      height: 120px;
+      background: linear-gradient(180deg,
+        var(--grid-line) 0%,
+        var(--well-shallow) 30%,
+        var(--well-medium) 60%,
+        var(--well-deep) 100%
+      );
+      border-radius: 4px;
+    }
+
+    .depth-label {
+      font-size: 8px;
+      color: var(--text-muted);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      letter-spacing: 1px;
+    }
+
+    /* Annotations */
+    .annotation {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px;
+      fill: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Particle effects for atmosphere */
+    .particle {
+      fill: var(--grid-line);
+      opacity: 0.4;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+
+    .lagrange-pulse {
+      animation: pulse 3s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <h1>Option H: Gravitational Wells</h1>
+  <p class="subtitle">Deadlines warp spacetime. The closer you get, the stronger the pull.</p>
+
+  <div class="viz-container">
+    <svg class="main-viz" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <!-- Gradient for shallow well -->
+        <radialGradient id="wellGradientShallow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#f4a261" stop-opacity="0.8"/>
+          <stop offset="40%" stop-color="#f4a261" stop-opacity="0.4"/>
+          <stop offset="100%" stop-color="#f4a261" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Gradient for medium well -->
+        <radialGradient id="wellGradientMedium" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#e76f51" stop-opacity="0.9"/>
+          <stop offset="30%" stop-color="#e76f51" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#e76f51" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Gradient for deep well -->
+        <radialGradient id="wellGradientDeep" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#d62828" stop-opacity="1"/>
+          <stop offset="20%" stop-color="#d62828" stop-opacity="0.7"/>
+          <stop offset="60%" stop-color="#e76f51" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#f4a261" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Glow filter -->
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+
+        <!-- Lagrange glow -->
+        <filter id="lagrangeGlow" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- Background grid - horizontal lines that curve toward wells -->
+      <g class="grid-horizontal">
+        <!-- Row 1 - slight curve -->
+        <path class="grid-line" d="M 0 80
+          Q 250 85, 300 95
+          Q 350 85, 450 82
+          Q 550 88, 620 115
+          Q 690 88, 800 82
+          Q 900 84, 1000 80"/>
+
+        <!-- Row 2 -->
+        <path class="grid-line" d="M 0 120
+          Q 250 130, 300 155
+          Q 350 130, 450 122
+          Q 550 135, 620 180
+          Q 690 135, 800 122
+          Q 900 125, 1000 120"/>
+
+        <!-- Row 3 -->
+        <path class="grid-line" d="M 0 160
+          Q 250 180, 300 220
+          Q 350 180, 450 162
+          Q 550 190, 620 260
+          Q 690 190, 800 162
+          Q 900 168, 1000 160"/>
+
+        <!-- Row 4 - main distortion row -->
+        <path class="grid-line" d="M 0 200
+          Q 200 210, 250 230
+          Q 300 280, 300 290
+          Q 300 280, 350 230
+          Q 450 205, 550 220
+          Q 580 260, 620 340
+          Q 660 260, 700 220
+          Q 800 205, 1000 200"/>
+
+        <!-- Row 5 -->
+        <path class="grid-line" d="M 0 240
+          Q 200 245, 250 260
+          Q 280 290, 300 310
+          Q 320 290, 350 260
+          Q 450 245, 550 255
+          Q 580 300, 620 380
+          Q 660 300, 700 255
+          Q 800 245, 1000 240"/>
+
+        <!-- Row 6 -->
+        <path class="grid-line" d="M 0 280
+          Q 200 282, 250 290
+          Q 280 310, 300 330
+          Q 320 310, 350 290
+          Q 450 282, 550 288
+          Q 580 330, 620 400
+          Q 660 330, 700 288
+          Q 800 282, 1000 280"/>
+
+        <!-- Row 7 -->
+        <path class="grid-line" d="M 0 320
+          Q 250 322, 280 330
+          Q 290 340, 300 350
+          Q 310 340, 330 330
+          Q 450 322, 550 325
+          Q 590 360, 620 420
+          Q 650 360, 700 325
+          Q 800 322, 1000 320"/>
+
+        <!-- Row 8 -->
+        <path class="grid-line" d="M 0 360
+          Q 280 362, 295 365
+          Q 300 368, 305 365
+          Q 450 362, 560 363
+          Q 600 390, 620 430
+          Q 640 390, 700 363
+          Q 800 362, 1000 360"/>
+      </g>
+
+      <!-- Vertical grid lines with curvature -->
+      <g class="grid-vertical">
+        <path class="grid-line-vertical" d="M 100 60 Q 100 250, 100 400"/>
+        <path class="grid-line-vertical" d="M 200 60 Q 205 180, 220 250 Q 205 320, 200 400"/>
+        <path class="grid-line-vertical" d="M 250 60 Q 260 150, 280 220 Q 290 290, 260 400"/>
+        <path class="grid-line-vertical" d="M 300 60 Q 300 150, 300 350"/>
+        <path class="grid-line-vertical" d="M 350 60 Q 340 150, 320 220 Q 310 290, 340 400"/>
+        <path class="grid-line-vertical" d="M 400 60 Q 395 180, 380 250 Q 395 320, 400 400"/>
+        <path class="grid-line-vertical" d="M 450 60 Q 450 200, 455 280 Q 460 340, 450 400"/>
+        <path class="grid-line-vertical" d="M 500 60 Q 505 180, 520 260 Q 530 340, 510 400"/>
+        <path class="grid-line-vertical" d="M 550 60 Q 560 160, 580 240 Q 600 340, 570 400"/>
+        <path class="grid-line-vertical" d="M 600 60 Q 610 140, 618 220 Q 620 350, 610 400"/>
+        <path class="grid-line-vertical" d="M 620 60 Q 620 150, 620 430"/>
+        <path class="grid-line-vertical" d="M 640 60 Q 630 140, 622 220 Q 620 350, 630 400"/>
+        <path class="grid-line-vertical" d="M 700 60 Q 680 160, 660 240 Q 640 340, 670 400"/>
+        <path class="grid-line-vertical" d="M 750 60 Q 740 180, 720 260 Q 710 340, 730 400"/>
+        <path class="grid-line-vertical" d="M 800 60 Q 795 200, 785 280 Q 790 340, 800 400"/>
+        <path class="grid-line-vertical" d="M 900 60 Q 900 250, 900 400"/>
+      </g>
+
+      <!-- Well 1: Shallow (Project Review - less urgent) -->
+      <g class="well-shallow">
+        <ellipse cx="300" cy="350" rx="100" ry="40" fill="url(#wellGradientShallow)"/>
+        <ellipse cx="300" cy="340" rx="70" ry="25" fill="url(#wellGradientShallow)" opacity="0.5"/>
+        <ellipse cx="300" cy="330" rx="40" ry="15" fill="url(#wellGradientShallow)" opacity="0.3"/>
+        <circle cx="300" cy="350" r="6" class="deadline-marker" fill="#f4a261" filter="url(#glow)"/>
+        <text x="300" y="380" class="deadline-label">Project Review</text>
+        <text x="300" y="395" class="deadline-date">Dec 28</text>
+        <text x="300" y="310" class="annotation">shallow well</text>
+        <text x="300" y="320" class="annotation">(low urgency)</text>
+      </g>
+
+      <!-- Well 2: Deep (Paper Deadline - very urgent) -->
+      <g class="well-deep">
+        <ellipse cx="620" cy="430" rx="160" ry="50" fill="url(#wellGradientDeep)"/>
+        <ellipse cx="620" cy="400" rx="120" ry="40" fill="url(#wellGradientDeep)" opacity="0.6"/>
+        <ellipse cx="620" cy="370" rx="80" ry="28" fill="url(#wellGradientMedium)" opacity="0.5"/>
+        <ellipse cx="620" cy="345" rx="50" ry="18" fill="url(#wellGradientShallow)" opacity="0.4"/>
+        <circle cx="620" cy="430" r="10" class="deadline-marker" filter="url(#glow)"/>
+        <text x="620" y="460" class="deadline-label" font-weight="600">Paper Deadline</text>
+        <text x="620" y="475" class="deadline-date">Jan 5</text>
+        <text x="620" y="280" class="annotation">deep well</text>
+        <text x="620" y="292" class="annotation">(high urgency)</text>
+      </g>
+
+      <!-- Well 3: Medium (Grant Application) -->
+      <g class="well-medium">
+        <ellipse cx="850" cy="380" rx="120" ry="45" fill="url(#wellGradientMedium)"/>
+        <ellipse cx="850" cy="360" rx="80" ry="30" fill="url(#wellGradientMedium)" opacity="0.5"/>
+        <ellipse cx="850" cy="345" rx="45" ry="16" fill="url(#wellGradientShallow)" opacity="0.4"/>
+        <circle cx="850" cy="380" r="8" class="deadline-marker" fill="#e76f51" filter="url(#glow)"/>
+        <text x="850" y="410" class="deadline-label">Grant App</text>
+        <text x="850" y="425" class="deadline-date">Jan 15</text>
+        <text x="850" y="310" class="annotation">medium well</text>
+      </g>
+
+      <!-- Lagrange Point 1: Between Well 1 and Well 2 -->
+      <g class="lagrange-point-1">
+        <ellipse cx="460" cy="260" rx="35" ry="20" fill="#2a9d8f" opacity="0.15" class="lagrange-pulse"/>
+        <ellipse cx="460" cy="260" rx="25" ry="14" fill="#2a9d8f" opacity="0.25" filter="url(#lagrangeGlow)"/>
+        <circle cx="460" cy="260" r="5" class="lagrange-marker"/>
+        <text x="460" y="240" class="lagrange-label">L1</text>
+        <text x="460" y="290" class="annotation" fill="#2a9d8f">safe zone</text>
+      </g>
+
+      <!-- Lagrange Point 2: Between Well 2 and Well 3 -->
+      <g class="lagrange-point-2">
+        <ellipse cx="735" cy="300" rx="30" ry="18" fill="#2a9d8f" opacity="0.15" class="lagrange-pulse"/>
+        <ellipse cx="735" cy="300" rx="20" ry="12" fill="#2a9d8f" opacity="0.25" filter="url(#lagrangeGlow)"/>
+        <circle cx="735" cy="300" r="5" class="lagrange-marker"/>
+        <text x="735" y="280" class="lagrange-label">L2</text>
+        <text x="735" y="328" class="annotation" fill="#2a9d8f">safe zone</text>
+      </g>
+
+      <!-- Today marker -->
+      <g class="today-marker">
+        <line x1="80" y1="60" x2="80" y2="420" class="today-line"/>
+        <polygon points="80,55 75,45 85,45" fill="#4cc9f0"/>
+        <text x="80" y="38" class="today-label">TODAY</text>
+        <text x="80" y="435" class="timeline-label" fill="#4cc9f0">Dec 18</text>
+      </g>
+
+      <!-- Timeline axis -->
+      <g class="timeline">
+        <line x1="50" y1="450" x2="950" y2="450" class="timeline-axis"/>
+
+        <!-- Timeline ticks and labels -->
+        <g transform="translate(80, 450)">
+          <line y1="0" y2="6" class="timeline-tick"/>
+        </g>
+        <g transform="translate(200, 450)">
+          <line y1="0" y2="6" class="timeline-tick"/>
+          <text y="18" class="timeline-label">Dec 22</text>
+        </g>
+        <g transform="translate(300, 450)">
+          <line y1="0" y2="6" class="timeline-tick"/>
+          <text y="18" class="timeline-label">Dec 28</text>
+        </g>
+        <g transform="translate(450, 450)">
+          <line y1="0" y2="6" class="timeline-tick"/>
+          <text y="18" class="timeline-label">Jan 1</text>
+        </g>
+        <g transform="translate(620, 450)">
+          <line y1="0" y2="6" class="timeline-tick"/>
+          <text y="18" class="timeline-label">Jan 5</text>
+        </g>
+        <g transform="translate(735, 450)">
+          <line y1="0" y2="6" class="timeline-tick"/>
+          <text y="18" class="timeline-label">Jan 10</text>
+        </g>
+        <g transform="translate(850, 450)">
+          <line y1="0" y2="6" class="timeline-tick"/>
+          <text y="18" class="timeline-label">Jan 15</text>
+        </g>
+      </g>
+
+      <!-- Flat space indicators -->
+      <text x="120" y="100" class="annotation">flat spacetime</text>
+      <text x="120" y="112" class="annotation">(low stress)</text>
+
+      <!-- Depth scale -->
+      <g class="depth-indicator" transform="translate(960, 180)">
+        <rect x="-4" y="0" width="8" height="120" rx="4"
+              fill="url(#depthGradient)"/>
+        <defs>
+          <linearGradient id="depthGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#2d2d4a"/>
+            <stop offset="30%" stop-color="#f4a261"/>
+            <stop offset="60%" stop-color="#e76f51"/>
+            <stop offset="100%" stop-color="#d62828"/>
+          </linearGradient>
+        </defs>
+        <text x="0" y="-8" class="annotation" text-anchor="middle">URGENCY</text>
+        <text x="15" y="10" class="annotation">low</text>
+        <text x="15" y="115" class="annotation">high</text>
+      </g>
+
+      <!-- Decorative particles for atmosphere -->
+      <g class="particles" opacity="0.3">
+        <circle cx="150" cy="150" r="1" class="particle"/>
+        <circle cx="180" cy="180" r="0.8" class="particle"/>
+        <circle cx="420" cy="120" r="1.2" class="particle"/>
+        <circle cx="520" cy="100" r="0.8" class="particle"/>
+        <circle cx="780" cy="140" r="1" class="particle"/>
+        <circle cx="920" cy="120" r="0.8" class="particle"/>
+        <circle cx="130" cy="300" r="1" class="particle"/>
+        <circle cx="950" cy="280" r="0.8" class="particle"/>
+      </g>
+    </svg>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color shallow"></div>
+        <span>Shallow well (low urgency)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color deep"></div>
+        <span>Deep well (high urgency)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color lagrange"></div>
+        <span>Lagrange point (safe zone)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color today"></div>
+        <span>Today</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color grid"></div>
+        <span>Spacetime grid (curves toward deadlines)</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

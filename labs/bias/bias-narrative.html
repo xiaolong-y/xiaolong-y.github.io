@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Narrative Fallacy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap');
+
+    :root {
+      --fx-paper: #FFFCF0;
+      --fx-base-50: #F2F0E5;
+      --fx-base-100: #E6E4D9;
+      --fx-base-200: #DAD8CE;
+      --fx-base-700: #6F6E69;
+      --fx-base-900: #2D2B28;
+      --fx-orange: #BC5215;
+      --fx-blue: #205EA6;
+      --fx-cyan: #24837B;
+      --fx-red: #AF3029;
+      --fx-green: #66800B;
+      --fx-yellow: #AD8301;
+      --fx-purple: #5E409D;
+      --ease-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-medium: 300ms;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fx-paper: #100F0F;
+        --fx-base-50: #1C1B1A;
+        --fx-base-100: #282726;
+        --fx-base-200: #403E3C;
+        --fx-base-700: #878580;
+        --fx-base-900: #CECDC3;
+        --fx-orange: #DA702C;
+        --fx-blue: #4385BE;
+        --fx-cyan: #3AA99F;
+        --fx-red: #D14D41;
+        --fx-green: #879A39;
+        --fx-yellow: #D0A215;
+        --fx-purple: #8B7EC8;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--fx-paper);
+      color: var(--fx-base-900);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+    .back-nav:hover { color: var(--fx-blue); background: var(--fx-base-50); }
+    .back-nav svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: var(--fx-orange);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--fx-base-200);
+      padding-bottom: 8px;
+    }
+
+    .description {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 700px;
+    }
+
+    .story-container {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .story-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .protagonist {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--fx-base-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .protagonist-info h2 {
+      font-size: 1.1em;
+      font-weight: 400;
+      color: var(--fx-base-900);
+    }
+
+    .protagonist-info p {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+    }
+
+    .outcome-badge {
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      font-weight: 500;
+      transition: all var(--duration-medium) var(--ease-mechanical);
+    }
+
+    .outcome-badge.success {
+      background: var(--fx-green);
+      color: var(--fx-paper);
+    }
+
+    .outcome-badge.failure {
+      background: var(--fx-red);
+      color: var(--fx-paper);
+    }
+
+    .outcome-badge.hidden {
+      background: var(--fx-base-200);
+      color: var(--fx-base-700);
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 24px;
+      border-left: 2px solid var(--fx-base-200);
+      margin-bottom: 24px;
+    }
+
+    .event {
+      position: relative;
+      padding: 16px;
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      margin-bottom: 16px;
+      margin-left: 16px;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+
+    .event::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 20px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--fx-base-200);
+      border: 2px solid var(--fx-paper);
+    }
+
+    .event:last-child {
+      margin-bottom: 0;
+    }
+
+    .event-year {
+      font-size: 0.7em;
+      color: var(--fx-base-700);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .event-title {
+      font-size: 0.95em;
+      color: var(--fx-base-900);
+      font-weight: 400;
+    }
+
+    .explanation-box {
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .explanation-prompt {
+      font-size: 0.9em;
+      color: var(--fx-base-900);
+      margin-bottom: 12px;
+    }
+
+    .explanation-options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .explanation-option {
+      padding: 14px 16px;
+      background: var(--fx-base-50);
+      border: 2px solid var(--fx-base-200);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-mechanical);
+      font-size: 0.85em;
+      color: var(--fx-base-900);
+      text-align: left;
+    }
+
+    .explanation-option:hover {
+      border-color: var(--fx-blue);
+      background: var(--fx-paper);
+    }
+
+    .explanation-option.selected {
+      border-color: var(--fx-orange);
+      background: var(--fx-orange);
+      color: var(--fx-paper);
+    }
+
+    .flip-section {
+      background: var(--fx-base-50);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .flip-title {
+      font-size: 1em;
+      color: var(--fx-base-900);
+      margin-bottom: 16px;
+    }
+
+    .flip-comparison {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 700px) {
+      .flip-comparison {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .flip-arrow { transform: rotate(90deg); }
+    }
+
+    .flip-box {
+      background: var(--fx-paper);
+      border: 2px solid var(--fx-base-200);
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .flip-box.original { border-color: var(--fx-base-200); }
+    .flip-box.flipped { border-color: var(--fx-purple); }
+
+    .flip-box h3 {
+      font-size: 0.8em;
+      color: var(--fx-base-700);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .flip-box .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 3px;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+
+    .flip-box .badge.success { background: var(--fx-green); color: var(--fx-paper); }
+    .flip-box .badge.failure { background: var(--fx-red); color: var(--fx-paper); }
+
+    .flip-arrow {
+      font-size: 24px;
+      color: var(--fx-purple);
+    }
+
+    .flip-explanation {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      font-style: italic;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    button {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85em;
+      padding: 12px 24px;
+      background: var(--fx-paper);
+      border: 1px solid var(--fx-base-200);
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--fx-base-900);
+      transition: all var(--duration-fast) var(--ease-mechanical);
+    }
+
+    button:hover {
+      border-color: var(--fx-blue);
+      color: var(--fx-blue);
+    }
+
+    button.primary {
+      background: var(--fx-orange);
+      border-color: var(--fx-orange);
+      color: var(--fx-paper);
+    }
+
+    button.primary:hover {
+      background: var(--fx-cyan);
+      border-color: var(--fx-cyan);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .insight {
+      font-size: 0.85em;
+      color: var(--fx-base-700);
+      padding: 16px;
+      background: var(--fx-paper);
+      border-radius: 4px;
+      border-left: 3px solid var(--fx-orange);
+      line-height: 1.6;
+    }
+
+    .phase-indicator {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .phase-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--fx-base-200);
+      transition: all var(--duration-medium) var(--ease-mechanical);
+    }
+
+    .phase-dot.active {
+      background: var(--fx-orange);
+      box-shadow: 0 0 8px var(--fx-orange);
+    }
+
+    .phase-dot.complete {
+      background: var(--fx-cyan);
+    }
+
+    .hidden { display: none !important; }
+
+    .same-events-note {
+      text-align: center;
+      font-size: 0.9em;
+      color: var(--fx-purple);
+      font-weight: 500;
+      padding: 12px;
+      background: var(--fx-purple);
+      color: var(--fx-paper);
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 600px) {
+      /* Ensure minimum text size of 14px */
+      body { font-size: 14px; }
+
+      /* Heading sizes */
+      h1 { font-size: 1.2em; }
+
+      /* Navigation - increase touch target */
+      .back-nav {
+        font-size: 0.9em;
+        padding: 12px 16px;
+        min-height: 44px;
+        display: inline-flex;
+      }
+
+      /* Description and text elements */
+      .description { font-size: 0.95em; }
+      .insight { font-size: 0.95em; }
+
+      /* Story header adjustments */
+      .story-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .protagonist-info h2 {
+        font-size: 1.15em;
+      }
+
+      .protagonist-info p {
+        font-size: 0.9em;
+      }
+
+      /* Outcome badge - larger touch target */
+      .outcome-badge {
+        font-size: 1em;
+        padding: 12px 20px;
+        min-height: 44px;
+      }
+
+      /* Timeline events */
+      .event {
+        padding: 14px;
+        margin-left: 12px;
+      }
+
+      .event-year {
+        font-size: 0.8em;
+      }
+
+      .event-title {
+        font-size: 1em;
+      }
+
+      /* Explanation prompt and options */
+      .explanation-prompt {
+        font-size: 1em;
+      }
+
+      .explanation-option {
+        padding: 16px 18px;
+        font-size: 0.95em;
+        min-height: 44px;
+      }
+
+      .explanation-options {
+        gap: 12px;
+      }
+
+      /* Buttons - ensure 44x44px touch targets */
+      button {
+        font-size: 0.95em;
+        padding: 14px 24px;
+        min-height: 44px;
+        min-width: 44px;
+      }
+
+      .button-row {
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      /* Flip section elements */
+      .flip-title {
+        font-size: 1.05em;
+      }
+
+      .flip-box h3 {
+        font-size: 0.85em;
+      }
+
+      .flip-box .badge {
+        font-size: 0.9em;
+        padding: 6px 14px;
+      }
+
+      .flip-explanation {
+        font-size: 0.9em;
+      }
+
+      /* Same events note */
+      .same-events-note {
+        font-size: 0.95em;
+        padding: 14px;
+      }
+
+      /* Phase indicator - larger touch feedback */
+      .phase-dot {
+        width: 12px;
+        height: 12px;
+      }
+
+      /* Avatar - slightly larger on mobile */
+      .avatar {
+        width: 56px;
+        height: 56px;
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../../cognitive-biases.html" class="back-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      All Biases
+    </a>
+
+    <h1>Narrative Fallacy</h1>
+    <p class="description">
+      We create coherent stories to explain outcomes after the fact. The same events can "explain" opposite results—we just adjust the narrative. Experience this by explaining someone's outcome, then watch the story flip.
+    </p>
+
+    <div class="phase-indicator">
+      <div class="phase-dot active" id="phase1"></div>
+      <div class="phase-dot" id="phase2"></div>
+      <div class="phase-dot" id="phase3"></div>
+    </div>
+
+    <!-- Phase 1: See the story and outcome -->
+    <div id="phase1Container">
+      <div class="story-container">
+        <div class="story-header">
+          <div class="protagonist">
+            <div class="avatar" id="avatar">👤</div>
+            <div class="protagonist-info">
+              <h2 id="protagonistName">Alex Chen</h2>
+              <p>Entrepreneur, Age 35</p>
+            </div>
+          </div>
+          <div class="outcome-badge" id="outcomeBadge">Loading...</div>
+        </div>
+
+        <div class="timeline" id="timeline">
+          <!-- Events will be inserted here -->
+        </div>
+      </div>
+
+      <div class="explanation-box">
+        <p class="explanation-prompt" id="explanationPrompt">
+          Based on these life events, why do you think this outcome makes sense?
+        </p>
+        <div class="explanation-options" id="explanationOptions">
+          <!-- Options will be inserted here -->
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button class="primary" onclick="selectExplanation()" id="continueBtn" disabled>Select an explanation to continue</button>
+      </div>
+    </div>
+
+    <!-- Phase 2: The Flip -->
+    <div id="phase2Container" class="hidden">
+      <div class="flip-section">
+        <h2 class="flip-title">Now watch what happens when we flip the outcome...</h2>
+
+        <div class="same-events-note">
+          The exact same life events
+        </div>
+
+        <div class="flip-comparison">
+          <div class="flip-box original">
+            <h3>Original Outcome</h3>
+            <span class="badge" id="originalBadge">Success</span>
+            <p class="flip-explanation" id="originalExplanation">"Your selected explanation"</p>
+          </div>
+
+          <div class="flip-arrow">→</div>
+
+          <div class="flip-box flipped">
+            <h3>Flipped Outcome</h3>
+            <span class="badge" id="flippedBadge">Failure</span>
+            <p class="flip-explanation" id="flippedExplanation">"Alternative explanation"</p>
+          </div>
+        </div>
+
+        <p class="insight">
+          <strong>The same events explain both outcomes.</strong> Your brain instantly rewires the "why" to fit whatever ending it's given. This is the narrative fallacy—we don't discover stories in data, we impose them.
+        </p>
+      </div>
+
+      <div class="button-row">
+        <button onclick="showPhase3()">See More Examples</button>
+        <button class="primary" onclick="startOver()">Try Another Story</button>
+      </div>
+    </div>
+
+    <!-- Phase 3: Examples -->
+    <div id="phase3Container" class="hidden">
+      <div class="story-container">
+        <h2 style="font-size: 1em; margin-bottom: 16px; color: var(--fx-base-900);">Real Examples of Narrative Reversal</h2>
+
+        <div class="event">
+          <div class="event-year">Example 1</div>
+          <div class="event-title"><strong>"Dropped out of college"</strong></div>
+          <p style="font-size: 0.8em; color: var(--fx-base-700); margin-top: 8px;">
+            <span style="color: var(--fx-green);">Success story:</span> "Proved formal education is unnecessary for genius"<br>
+            <span style="color: var(--fx-red);">Failure story:</span> "Showed reckless disregard for learning fundamentals"
+          </p>
+        </div>
+
+        <div class="event">
+          <div class="event-year">Example 2</div>
+          <div class="event-title"><strong>"Took big risks early"</strong></div>
+          <p style="font-size: 0.8em; color: var(--fx-base-700); margin-top: 8px;">
+            <span style="color: var(--fx-green);">Success story:</span> "Bold visionary who seized opportunities"<br>
+            <span style="color: var(--fx-red);">Failure story:</span> "Reckless gambler who couldn't manage risk"
+          </p>
+        </div>
+
+        <div class="event">
+          <div class="event-year">Example 3</div>
+          <div class="event-title"><strong>"Ignored expert advice"</strong></div>
+          <p style="font-size: 0.8em; color: var(--fx-base-700); margin-top: 8px;">
+            <span style="color: var(--fx-green);">Success story:</span> "Trusted their unique vision against the crowd"<br>
+            <span style="color: var(--fx-red);">Failure story:</span> "Arrogantly dismissed valuable guidance"
+          </p>
+        </div>
+
+        <div class="event">
+          <div class="event-year">Example 4</div>
+          <div class="event-title"><strong>"Failed multiple times before"</strong></div>
+          <p style="font-size: 0.8em; color: var(--fx-base-700); margin-top: 8px;">
+            <span style="color: var(--fx-green);">Success story:</span> "Persistence and learning from mistakes"<br>
+            <span style="color: var(--fx-red);">Failure story:</span> "Pattern of poor judgment and repeated errors"
+          </p>
+        </div>
+      </div>
+
+      <div class="insight">
+        <strong>Nassim Taleb calls this "the narrative fallacy":</strong> Our need to fit a neat story to a series of facts. We are biologically incapable of seeing randomness—everything must have a cause, a hero, a plot. History books are fiction written backward from outcomes.
+      </div>
+
+      <div class="button-row" style="margin-top: 20px;">
+        <button class="primary" onclick="startOver()">Try Another Story</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Story templates
+    const stories = [
+      {
+        name: "Alex Chen",
+        avatar: "👨‍💼",
+        events: [
+          { year: "2010", title: "Dropped out of Stanford computer science" },
+          { year: "2012", title: "First startup failed after 18 months" },
+          { year: "2014", title: "Took a risky bet on an unproven technology" },
+          { year: "2016", title: "Ignored advice from experienced investors" },
+          { year: "2018", title: "Hired friends instead of experienced executives" }
+        ],
+        successExplanations: [
+          "The unconventional path showed they could think independently and weren't afraid to fail—essential traits for breakthrough success.",
+          "Each 'failure' was actually a learning experience that prepared them for the big win. They persisted where others quit.",
+          "Ignoring conventional wisdom let them see opportunities others missed. Great entrepreneurs don't follow the crowd."
+        ],
+        failureExplanations: [
+          "The pattern of impulsive decisions and inability to learn from mistakes made failure inevitable.",
+          "Surrounding themselves with inexperienced people and ignoring expert advice showed poor judgment from the start.",
+          "Dropping out and repeated pivots revealed someone who couldn't commit and follow through on anything."
+        ]
+      },
+      {
+        name: "Sarah Williams",
+        avatar: "👩‍💼",
+        events: [
+          { year: "2008", title: "Quit stable job to pursue uncertain startup" },
+          { year: "2010", title: "Rejected acquisition offer to stay independent" },
+          { year: "2013", title: "Expanded aggressively into new markets" },
+          { year: "2015", title: "Fired the founding team to bring in outsiders" },
+          { year: "2017", title: "Bet everything on a single product pivot" }
+        ],
+        successExplanations: [
+          "Bold conviction and willingness to make hard choices—even painful ones—is what separates visionaries from managers.",
+          "Knowing when to reject 'good enough' and hold out for greatness. That acquisition offer would have capped their potential.",
+          "Aggressive expansion showed confidence and market vision that paid off handsomely."
+        ],
+        failureExplanations: [
+          "Reckless risk-taking and inability to recognize when to take the win. Should have taken that acquisition offer.",
+          "Overexpansion and betraying loyal team members created a toxic culture that drove away talent.",
+          "Betting everything on one pivot showed desperation, not vision. Prudent diversification would have saved them."
+        ]
+      },
+      {
+        name: "Marcus Johnson",
+        avatar: "👨‍🔬",
+        events: [
+          { year: "2005", title: "Spent 5 years on research with no commercial product" },
+          { year: "2010", title: "Refused to pivot despite market feedback" },
+          { year: "2012", title: "Lost key team members who wanted to move faster" },
+          { year: "2015", title: "Turned down multiple partnership offers" },
+          { year: "2018", title: "Finally launched product 10 years after starting" }
+        ],
+        successExplanations: [
+          "Patient genius. While others chased quick wins, they built something truly revolutionary that changed the industry.",
+          "Staying true to their vision despite pressure. Real innovation takes time—anyone can build a quick app.",
+          "The team members who left didn't share the vision. Better to lose them early than compromise the mission."
+        ],
+        failureExplanations: [
+          "Stubborn refusal to adapt. 10 years of ignoring the market while competitors evolved and dominated.",
+          "Driving away talented people with an inability to collaborate or accept feedback.",
+          "Ego prevented partnerships that could have brought success years earlier. Went down with the ship for pride."
+        ]
+      }
+    ];
+
+    // State
+    let currentStory = null;
+    let currentOutcome = null;
+    let selectedExplanationIndex = -1;
+
+    function generateStory() {
+      // Pick random story and outcome
+      currentStory = stories[Math.floor(Math.random() * stories.length)];
+      currentOutcome = Math.random() < 0.5 ? 'success' : 'failure';
+
+      // Update UI
+      document.getElementById('avatar').textContent = currentStory.avatar;
+      document.getElementById('protagonistName').textContent = currentStory.name;
+
+      // Set outcome badge
+      const badge = document.getElementById('outcomeBadge');
+      badge.textContent = currentOutcome === 'success' ? 'BECAME SUCCESSFUL' : 'ULTIMATELY FAILED';
+      badge.className = 'outcome-badge ' + currentOutcome;
+
+      // Build timeline
+      const timeline = document.getElementById('timeline');
+      timeline.innerHTML = currentStory.events.map(event => `
+        <div class="event">
+          <div class="event-year">${event.year}</div>
+          <div class="event-title">${event.title}</div>
+        </div>
+      `).join('');
+
+      // Build explanation options
+      const explanations = currentOutcome === 'success'
+        ? currentStory.successExplanations
+        : currentStory.failureExplanations;
+
+      const optionsContainer = document.getElementById('explanationOptions');
+      optionsContainer.innerHTML = explanations.map((exp, i) => `
+        <div class="explanation-option" onclick="selectOption(${i})" id="option${i}">
+          "${exp}"
+        </div>
+      `).join('');
+
+      // Update prompt
+      document.getElementById('explanationPrompt').textContent =
+        `Given these life events and ${currentOutcome === 'success' ? 'their success' : 'their failure'}, which explanation makes the most sense to you?`;
+
+      // Reset state
+      selectedExplanationIndex = -1;
+      document.getElementById('continueBtn').disabled = true;
+      document.getElementById('continueBtn').textContent = 'Select an explanation to continue';
+    }
+
+    function selectOption(index) {
+      // Clear previous selection
+      document.querySelectorAll('.explanation-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+
+      // Select new option
+      document.getElementById('option' + index).classList.add('selected');
+      selectedExplanationIndex = index;
+
+      // Enable continue
+      document.getElementById('continueBtn').disabled = false;
+      document.getElementById('continueBtn').textContent = 'See what happens when we flip the outcome';
+    }
+
+    function selectExplanation() {
+      if (selectedExplanationIndex < 0) return;
+
+      // Get the selected explanation
+      const selectedExplanation = currentOutcome === 'success'
+        ? currentStory.successExplanations[selectedExplanationIndex]
+        : currentStory.failureExplanations[selectedExplanationIndex];
+
+      // Get a random opposite explanation
+      const oppositeExplanations = currentOutcome === 'success'
+        ? currentStory.failureExplanations
+        : currentStory.successExplanations;
+      const oppositeExplanation = oppositeExplanations[Math.floor(Math.random() * oppositeExplanations.length)];
+
+      // Update flip UI
+      document.getElementById('originalBadge').textContent = currentOutcome === 'success' ? 'Success' : 'Failure';
+      document.getElementById('originalBadge').className = 'badge ' + currentOutcome;
+      document.getElementById('originalExplanation').textContent = `"${selectedExplanation}"`;
+
+      document.getElementById('flippedBadge').textContent = currentOutcome === 'success' ? 'Failure' : 'Success';
+      document.getElementById('flippedBadge').className = 'badge ' + (currentOutcome === 'success' ? 'failure' : 'success');
+      document.getElementById('flippedExplanation').textContent = `"${oppositeExplanation}"`;
+
+      // Transition to phase 2
+      document.getElementById('phase1').classList.remove('active');
+      document.getElementById('phase1').classList.add('complete');
+      document.getElementById('phase2').classList.add('active');
+
+      document.getElementById('phase1Container').classList.add('hidden');
+      document.getElementById('phase2Container').classList.remove('hidden');
+    }
+
+    function showPhase3() {
+      document.getElementById('phase2').classList.remove('active');
+      document.getElementById('phase2').classList.add('complete');
+      document.getElementById('phase3').classList.add('active');
+
+      document.getElementById('phase2Container').classList.add('hidden');
+      document.getElementById('phase3Container').classList.remove('hidden');
+    }
+
+    function startOver() {
+      // Reset phases
+      document.getElementById('phase1').className = 'phase-dot active';
+      document.getElementById('phase2').className = 'phase-dot';
+      document.getElementById('phase3').className = 'phase-dot';
+
+      // Show phase 1
+      document.getElementById('phase1Container').classList.remove('hidden');
+      document.getElementById('phase2Container').classList.add('hidden');
+      document.getElementById('phase3Container').classList.add('hidden');
+
+      // Generate new story
+      generateStory();
+    }
+
+    // Initialize
+    generateStory();
+  </script>
+</body>
+</html>

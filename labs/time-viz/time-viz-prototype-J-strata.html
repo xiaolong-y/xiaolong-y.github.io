@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option J: Stratigraphic Core | Time Visualization Prototype</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --paper: #FFFCF0;
+      --ink: #2D2B28;
+      --muted: #6F6E69;
+      --line: #DAD8CE;
+      --panel: #F2F0E5;
+      --green: #66800B;
+      --orange: #DA702C;
+      --red: #AF3029;
+      --brown-light: #E6DFD4;
+      --brown-med: #C4B8A5;
+      --brown-dark: #8A7D6D;
+      --earth-deep: #5C5346;
+    }
+
+    body {
+      font: 12px/1.5 'IBM Plex Mono', ui-monospace, monospace;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 1.1em;
+      font-weight: 500;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9em;
+      margin-bottom: 32px;
+    }
+
+    .core-container {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .date-labels {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.8em;
+      color: var(--muted);
+      padding-top: 8px;
+      width: 70px;
+      text-align: right;
+    }
+
+    .date-label {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .date-label::after {
+      content: '';
+      width: 8px;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .core-sample {
+      width: 120px;
+      background: linear-gradient(to right,
+        rgba(0,0,0,0.08) 0%,
+        transparent 15%,
+        transparent 85%,
+        rgba(0,0,0,0.08) 100%);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow:
+        inset 2px 0 4px rgba(0,0,0,0.1),
+        inset -2px 0 4px rgba(0,0,0,0.1),
+        0 4px 16px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    /* Glass tube effect */
+    .core-sample::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 8px;
+      width: 20px;
+      height: 100%;
+      background: linear-gradient(to right,
+        rgba(255,255,255,0.3),
+        transparent);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .stratum {
+      width: 100%;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    /* Organic, slightly wavy edges using clip-path */
+    .stratum::before {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: inherit;
+      filter: brightness(0.85);
+      clip-path: polygon(
+        0% 50%, 5% 30%, 12% 60%, 20% 40%, 28% 70%,
+        35% 35%, 45% 55%, 55% 30%, 65% 60%, 75% 40%,
+        85% 65%, 92% 35%, 100% 50%, 100% 100%, 0% 100%
+      );
+    }
+
+    /* Spacious layers - thick, light earth tones */
+    .stratum.spacious-1 {
+      height: 55px;
+      background: linear-gradient(180deg,
+        #D4CDB8 0%,
+        #C9C1AA 50%,
+        #BEB59C 100%);
+    }
+
+    .stratum.spacious-2 {
+      height: 48px;
+      background: linear-gradient(180deg,
+        #E0D9C6 0%,
+        #D4CDB8 50%,
+        #C9C1AA 100%);
+    }
+
+    .stratum.spacious-3 {
+      height: 60px;
+      background: linear-gradient(180deg,
+        #CDC5B0 0%,
+        #C1B8A0 50%,
+        #B5AB90 100%);
+    }
+
+    /* Moderate layers - medium thickness */
+    .stratum.moderate-1 {
+      height: 28px;
+      background: linear-gradient(180deg,
+        #A89E88 0%,
+        #9D9378 50%,
+        #928868 100%);
+    }
+
+    .stratum.moderate-2 {
+      height: 32px;
+      background: linear-gradient(180deg,
+        #B0A690 0%,
+        #A59B80 50%,
+        #9A9070 100%);
+    }
+
+    /* Compressed layers - thin, dark */
+    .stratum.compressed-1 {
+      height: 14px;
+      background: linear-gradient(180deg,
+        #7A7060 0%,
+        #6E6452 50%,
+        #625A44 100%);
+    }
+
+    .stratum.compressed-2 {
+      height: 12px;
+      background: linear-gradient(180deg,
+        #857B6A 0%,
+        #79705E 50%,
+        #6D6452 100%);
+    }
+
+    .stratum.compressed-3 {
+      height: 10px;
+      background: linear-gradient(180deg,
+        #6E6555 0%,
+        #635A4A 50%,
+        #584F40 100%);
+    }
+
+    /* Deadline unconformities */
+    .unconformity {
+      height: 4px;
+      background: var(--red);
+      position: relative;
+      box-shadow:
+        0 0 8px rgba(175, 48, 41, 0.4),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .unconformity::before {
+      display: none;
+    }
+
+    .unconformity::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* Texture overlay for geological feel */
+    .stratum.textured::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.06;
+      pointer-events: none;
+    }
+
+    /* Annotations on right side */
+    .annotations {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.75em;
+      color: var(--muted);
+      padding-top: 8px;
+      width: 100px;
+    }
+
+    .annotation {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .annotation::before {
+      content: '';
+      width: 8px;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .annotation.deadline {
+      color: var(--red);
+      font-weight: 500;
+    }
+
+    /* Legend */
+    .legend {
+      margin-top: 32px;
+      padding: 16px 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.85em;
+    }
+
+    .legend-title {
+      font-weight: 500;
+      color: var(--ink);
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+      margin-bottom: 4px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .legend-swatch {
+      width: 40px;
+      height: 16px;
+      border-radius: 2px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .legend-swatch.thick {
+      height: 20px;
+      background: linear-gradient(180deg, #D4CDB8, #BEB59C);
+    }
+
+    .legend-swatch.medium {
+      height: 14px;
+      background: linear-gradient(180deg, #A89E88, #928868);
+    }
+
+    .legend-swatch.thin {
+      height: 8px;
+      background: linear-gradient(180deg, #7A7060, #625A44);
+    }
+
+    .legend-swatch.deadline {
+      height: 4px;
+      background: var(--red);
+      box-shadow: 0 0 4px rgba(175, 48, 41, 0.3);
+    }
+
+    .legend-text {
+      color: var(--muted);
+    }
+
+    /* Reading direction indicator */
+    .direction {
+      margin-top: 16px;
+      font-size: 0.8em;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .direction-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 1.2em;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Option J: Stratigraphic Core</h1>
+  <p class="subtitle">Time as geological sediment layers</p>
+
+  <div class="core-container">
+
+    <!-- Date labels on left -->
+    <div class="date-labels">
+      <div class="date-label" style="height: 55px;">Dec 16</div>
+      <div class="date-label" style="height: 28px;">Dec 9</div>
+      <div class="date-label" style="height: 14px;">Dec 2</div>
+      <div class="date-label" style="height: 4px;"></div>
+      <div class="date-label" style="height: 48px;">Nov 25</div>
+      <div class="date-label" style="height: 32px;">Nov 18</div>
+      <div class="date-label" style="height: 12px;">Nov 11</div>
+      <div class="date-label" style="height: 10px;">Nov 4</div>
+      <div class="date-label" style="height: 4px;"></div>
+      <div class="date-label" style="height: 60px;">Oct 28</div>
+      <div class="date-label" style="height: 28px;">Oct 21</div>
+      <div class="date-label" style="height: 14px;">Oct 14</div>
+      <div class="date-label" style="height: 4px;"></div>
+      <div class="date-label" style="height: 48px;">Oct 7</div>
+    </div>
+
+    <!-- Core sample -->
+    <div class="core-sample">
+      <!-- Recent time at top -->
+      <div class="stratum spacious-1 textured"></div>
+      <div class="stratum moderate-1 textured"></div>
+      <div class="stratum compressed-1 textured"></div>
+
+      <!-- Deadline unconformity -->
+      <div class="stratum unconformity"></div>
+
+      <div class="stratum spacious-2 textured"></div>
+      <div class="stratum moderate-2 textured"></div>
+      <div class="stratum compressed-2 textured"></div>
+      <div class="stratum compressed-3 textured"></div>
+
+      <!-- Deadline unconformity -->
+      <div class="stratum unconformity"></div>
+
+      <div class="stratum spacious-3 textured"></div>
+      <div class="stratum moderate-1 textured"></div>
+      <div class="stratum compressed-1 textured"></div>
+
+      <!-- Deadline unconformity -->
+      <div class="stratum unconformity"></div>
+
+      <!-- Older time at bottom -->
+      <div class="stratum spacious-2 textured"></div>
+    </div>
+
+    <!-- Annotations on right -->
+    <div class="annotations">
+      <div class="annotation" style="height: 55px;">Winter break</div>
+      <div class="annotation" style="height: 28px;">Grading</div>
+      <div class="annotation" style="height: 14px;">Finals prep</div>
+      <div class="annotation deadline" style="height: 4px;">Paper due</div>
+      <div class="annotation" style="height: 48px;">Thanksgiving</div>
+      <div class="annotation" style="height: 32px;">Writing</div>
+      <div class="annotation" style="height: 12px;">Crunch</div>
+      <div class="annotation" style="height: 10px;">Review</div>
+      <div class="annotation deadline" style="height: 4px;">Grant DDL</div>
+      <div class="annotation" style="height: 60px;">Open time</div>
+      <div class="annotation" style="height: 28px;">Teaching</div>
+      <div class="annotation" style="height: 14px;">Meetings</div>
+      <div class="annotation deadline" style="height: 4px;">Conf. DDL</div>
+      <div class="annotation" style="height: 48px;">Recovery</div>
+    </div>
+
+  </div>
+
+  <div class="direction">
+    <div class="direction-arrow">
+      <span>Now</span>
+      <span style="font-size: 1.5em;">|</span>
+      <span style="font-size: 1.5em;">v</span>
+      <span>Past</span>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-title">Stratum Legend</div>
+    <div class="legend-item">
+      <div class="legend-swatch thick"></div>
+      <span class="legend-text">Thick layer = spacious time, breathing room</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch medium"></div>
+      <span class="legend-text">Medium layer = moderate commitments</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch thin"></div>
+      <span class="legend-text">Thin layer = compressed, high-pressure period</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch deadline"></div>
+      <span class="legend-text">Unconformity = deadline event boundary</span>
+    </div>
+  </div>
+
+</body>
+</html>
