@@ -59,6 +59,17 @@
     color: #555;
   }
 
+  .post-hero {
+    margin: 0 0 1.8rem;
+  }
+
+  .post-hero img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 2px;
+  }
+
   @media (prefers-color-scheme: dark) {
     body {
       color: var(--fx-base-50);
@@ -111,6 +122,67 @@
   <li><a href="../quotes.html">Quotes</a></li>
   <li><a href="../labs/">Maker Space</a></li>
 </ul>
+
+<!--
+  ┌─ colophon ─────────────────────────────────────────────────────────────┐
+  │ image: assets/images/music_plot.png                                    │
+  │ model: GPT-5.5 (extended thinking)                                     │
+  │ prompt:                                                                │
+  │   A minimal watercolor on cream paper. Landscape orientation, 3:2.     │
+  │   The vast majority of the page — at least 80% — is untouched paper.   │
+  │   The image is mostly absence.                                         │
+  │                                                                        │
+  │   Scattered across the lower third of the page, irregularly spaced     │
+  │   and at varying distances, are roughly twelve to fifteen small marks. │
+  │   Each mark is just a single soft dot or a tiny smudge of sumi ink,    │
+  │   no larger than a grain of rice. They are not arranged on a line or   │
+  │   grid; they sit at different depths, some clustered, some isolated,   │
+  │   like seeds dropped on a table.                                       │
+  │                                                                        │
+  │   From each of these marks, a single faint column of color rises       │
+  │   vertically into the empty space above. The columns are translucent   │
+  │   watercolor wash — barely there — in muted, unsaturated tones: a      │
+  │   pale dusty rose, a soft ochre, a faded indigo, a cool grey-green,    │
+  │   a warm sand, a quiet lavender. Each column is a slightly different   │
+  │   color. The columns vary in height — some rise only a short way       │
+  │   before dissolving, others reach two-thirds up the page. They are     │
+  │   not uniform; they have the irregular edges of watercolor bleeding    │
+  │   into dry paper, wider at the base, thinning as they rise,            │
+  │   dispersing into nothing at the top.                                  │
+  │                                                                        │
+  │   Where two or three columns happen to cross or overlap in the middle  │
+  │   of the page, the colors gently mix into a third tone — never a       │
+  │   sharp intersection, always a soft wash where one breath has met      │
+  │   another.                                                             │
+  │                                                                        │
+  │   No horizon line. No ground. No sky. No figure. No moon. No           │
+  │   mountains. No network lines, no connecting threads, no dots in the   │
+  │   sky. The paper has no top and no bottom — only a field of quiet      │
+  │   vertical rising.                                                     │
+  │                                                                        │
+  │   The marks at the base are the only crisp element; everything above   │
+  │   is wash, vapor, suggestion. The composition is asymmetric — more     │
+  │   density on one side of the page, more emptiness on the other. One    │
+  │   column should be noticeably taller and warmer than the rest, near    │
+  │   but not at the center.                                               │
+  │                                                                        │
+  │   Medium: real watercolor and sumi ink on cold-press paper. Visible    │
+  │   paper grain. No digital effects, no glow, no smoothness, no          │
+  │   symmetry. The image should look like something a careful hand made   │
+  │   in twenty minutes, not something rendered.                           │
+  │                                                                        │
+  │   Mood: the silence in a room after a single note has been played      │
+  │   and is still travelling.                                             │
+  └────────────────────────────────────────────────────────────────────────┘
+-->
+
+<figure class="post-hero">
+  <img src="../assets/images/music_plot.png"
+       alt="A minimal watercolor: a dozen small sumi-ink dots along the lower third of cream paper, each releasing a single soft column of muted color rising into the silence above."
+       data-medium="watercolor and sumi ink on cold-press paper (generated)"
+       data-model="GPT-5.5 (extended thinking)"
+       data-prompt-mood="the silence in a room after a single note has been played and is still travelling">
+</figure>
 
 # My favorite things (music)
 
