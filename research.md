@@ -146,7 +146,7 @@
 
 # Research
 
-I was drawn to questions in political methodology and applied statistics, with a particular interest in causal inference, heterogeneous treatment effects, and empirical research designs for social science.
+I was drawn to questions in political methodology and applied statistics, with a particular interest in causal inference, heterogeneous treatment effects, and empirical research designs for social science. Please see my [Google Scholar page](https://scholar.google.com/citations?hl=en&user=aXdIxxEAAAAJ) for more.
 
 ## Notes (from long ago)
 

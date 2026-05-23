@@ -174,6 +174,6 @@ I am very interested in startups. Please feel free to reach out if you would lik
 
 ## Elsewhere
 
-[GitHub](https://github.com/xiaolong-y), [Twitter/X](https://x.com/yang_appstats), [Strava](https://www.strava.com/athletes/107005784), and [email](mailto:yang-xiaolong0406@g.ecc.u-tokyo.ac.jp).
+[Google Scholar](https://scholar.google.com/citations?hl=en&user=aXdIxxEAAAAJ), [GitHub](https://github.com/xiaolong-y), [Twitter/X](https://x.com/yang_appstats), [Strava](https://www.strava.com/athletes/107005784), and [email](mailto:yang-xiaolong0406@g.ecc.u-tokyo.ac.jp).
 
 <p class="quiet"><sub>Website inspired by <a href="https://patrickcollison.com/">Patrick Collison</a> and <a href="https://jtibshirani.github.io/">Julie Tibshirani</a>. </sub></p>
