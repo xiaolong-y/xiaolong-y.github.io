@@ -491,6 +491,13 @@
 </div>
 
 <div class="quote-card image-card">
+  <a href="https://icecube.wisc.edu/gallery/the-icecube-upgrade/#modulagallery-22914-22968">
+    <img src="assets/images/icecube-lab-aurora.jpg" alt="The IceCube Lab at the South Pole beneath green auroras and the Milky Way" width="6696" height="4435" loading="lazy" decoding="async">
+  </a>
+  <div class="image-caption">The IceCube Lab beneath auroras and the Milky Way.<br>Photo: Ilya Bodo, IceCube/NSF. <a href="https://icecube.wisc.edu/gallery/the-icecube-upgrade/#modulagallery-22914-22968">The IceCube Upgrade</a>.</div>
+</div>
+
+<div class="quote-card image-card">
   <img src="assets/images/m87-black-hole.jpg" alt="First image of a black hole - M87* captured by the Event Horizon Telescope">
   <div class="image-caption"><a href="https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-87/">M87*</a> — Seeing the unseeable</div>
 </div>
