@@ -1,11 +1,7 @@
-<!-- Minimal homepage inspired by patrickcollison.com: text-first, stable links, low ceremony. -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RQC3VEC49K"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-RQC3VEC49K');
-</script>
+---
+layout: default
+title: Beliefs
+---
 
 <style>
   :root {
@@ -32,10 +28,6 @@
     margin: 0 0 1rem;
     font-size: 1.7rem;
     font-weight: 600;
-  }
-
-  #xiaolong-yang {
-    transform: rotate(2deg);
   }
 
   h2 {
@@ -152,14 +144,6 @@
   }
 </style>
 
-# Xiaolong Yang
-
-I currently live in Cambridge, MA, and study at Harvard ([RSEA](https://rsea.fas.harvard.edu)). 
-
-I did research in political methodology, and then political economy of blockchain innovation. 
-
-I am very interested in startups. Please feel free to reach out if you would like to hang out. 
-
 <ul class="site-nav">
   <li><a href="/">Home</a></li>
   <li><a href="pdfs/Resume_XiaolongYang_27.pdf">Resume</a></li>
@@ -173,8 +157,7 @@ I am very interested in startups. Please feel free to reach out if you would lik
   <li><a href="labs/">Maker Space</a></li>
 </ul>
 
-## Elsewhere
+# Beliefs
 
-[Google Scholar](https://scholar.google.com/citations?hl=en&user=aXdIxxEAAAAJ), [GitHub](https://github.com/xiaolong-y), [Twitter/X](https://x.com/yang_appstats), [Strava](https://www.strava.com/athletes/107005784), and [email](mailto:xyang@fas.harvard.edu).
+1. You learn far more from successes, not failures.
 
-<p class="quiet"><sub>Website inspired by <a href="https://patrickcollison.com/">Patrick Collison</a> and <a href="https://jtibshirani.github.io/">Julie Tibshirani</a>. </sub></p>
