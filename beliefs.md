@@ -160,4 +160,4 @@ title: Beliefs
 # Beliefs
 
 1. You learn far more from successes, not failures.
-
+2. Do everything you can to learn. Learn from books, learn from people, learn with/from tools etc... Just learn, learn, learn!
