@@ -146,6 +146,16 @@
   .thesis a:focus-visible { outline: 2px solid var(--fx-blue); outline-offset: 4px; }
   @media (max-width: 540px) { .thesis-figures { grid-template-columns: 1fr; gap: 1rem; } }
   @media (prefers-color-scheme: dark) { .thesis { border-color: #575653; } }
+
+  .figure-dialog { box-sizing: border-box; padding: 15px; border: 1px solid #DAD8CE; width: min(1120px, 96vw); max-width: 96vw; max-height: 96dvh; background: var(--fx-paper); color: var(--fx-base-900); }
+  .figure-dialog::backdrop { background: rgb(0 0 0 / 75%); }
+  .figure-dialog-bar { display: flex; align-items: center; justify-content: space-between; gap: 15px; font-size: 13px; margin-bottom: 12px; }
+  .figure-dialog-bar p { margin: 0; }
+  .figure-dialog button { cursor: pointer; flex-shrink: 0; font: inherit; padding: 5px 11px; background: none; color: inherit; border: 1px solid #DAD8CE; }
+  .figure-dialog button:focus-visible { outline: 2px solid var(--fx-blue); outline-offset: 3px; }
+  .figure-dialog img { display: block; width: 100%; height: auto; max-height: calc(96dvh - 110px); margin: auto; object-fit: contain; }
+  @media (prefers-color-scheme: dark) { .figure-dialog { background: var(--fx-base-950); color: var(--fx-base-50); border-color: #575653; } .figure-dialog button { border-color: #575653; } }
+  @media print { .figure-dialog { display: none; } }
 </style>
 
 <ul class="site-nav">
@@ -190,3 +200,34 @@ I was drawn to questions in political methodology and applied statistics, with a
 ## Related Work
 
 My dated (since 2023) academic CV is available [here](pdfs/cv_xly_web.pdf).
+
+
+<dialog class="figure-dialog" aria-labelledby="figure-title">
+  <div class="figure-dialog-bar"><p id="figure-title"></p><button type="button" autofocus>Close <span aria-hidden="true">×</span></button></div>
+  <img alt="">
+</dialog>
+<script>
+(() => {
+  const dialog = document.querySelector('.figure-dialog');
+  if (!dialog || typeof dialog.showModal !== 'function') return;
+  const image = dialog.querySelector('img');
+  const title = dialog.querySelector('#figure-title');
+  document.querySelectorAll('.thesis-figures a').forEach(link => {
+    link.addEventListener('click', event => {
+      if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      const thumbnail = link.querySelector('img');
+      image.src = link.href;
+      image.alt = thumbnail.alt;
+      title.textContent = link.closest('figure').querySelector('figcaption strong').textContent;
+      dialog.showModal();
+    });
+  });
+  dialog.querySelector('button').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', event => {
+    if (event.target !== dialog) return;
+    const bounds = dialog.getBoundingClientRect();
+    if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) dialog.close();
+  });
+})();
+</script>
