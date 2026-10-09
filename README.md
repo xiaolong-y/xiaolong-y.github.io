@@ -165,7 +165,7 @@ I am very interested in startups. Please feel free to reach out if you would lik
   <li><a href="pdfs/Resume_XiaolongYang_27.pdf">Resume</a></li>
   <li><a href="research.html">Research</a></li>
   <li><a href="software.html">Software</a></li>
-  <li><a href="teaching.html">Teaching</a></li>
+  <li><a href="teaching.html">Outreach</a></li>
   <li><a href="bookshelf.html">Bookshelf</a></li>
   <li><a href="blog/">Blog</a></li>
   <li><a href="quotes.html">Quotes</a></li>

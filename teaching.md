@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Teaching
+title: Outreach
 ---
 
 <style>
@@ -71,7 +71,7 @@ title: Teaching
     <li><a href="pdfs/Resume_XiaolongYang_27.pdf">Resume</a></li>
     <li><a href="research.html">Research</a></li>
     <li><a href="software.html">Software</a></li>
-    <li><a href="teaching.html" aria-current="page">Teaching</a></li>
+    <li><a href="teaching.html" aria-current="page">Outreach</a></li>
     <li><a href="bookshelf.html">Bookshelf</a></li>
     <li><a href="blog/">Blog</a></li>
     <li><a href="quotes.html">Quotes</a></li>
@@ -81,8 +81,8 @@ title: Teaching
 </nav>
 <main>
 <header>
-  <h1>Teaching</h1>
-  <p class="intro">From running R code to understanding, reusing, and explaining it.</p>
+  <h1>Outreach</h1>
+  <p class="intro">Learning statistical programming deeply through teaching.</p>
   <p class="course"><strong>Quantitative Social Science</strong> · University of Tokyo · Summer 2022<br>Course assistant for Kosuke Imai. I taught tidyverse lectures for social science students.</p>
   <p class="course-links"><a href="https://kosukeimai.github.io/qss-todai/">Course</a><a href="https://github.com/xiaolong-y/qss-inst-tidyverse">Slides &amp; source code</a></p>
 </header>
