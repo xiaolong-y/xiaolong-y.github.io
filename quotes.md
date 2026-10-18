@@ -452,6 +452,13 @@
 <div class="quotes-container" id="quotesContainer">
 <div class="quote-card">
   <div class="quote-text">
+    "The pursuit of excellence does not need justification."
+  </div>
+  <div class="quote-author">Mitchell Hashimoto, <a href="https://x.com/mitchellh/status/2074225453217505494">original post on X</a></div>
+</div>
+
+<div class="quote-card">
+  <div class="quote-text">
     "Be relentlessly resourceful. Don't be hapless."
   </div>
   <div class="quote-author">Paul Graham</div>
