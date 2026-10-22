@@ -530,7 +530,14 @@ title: Bookshelf
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0);
-    display: flex;
+    display: none;
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    border: 0;
+    color: var(--text-primary);
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -541,7 +548,8 @@ title: Bookshelf
     perspective: 2000px;
   }
 
-  .book-modal-overlay.active {
+  .book-modal-overlay[open] {
+    display: flex;
     opacity: 1;
     visibility: visible;
     background: rgba(0, 0, 0, 0.85);
@@ -565,7 +573,7 @@ title: Bookshelf
       0 20px 60px rgba(0,0,0,0.4);
   }
 
-  .book-modal-overlay.active .book-modal {
+  .book-modal-overlay[open] .book-modal {
     transform: rotateY(0deg) scale(1);
   }
 
@@ -867,11 +875,13 @@ title: Bookshelf
     .overview-toggle span { display: none; }
   }
 
+  .book-grid:focus-within .book-column-inner { animation: none !important; }
+
   @media (prefers-reduced-motion: reduce) {
     .book-column-inner { animation: none !important; }
     .book-card:hover { animation: none; }
     .book-modal { transition: opacity 0.2s; transform: none !important; }
-    .book-modal-overlay.active .book-modal { transform: none !important; }
+    .book-modal-overlay[open] .book-modal { transform: none !important; }
   }
 
   .loading {
@@ -936,7 +946,7 @@ title: Bookshelf
   <div class="loading"><div class="loading-spinner"></div></div>
 </div>
 
-<div class="book-modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+<dialog class="book-modal-overlay" aria-labelledby="modal-title">
   <div class="book-modal">
     <button class="modal-close" aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -961,7 +971,7 @@ title: Bookshelf
       </div>
     </div>
   </div>
-</div>
+</dialog>
 
 <div class="empty-state" style="display: none;" id="empty-state">
   <p>No books found in this category.</p>

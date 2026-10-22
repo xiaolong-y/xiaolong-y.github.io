@@ -1,22 +1,18 @@
 ---
-layout: default
-title: Outreach
+layout: "page"
+title: "Outreach"
+description: "Teaching statistical programming through tidyverse lectures, worked examples, and Quantitative Social Science."
+analytics: true
+body_class: "wide-page"
 ---
+
 
 <style>
   :root { color-scheme: light dark; --paper: #FFFCF0; --ink: #2D2B28; --muted: #6F6E69; --line: #DAD8CE; --link: #205EA6; }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
-  .teaching-page { max-width: 1180px; margin: 44px auto; padding: 0 200px 0 24px; }
   a { color: var(--link); text-underline-offset: 3px; }
   a:hover { text-decoration-thickness: 2px; }
   a:focus-visible, button:focus-visible { outline: 2px solid var(--link); outline-offset: 5px; }
-  .site-nav { position: fixed; top: 46px; right: max(24px, calc((100vw - 1180px) / 2 + 24px)); width: 140px; }
-  .site-nav ul { list-style: none; padding: 0; margin: 0; }
-  .site-nav li { margin: 3px 0; }
-  .site-nav a { text-decoration: none; }
-  .site-nav a:hover { text-decoration: underline; }
-  .site-nav [aria-current="page"] { color: var(--ink); font-weight: 600; }
   h1 { font-size: 27px; font-weight: 600; letter-spacing: -.5px; margin: 0 0 7px; }
   .intro { max-width: 690px; margin: 0 0 17px; font-size: 17px; line-height: 1.5; }
   .course { font-size: 13px; color: var(--muted); margin: 0; }
@@ -48,38 +44,16 @@ title: Outreach
   .dialog-bar button { cursor: pointer; font: inherit; padding: 5px 11px; background: none; color: var(--ink); border: 1px solid var(--line); }
   .slide-dialog img { display: block; width: auto; max-width: 100%; max-height: calc(96dvh - 90px); margin: auto; object-fit: contain; }
   @media (prefers-color-scheme: dark) { :root { --paper: #1C1B18; --ink: #E6E4D9; --muted: #B7B5AC; --line: #575653; --link: #8EBCEB; } }
-  @media (max-width: 900px) {
-    .teaching-page { padding: 0 22px; margin: 25px auto; max-width: 800px; }
-    .site-nav { position: static; width: auto; margin-bottom: 25px; }
-    .site-nav ul { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; }
-    .site-nav li { margin: 0; }
-  }
   @media (max-width: 600px) {
-    .teaching-page { padding: 0 18px; }
     .lessons { grid-template-columns: 1fr; gap: 26px; }
     .intro { font-size: 16px; }
     .section-line { font-size: 11px; }
     .practice { grid-template-columns: 1fr; gap: 6px; }
   }
-  @media print { .site-nav, .slide-dialog { display: none; } .teaching-page { padding: 0; margin: 0; max-width: none; } .lesson { break-inside: avoid; } }
+  @media print { .slide-dialog { display: none; } .lesson { break-inside: avoid; } }
 </style>
 
-<div class="teaching-page">
-<nav class="site-nav" aria-label="Main navigation">
-  <ul>
-    <li><a href="/">Home</a></li>
-    <li><a href="pdfs/Resume_XiaolongYang_27.pdf">Resume</a></li>
-    <li><a href="research.html">Research</a></li>
-    <li><a href="software.html">Software</a></li>
-    <li><a href="teaching.html" aria-current="page">Outreach</a></li>
-    <li><a href="bookshelf.html">Bookshelf</a></li>
-    <li><a href="blog/">Blog</a></li>
-    <li><a href="quotes.html">Quotes</a></li>
-    <li><a href="beliefs.html">Beliefs</a></li>
-    <li><a href="labs/">Maker Space</a></li>
-  </ul>
-</nav>
-<main>
+
 <header>
   <h1>Outreach</h1>
   <p class="intro">Learning statistical programming deeply through teaching.</p>
@@ -174,8 +148,7 @@ title: Outreach
   <p>The lectures led into in-class QSS assignments: Enigma decoding, women in China, and the file-drawer problem. The sequence was concrete example → reusable idea → application.</p>
 </section>
 <p class="credits">Selected from my Probability and Uncertainty decks in our <a href="https://github.com/xiaolong-y/qss-inst-tidyverse">teaching team’s open materials</a>. Examples draw on QSS, <a href="https://r4ds.had.co.nz/">R for Data Science</a>, and <a href="https://adv-r.hadley.nz/">Advanced R</a>.<br>Grateful to <a href="https://imai.fas.harvard.edu/">Kosuke Imai</a> and <a href="https://connorjerzak.com/">Connor Jerzak</a> for opportunities to learn and teach.</p>
-</main>
-</div>
+
 
 <dialog class="slide-dialog" aria-labelledby="slide-title">
   <div class="dialog-bar"><p id="slide-title"></p><button type="button" autofocus>Close <span aria-hidden="true">×</span></button></div>

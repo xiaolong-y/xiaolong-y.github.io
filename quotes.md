@@ -1,13 +1,10 @@
 ---
+layout: default
+title: Inspirations
+description: "Quotes, images, and ideas that have shaped how I think."
+navigation: true
+analytics: true
 ---
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RQC3VEC49K"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-RQC3VEC49K');
-</script>
 
 <style>
   /* Font Imports */
@@ -23,7 +20,7 @@
     --fx-base-300: #CECDC3;
     --fx-base-400: #B7B5AC;
     --fx-base-500: #9F9D94;
-    --fx-base-600: #878681;
+    --fx-base-600: #6F6E69;
     --fx-base-700: #6F6E69;
     --fx-base-800: #575653;
     --fx-base-850: #403E3C;
@@ -67,7 +64,7 @@
       --fx-yellow: #D0A215;
       --fx-green: #879A39;
       --fx-cyan: #3AA99F;
-      --fx-blue: #4385BE;
+      --fx-blue: #8EBCEB;
       --fx-purple: #8B7EC8;
       --fx-magenta: #CE5D97;
       --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.2);
@@ -124,60 +121,6 @@
     margin: 0 auto;
     padding: var(--sp-4) var(--sp-3);
     min-height: 100vh;
-  }
-
-  /* Navigation */
-  .nav-header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    padding: var(--sp-2) 0;
-    margin-bottom: var(--sp-4);
-    background: linear-gradient(to bottom, var(--fx-paper) 60%, transparent);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .nav-header {
-      background: linear-gradient(to bottom, var(--fx-base-950) 60%, transparent);
-    }
-  }
-
-  .nav-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--sp-1);
-    color: var(--fx-base-700);
-    text-decoration: none;
-    font-size: 0.9em;
-    font-weight: 300;
-    padding: var(--sp-1) var(--sp-2);
-    border-radius: 4px;
-    transition: color var(--duration-medium) var(--ease-gentle),
-                background-color var(--duration-medium) var(--ease-gentle);
-  }
-
-  .nav-link:hover {
-    color: var(--fx-blue);
-    background-color: var(--fx-base-50);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .nav-link {
-      color: var(--fx-base-400);
-    }
-    .nav-link:hover {
-      color: var(--fx-cyan);
-      background-color: var(--fx-base-900);
-    }
-  }
-
-  .nav-arrow {
-    font-size: 1.1em;
-    transition: transform var(--duration-medium) var(--ease-gentle);
-  }
-
-  .nav-link:hover .nav-arrow {
-    transform: translateX(-3px);
   }
 
   /* Page title */
@@ -408,18 +351,10 @@
     .quote-card:hover {
       transform: none !important;
     }
-
-    .nav-link:hover .nav-arrow {
-      transform: none;
-    }
   }
 
   /* Print styles */
   @media print {
-    .nav-header {
-      display: none;
-    }
-
     .quotes-container {
       column-count: 2;
     }
@@ -432,16 +367,14 @@
     }
   }
 
+  .video-preview { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 24px; color: #F2F0E5; background: #1C1B18; font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; text-align: center; text-underline-offset: 4px; }
+  .video-preview:hover { color: #8EBCEB; }
+  .video-preview:focus-visible { outline: 3px solid #8EBCEB; outline-offset: -5px; }
 </style>
 
-<div class="quotes-page">
+<main class="quotes-page" id="main-content">
 
-<nav class="nav-header">
-  <a href="/" class="nav-link">
-    <span class="nav-arrow">&larr;</span>
-    <span>Home</span>
-  </a>
-</nav>
+{% include navigation.html inline=true %}
 
 <h1 class="page-title">Inspirations</h1>
 
@@ -499,26 +432,26 @@
 
 <div class="quote-card image-card">
   <a href="https://icecube.wisc.edu/gallery/the-icecube-upgrade/#modulagallery-22914-22968">
-    <img src="assets/images/icecube-lab-aurora.jpg" alt="The IceCube Lab at the South Pole beneath green auroras and the Milky Way" width="6696" height="4435" loading="lazy" decoding="async">
+    <img src="assets/images/icecube-lab-aurora-1280.webp" srcset="assets/images/icecube-lab-aurora-640.webp 640w, assets/images/icecube-lab-aurora-1280.webp 1280w" sizes="(max-width: 599px) calc(100vw - 80px), (max-width: 999px) calc(50vw - 56px), (max-width: 1400px) calc((100vw - 144px) / 3), 419px" alt="The IceCube Lab at the South Pole beneath green auroras and the Milky Way" width="6696" height="4435" loading="lazy" decoding="async">
   </a>
   <div class="image-caption">The IceCube Lab beneath auroras and the Milky Way.<br>Photo: Ilya Bodo, IceCube/NSF. <a href="https://icecube.wisc.edu/gallery/the-icecube-upgrade/#modulagallery-22914-22968">The IceCube Upgrade</a>.</div>
 </div>
 
 <div class="quote-card image-card">
-  <img src="assets/images/m87-black-hole.jpg" alt="First image of a black hole - M87* captured by the Event Horizon Telescope">
+  <img src="assets/images/m87-black-hole.jpg" alt="First image of a black hole - M87* captured by the Event Horizon Telescope" width="1024" height="1024" loading="lazy" decoding="async">
   <div class="image-caption"><a href="https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-87/">M87*</a> — Seeing the unseeable</div>
 </div>
 
 <div class="quote-card video-card">
   <div class="video-wrapper">
-    <iframe src="https://www.youtube.com/embed/bvim4rsNHkQ" title="YouTube video" allowfullscreen></iframe>
+    <a class="video-preview" href="https://www.youtube.com/watch?v=bvim4rsNHkQ" data-video-id="bvim4rsNHkQ" data-video-title="Painful but good failures">Play video: Painful but good failures <span aria-hidden="true">▶</span></a>
   </div>
   <div class="video-caption">Painful but good failures.</div>
 </div>
 
 <div class="quote-card video-card">
   <div class="video-wrapper">
-    <iframe src="https://www.youtube.com/embed/vGUNqq3jVLg?start=53" title="YouTube video" allowfullscreen></iframe>
+    <a class="video-preview" href="https://www.youtube.com/watch?v=vGUNqq3jVLg&amp;t=53s" data-video-id="vGUNqq3jVLg" data-video-start="53" data-video-title="Speak with buts and therefores">Play video: Speak with buts and therefores <span aria-hidden="true">▶</span></a>
   </div>
   <div class="video-caption">Speak with buts and therefores.</div>
 </div>
@@ -616,7 +549,7 @@
 
 </div>
 
-</div>
+</main>
 
 <script>
 (function() {
@@ -699,3 +632,5 @@
   updateParallax();
 })();
 </script>
+
+<script defer src="assets/js/video-embeds.js"></script>

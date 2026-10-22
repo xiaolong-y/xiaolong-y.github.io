@@ -1,0 +1,54 @@
+:root {
+  color-scheme: light dark;
+  --fx-paper: #FFFCF0;
+  --fx-base-50: #F2F0E5;
+  --fx-base-900: #2D2B28;
+  --fx-base-950: #1C1B18;
+  --fx-blue: #205EA6;
+  --fx-cyan: #24837B;
+  --fx-orange: #BC5215;
+  --site-muted: #6F6E69;
+}
+* { box-sizing: border-box; }
+body {
+  max-width: 900px;
+  margin: 48px auto;
+  padding: 0 18px;
+  color: var(--fx-base-900);
+  background: var(--fx-paper);
+  font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+body.wide-page { max-width: 1180px; }
+.site-shell { display: grid; grid-template-columns: minmax(0, 1fr) 155px; gap: 40px; align-items: start; }
+.site-shell > .site-nav { grid-column: 2; grid-row: 1; position: sticky; top: 32px; }
+.site-shell > main { grid-column: 1; grid-row: 1; min-width: 0; }
+h1 { margin: 0 0 1rem; font-size: 1.7rem; font-weight: 600; }
+h2 { margin: 1.8rem 0 0.5rem; font-size: 1rem; font-weight: 600; }
+p, ul { margin: 0.65rem 0; }
+ul { padding-left: 1.25rem; }
+a { color: var(--fx-blue); text-underline-offset: 3px; }
+a:hover { color: var(--fx-cyan); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--fx-blue); outline-offset: 4px; }
+code { background: var(--fx-base-50); color: var(--fx-orange); padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+img, iframe { max-width: 100%; }
+mjx-container[display="true"] { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+.quiet { color: var(--site-muted); }
+.post-hero { margin: 0 0 1.8rem; }
+.post-hero img { display: block; width: 100%; height: auto; border-radius: 2px; }
+body.home-page h1 { transform: rotate(2deg); }
+.skip-link { position: fixed; left: 18px; top: -100px; z-index: 2000; padding: 10px 16px; background: var(--fx-paper); color: var(--fx-blue); }
+.skip-link:focus { top: 10px; }
+@media (prefers-color-scheme: dark) {
+  :root { --fx-paper: #1C1B18; --fx-base-50: #2D2B28; --fx-base-900: #F2F0E5; --fx-blue: #8EBCEB; --fx-cyan: #3AA99F; --fx-orange: #DA702C; --site-muted: #B7B5AC; }
+}
+@media (max-width: 760px) {
+  body { margin: 28px auto; }
+  .site-shell { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .site-shell > .site-nav { grid-column: 1; grid-row: 1; position: static; }
+  .site-shell > main { grid-column: 1; grid-row: 2; }
+}
+@media print {
+  body { max-width: none; margin: 0; padding: 0; }
+  .site-shell { display: block; }
+  .skip-link { display: none; }
+}

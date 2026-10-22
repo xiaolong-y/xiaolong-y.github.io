@@ -15,10 +15,14 @@ xiaolong-y.github.io/
 ├── quotes.md                  # Quotes and inspirations
 ├── thought-snippets.html      # Redirect to Maker Space thought snippets
 ├── cognitive-biases.html      # Public index for cognitive bias visualizations
-├── _config.yml                # Jekyll and SEO configuration
+├── _config.yml                # Jekyll, SEO, and publication exclusions
+├── _data/navigation.yml       # Main navigation labels and destinations
+├── _includes/                 # Shared navigation and analytics
+├── _layouts/page.html         # Main-page layout and content landmark
 ├── CNAME                      # Custom domain configuration
 ├── assets/
 │   ├── data/books.json        # Book data
+│   ├── css/                   # Shared page and navigation styles
 │   ├── images/                # Site images
 │   └── js/                    # Vanilla JS for interactive pages
 ├── docs/
@@ -44,6 +48,12 @@ xiaolong-y.github.io/
 
 ## Public Pages
 
+Core pages use `layout: page` with a unique `title` and `description` in YAML front matter. The shared layout provides semantic navigation, the content landmark, a keyboard skip link, and a reserved desktop navigation column. Use `body_class: wide-page` for pages with larger grids. Quotes retains its own layout and includes the shared navigation horizontally.
+
+Edit `_data/navigation.yml` to update navigation everywhere. Shared styles live in `assets/css/site.css` and `assets/css/navigation.css`; page-specific presentation stays with its page. Set `analytics: true` on public pages to use the shared, configured Google Analytics tag.
+
+Public image derivatives use responsive WebP sizes while preserving original assets. The music hero reserves its aspect ratio and loads eagerly. Quotes images load lazily, and video links create embedded players only when clicked.
+
 The homepage intentionally follows a Patrick Collison-style model: small text surface, sparse links, no hero animation, and fast static rendering. It is a dense directory rather than a landing page with full sections.
 
 Research, software, and teaching content lives on dedicated atomic pages:
@@ -68,9 +78,9 @@ Use `labs/index.html` as the entry point for Maker Space experiments. When addin
 
 ## Bookshelf
 
-The public `bookshelf.md` is a plaintext reading list generated from `assets/data/books.json`. The previous interactive bookshelf is preserved at `labs/bookshelf.html`.
+The public `bookshelf.md` is a curated plaintext reading list, maintained separately from `assets/data/books.json`. The previous interactive bookshelf at `labs/bookshelf.html` reads that JSON directly. Differences between these lists may be intentional.
 
-Use `./add-book.sh` for interactive book entry, or edit `assets/data/books.json` directly.
+Use `./add-book.sh` for interactive book entry to the experimental bookshelf, or edit `assets/data/books.json` directly. This script commits and pushes JSON changes; it does not update the public reading list. Edit `bookshelf.md` when a book should also appear there.
 
 Required book fields:
 
@@ -102,6 +112,18 @@ Before pushing site changes, run:
 python3 -m unittest tests/test_site_harness.py -v
 python3 scripts/site_harness.py
 ```
+
+For a complete local build, use a current Ruby (validated with Ruby 3.4), install Bundler and the locked dependencies, then build:
+
+```bash
+gem install bundler -v 2.6.9
+bundle install
+bundle exec jekyll build
+```
+
+On systems that install gems under your home directory, add the directory printed by `ruby -rrubygems -e 'puts Gem.user_dir + "/bin"'` to your shell's `PATH`. The bundle pins GitHub Pages 232 / Jekyll 3.10 to match the published site's generator.
+
+Development documentation, scripts, and tests are excluded from publication in `_config.yml`. Compatibility redirects retain their URLs but have `sitemap: false` so they do not compete with their destinations in the sitemap.
 
 The harness checks:
 

@@ -105,11 +105,12 @@ def classify_assets(paths: Iterable[Path]) -> dict[str, object]:
 
 def extract_local_links(text: str) -> set[str]:
     """Extract non-external href/src and Markdown links from a text blob."""
+    text = re.sub(r"\{\{\s*(['\"])(.*?)\1\s*\|\s*relative_url\s*\}\}", r"\2", text)
     links: set[str] = set()
     for raw_link in HTML_LINK_RE.findall(text) + MARKDOWN_LINK_RE.findall(text):
         link = raw_link.strip().strip("<>")
         parsed = urlparse(link)
-        if parsed.scheme in {"http", "https", "mailto", "tel", "data", "javascript"}:
+        if parsed.scheme or parsed.netloc or "{{" in link or "{%" in link:
             continue
         if link.startswith("#") or not link:
             continue
@@ -134,8 +135,11 @@ def _candidate_paths(root: Path, source: Path, link: str) -> list[Path]:
     candidates = [direct]
     if direct.suffix == ".html":
         candidates.append(direct.with_suffix(".md"))
-    if direct.suffix == "":
-        candidates.extend([direct.with_suffix(".html"), direct / "index.html"])
+    if direct.suffix == "" or direct.is_dir() or link.endswith("/"):
+        candidates.extend([
+            direct.with_suffix(".html"), direct.with_suffix(".md"),
+            direct / "index.html", direct / "index.md", direct / "README.md",
+        ])
     return candidates
 
 
@@ -163,17 +167,7 @@ def _configured_google_analytics_id(root: Path) -> str | None:
 
 def _link_exists(root: Path, source: Path, link: str) -> bool:
     candidates = _candidate_paths(root, source, link)
-    if any(candidate.exists() for candidate in candidates):
-        return True
-
-    # Moved root pages are allowed when their root redirect points at an existing lab file.
-    if not link.startswith("/") and "/" not in link:
-        root_candidate = root / link
-        target = _find_redirect_target(root_candidate)
-        if target:
-            return any(candidate.exists() for candidate in _candidate_paths(root, root_candidate, target))
-
-    return False
+    return any(candidate.is_file() for candidate in candidates)
 
 
 def validate_site(root: Path) -> dict[str, object]:
@@ -192,7 +186,15 @@ def validate_site(root: Path) -> dict[str, object]:
     homepage = root / "README.md"
     if analytics_id and homepage.exists():
         homepage_text = homepage.read_text(encoding="utf-8", errors="ignore")
-        if analytics_id not in homepage_text:
+        shared_analytics = root / "_includes" / "analytics.html"
+        default_layout = root / "_layouts" / "default.html"
+        uses_shared_analytics = (
+            re.search(r"^analytics:\s*true\s*$", homepage_text, re.MULTILINE)
+            and shared_analytics.is_file() and default_layout.is_file()
+            and "site.google_analytics" in shared_analytics.read_text(encoding="utf-8")
+            and "include analytics.html" in default_layout.read_text(encoding="utf-8")
+        )
+        if analytics_id not in homepage_text and not uses_shared_analytics:
             errors.append(f"README.md is missing configured Google Analytics id: {analytics_id}")
 
     for path in files:
@@ -205,7 +207,7 @@ def validate_site(root: Path) -> dict[str, object]:
                 errors.append(f"Broken local link in {rel_path}: {link}")
 
         target = _find_redirect_target(path)
-        if target and not any(candidate.exists() for candidate in _candidate_paths(root, path, target)):
+        if target and not any(candidate.is_file() for candidate in _candidate_paths(root, path, target)):
             errors.append(f"Broken redirect in {rel_path}: {target}")
 
     build_status = _jekyll_build_status(root)

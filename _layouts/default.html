@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="{{ '/assets/images/favicon.svg' | relative_url }}">
     {% seo %}
+    {% if page.layout == 'page' or page.navigation %}
+    <link rel="stylesheet" href="{{ '/assets/css/navigation.css' | relative_url }}">
+    {% endif %}
+    {% if page.layout == 'page' %}
+    <link rel="stylesheet" href="{{ '/assets/css/site.css' | relative_url }}">
+    {% endif %}
+    {% if page.analytics %}{% include analytics.html %}{% endif %}
   </head>
-  <body>
+  <body{% if page.body_class %} class="{{ page.body_class | escape }}"{% endif %}>
     {{ content }}
   </body>
 </html>

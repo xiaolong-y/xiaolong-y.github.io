@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from scripts import site_harness
 
@@ -18,6 +19,60 @@ def write_required_blog_files(root: Path) -> None:
 
 
 class SiteHarnessTests(unittest.TestCase):
+    def setUp(self):
+        build = patch.object(site_harness, "_jekyll_build_status", return_value={
+            "status": "skipped", "message": "Build omitted for source-validation fixtures.",
+        })
+        build.start()
+        self.addCleanup(build.stop)
+
+    def test_nested_link_does_not_resolve_via_unrelated_root_redirect(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "labs").mkdir()
+            source = root / "labs" / "index.html"
+            source.write_text('<a href="old.html">Old</a>')
+            (root / "labs" / "moved.html").write_text("target")
+            (root / "old.html").write_text('<meta http-equiv="refresh" content="0; url=labs/moved.html">')
+            self.assertFalse(site_harness._link_exists(root, source, "old.html"))
+            self.assertTrue(site_harness._link_exists(root, source, "../old.html"))
+
+    def test_directory_link_requires_an_index_document(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "blog").mkdir()
+            source = root / "README.md"
+            self.assertFalse(site_harness._link_exists(root, source, "blog/"))
+            (root / "blog" / "index.md").write_text("# Blog")
+            self.assertTrue(site_harness._link_exists(root, source, "blog/"))
+
+    def test_homepage_links_work_in_a_repository_with_a_dotted_name(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "example.github.io"
+            root.mkdir()
+            (root / "README.md").write_text("# Home")
+            source = root / "labs" / "page.html"
+            self.assertTrue(site_harness._link_exists(root, source, "/"))
+            self.assertTrue(site_harness._link_exists(root, source, "../"))
+
+    def test_liquid_static_paths_are_checked_and_dynamic_paths_are_skipped(self):
+        text = '''<link href="{{ '/assets/css/site.css' | relative_url }}">
+        <a href="{{ item.url | relative_url }}">Page</a>
+        <script src="//example.com/script.js"></script>'''
+        self.assertEqual(site_harness.extract_local_links(text), {"/assets/css/site.css"})
+
+    def test_shared_homepage_analytics_are_accepted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "_config.yml").write_text("google_analytics: G-TEST123")
+            (root / "README.md").write_text("---\nanalytics: true\n---\n# Home")
+            (root / "_includes").mkdir()
+            (root / "_includes" / "analytics.html").write_text("{{ site.google_analytics }}")
+            (root / "_layouts").mkdir()
+            (root / "_layouts" / "default.html").write_text("{% include analytics.html %}")
+            report = site_harness.validate_site(root)
+            self.assertNotIn("README.md is missing configured Google Analytics id: G-TEST123", report["errors"])
+
     def test_iter_site_files_excludes_generated_and_git_directories(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp).resolve()

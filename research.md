@@ -1,136 +1,11 @@
-<!-- Research page: keep research material here rather than on the homepage. -->
+---
+layout: "page"
+title: "Research"
+description: "Political methodology, applied statistics, and research on the political economy of blockchain innovation."
+analytics: true
+---
+
 <style>
-  :root {
-    --fx-paper: #FFFCF0;
-    --fx-base-50: #F2F0E5;
-    --fx-base-900: #2D2B28;
-    --fx-base-950: #1C1B18;
-    --fx-blue: #205EA6;
-    --fx-cyan: #24837B;
-    --fx-orange: #BC5215;
-  }
-
-  body {
-    box-sizing: border-box;
-    max-width: 900px;
-    margin: 48px auto;
-    padding: 0 210px 0 18px;
-    color: var(--fx-base-900);
-    background: var(--fx-paper);
-    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  }
-
-  h1 {
-    margin: 0 0 1rem;
-    font-size: 1.7rem;
-  }
-
-  h2 {
-    margin: 1.8rem 0 0.5rem;
-    font-size: 1rem;
-  }
-
-  a {
-    color: var(--fx-blue);
-    transition: color 0.2s ease;
-  }
-
-  a:hover {
-    color: var(--fx-cyan);
-  }
-
-  code {
-    background-color: var(--fx-base-50);
-    color: var(--fx-orange);
-    padding: 0.15em 0.4em;
-    border-radius: 3px;
-    font-size: 0.9em;
-  }
-
-  .quiet {
-    color: #555;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    body {
-      color: var(--fx-base-50);
-      background: var(--fx-base-950);
-    }
-
-    :root {
-      --fx-blue: #4385BE;
-      --fx-cyan: #3AA99F;
-      --fx-orange: #DA702C;
-    }
-
-    a {
-      color: var(--fx-blue);
-    }
-
-    code {
-      background-color: #2D2B28;
-      color: var(--fx-orange);
-    }
-
-    .quiet {
-      color: #aaa;
-    }
-  }
-
-  .site-nav {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-    position: fixed;
-    top: 48px;
-    right: max(18px, calc(50vw - 450px));
-    width: 155px;
-    z-index: 1000;
-    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  }
-
-  .site-nav li {
-    display: block;
-    margin: 0.18rem 0;
-  }
-
-  .site-nav li:not(:last-child)::after {
-    content: "";
-  }
-
-  .site-nav a {
-    color: var(--fx-blue, #205EA6);
-  }
-
-  .site-nav a:hover {
-    color: var(--fx-cyan, #24837B);
-  }
-
-  @media (max-width: 760px) {
-    .site-nav {
-      position: static;
-      width: auto;
-      margin: 1.25rem 0 2rem;
-    }
-
-    .site-nav li {
-      display: inline;
-      margin: 0;
-    }
-
-    .site-nav li:not(:last-child)::after {
-      content: " / ";
-      color: #777;
-    }
-  }
-
-  @media (max-width: 760px) {
-    body {
-      max-width: 720px;
-      padding: 0 18px;
-    }
-  }
-
   .thesis { margin: 2rem 0; padding: 1.1rem 0 1.3rem; border-top: 1px solid #DAD8CE; border-bottom: 1px solid #DAD8CE; }
   .thesis h2 { margin: 0 0 0.6rem; font-size: 0.8rem; font-weight: 400; }
   .thesis h3 { margin: 0; font-size: 1.08rem; font-weight: 600; line-height: 1.45; }
@@ -154,22 +29,12 @@
   .figure-dialog button { cursor: pointer; flex-shrink: 0; font: inherit; padding: 5px 11px; background: none; color: inherit; border: 1px solid #DAD8CE; }
   .figure-dialog button:focus-visible { outline: 2px solid var(--fx-blue); outline-offset: 3px; }
   .figure-dialog img { display: block; width: 100%; height: auto; max-height: calc(96dvh - 110px); margin: auto; object-fit: contain; }
-  @media (prefers-color-scheme: dark) { .figure-dialog { background: var(--fx-base-950); color: var(--fx-base-50); border-color: #575653; } .figure-dialog button { border-color: #575653; } }
+  @media (prefers-color-scheme: dark) { .figure-dialog { background: var(--fx-base-950); color: var(--fx-base-900); border-color: #575653; } .figure-dialog button { border-color: #575653; } }
   @media print { .figure-dialog { display: none; } }
+
 </style>
 
-<ul class="site-nav">
-  <li><a href="/">Home</a></li>
-  <li><a href="pdfs/Resume_XiaolongYang_27.pdf">Resume</a></li>
-  <li><a href="research.html">Research</a></li>
-  <li><a href="software.html">Software</a></li>
-  <li><a href="teaching.html">Outreach</a></li>
-  <li><a href="bookshelf.html">Bookshelf</a></li>
-  <li><a href="blog/">Blog</a></li>
-  <li><a href="quotes.html">Quotes</a></li>
-  <li><a href="labs/">Labs</a></li>
-</ul>
-
+<!-- Research page: keep research material here rather than on the homepage. -->
 # Research
 
 I was drawn to questions in political methodology and applied statistics, with a particular interest in causal inference, heterogeneous treatment effects, and empirical research designs for social science. Please see my [Google Scholar page](https://scholar.google.com/citations?hl=en&user=aXdIxxEAAAAJ) for more.

@@ -8,6 +8,8 @@
   let books = [];
   let currentFilter = 'all';
   let isOverviewMode = false;
+  let modalOpener = null;
+  let previousOverflow = '';
   const NUM_COLUMNS = 4;
 
   // DOM elements - initialized in init()
@@ -127,7 +129,7 @@
         }
 
         // Duplicate books for seamless infinite scroll
-        var duplicateHTML = cardsHTML;
+        var duplicateHTML = cardsHTML.replace(/tabindex="0"/g, 'tabindex="-1" aria-hidden="true"');
 
         columnsHTML += '<div class="book-column"><div class="book-column-inner">' + cardsHTML + duplicateHTML + '</div></div>';
       }
@@ -143,11 +145,11 @@
     cards.forEach(function(card) {
       var bookId = card.dataset.bookId;
       var book = filtered.find(function(b) { return b.id === bookId; });
-      card.addEventListener('click', function() { openModal(book); });
+      card.addEventListener('click', function() { openModal(book, card); });
       card.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          openModal(book);
+          openModal(book, card);
         }
       });
     });
@@ -184,7 +186,7 @@
     return createFallbackCoverHTML(title, author, genre);
   };
 
-  function openModal(book) {
+  function openModal(book, opener) {
     if (!book || !modalOverlay) return;
 
     var coverContainer = document.getElementById('modal-cover-container');
@@ -211,8 +213,9 @@
       quoteContainer.style.display = 'none';
     }
 
-    modalOverlay.classList.add('active');
-    modalOverlay.setAttribute('aria-hidden', 'false');
+    modalOpener = opener;
+    previousOverflow = document.body.style.overflow;
+    modalOverlay.showModal();
     document.body.style.overflow = 'hidden';
     if (modalClose) modalClose.focus();
   }
@@ -228,11 +231,7 @@
 
   function closeModal() {
     if (!modalOverlay) return;
-    modalOverlay.classList.remove('active');
-    modalOverlay.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    var firstCard = document.querySelector('.book-card');
-    if (firstCard) firstCard.focus();
+    modalOverlay.close();
   }
 
   function setupEventListeners() {
@@ -262,19 +261,23 @@
     }
 
     if (modalOverlay) {
+      modalOverlay.addEventListener('close', function() {
+        document.body.style.overflow = previousOverflow;
+        var opener = modalOpener;
+        if (opener && opener.getAttribute('aria-hidden') === 'true') {
+          opener = Array.from(document.querySelectorAll('.book-card:not([aria-hidden="true"])'))
+            .find(function(card) { return card.dataset.bookId === modalOpener.dataset.bookId; });
+        }
+        if (opener && opener.isConnected) opener.focus();
+      });
       modalOverlay.addEventListener('click', function(e) {
         if (e.target === modalOverlay) closeModal();
       });
     }
 
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && modalOverlay && modalOverlay.classList.contains('active')) {
-        closeModal();
-        return;
-      }
-
       // Arrow key navigation
-      var cards = document.querySelectorAll('.book-card');
+      var cards = document.querySelectorAll('.book-card:not([aria-hidden="true"])');
       if (cards.length === 0 || !document.activeElement.classList.contains('book-card')) return;
 
       var cardsArray = Array.from(cards);

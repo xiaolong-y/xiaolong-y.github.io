@@ -1,4 +1,5 @@
 title: Xiaolong Yang
+tagline: Research, software, and notes
 description: "Graduate student at Harvard University studying Regional Studies - East Asia, specializing in political methodology and applied statistics"
 author: Xiaolong Yang
 url: "https://xiaolong-y.github.io"
@@ -28,3 +29,26 @@ twitter:
 
 # Google Analytics 4
 google_analytics: G-RQC3VEC49K
+
+# Development files are not public website content.
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - scripts
+  - tests
+  - docs
+  - add-book.sh
+  - calendar-api.gs
+  - CLAUDE.md
+  - SITE.md
+  - BIAS_REDESIGN_SPEC.md
+  - CALENDAR_INTEGRATION.md
+  - COGNITIVE_BIASES_DEV_LOG.md
+  - DESIGN_SYSTEM.md
+  - ENERGY_RHYTHM_SYSTEM_SPEC.md
+  - MAXIMUM_PARALLEL_STRATEGY.md
+  - NEURAL_DESIGN_SPEC.md
+  - QA_TEST_PLAN.md
+  - TEAM_DESIGN_OPTIMIZED.md
+  - TEST_RESULTS.md

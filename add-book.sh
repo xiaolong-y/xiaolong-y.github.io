@@ -120,7 +120,7 @@ validate_color() {
 # URL encode a string
 urlencode() {
     local string="$1"
-    python3 -c "import urllib.parse; print(urllib.parse.quote('$string'))"
+    python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1]))' "$string"
 }
 
 # Fetch book data from Google Books API
